@@ -1,0 +1,28 @@
+{
+  "id": "sync-webdav",
+  "name": "WebDAV Sync",
+  "version": "1.0.0",
+  "description": "Sync Recursive data to a WebDAV server (Nextcloud, ownCloud, Synology, or any WebDAV endpoint).",
+  "author": { "name": "Recursive" },
+  "color": "#0284c7",
+  "category": "sync",
+  "tags": ["sync", "webdav", "nextcloud", "owncloud", "synology", "self-hosted"],
+  "provides": {
+    "sync_provider": {
+      "id": "webdav",
+      "name": "WebDAV Server",
+      "description": "Sync to a WebDAV endpoint — Nextcloud, ownCloud, Synology, or any WebDAV-compatible server.",
+      "entry": "provider.js",
+      "config_schema": {
+        "type": "object",
+        "properties": {
+          "server_url": { "type": "string", "description": "WebDAV server URL (e.g. https://cloud.example.com/remote.php/dav/files/user/)." },
+          "username": { "type": "string", "description": "WebDAV username." },
+          "password": { "type": "string", "description": "WebDAV password or app password." },
+          "base_path": { "type": "string", "description": "Path within the WebDAV server. Default: /Recursive/" }
+        },
+        "required": ["server_url", "username", "password"]
+      }
+    }
+  }
+}

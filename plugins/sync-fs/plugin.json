@@ -1,0 +1,25 @@
+{
+  "id": "sync-fs",
+  "name": "Filesystem Sync",
+  "version": "1.0.0",
+  "description": "Sync Recursive data to a local or network-mounted folder (Dropbox, iCloud Drive, Google Drive, NAS).",
+  "author": { "name": "Recursive" },
+  "color": "#10b981",
+  "category": "sync",
+  "tags": ["sync", "filesystem", "dropbox", "icloud", "google-drive", "nas"],
+  "provides": {
+    "sync_provider": {
+      "id": "fs",
+      "name": "Filesystem / Folder",
+      "description": "Sync to any folder — works with Dropbox, iCloud Drive, Google Drive, or any mounted path.",
+      "entry": "provider.js",
+      "config_schema": {
+        "type": "object",
+        "properties": {
+          "target_path": { "type": "string", "description": "Absolute path to the sync folder (e.g. ~/Dropbox/Recursive/)." }
+        },
+        "required": ["target_path"]
+      }
+    }
+  }
+}
