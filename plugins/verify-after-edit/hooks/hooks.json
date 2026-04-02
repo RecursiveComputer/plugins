@@ -1,0 +1,10 @@
+{
+  "hooks": {
+    "afterFileEdit": [
+      {
+        "command": "${PLUGIN_ROOT}/hooks/verify-edit.sh",
+        "failClosed": true
+      }
+    ]
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "id": "verify-after-edit",
+  "name": "Verify After Edit",
+  "version": "1.0.0",
+  "description": "Hard enforcement of type-checking and linting after every file edit via IDE hooks. Contributes afterFileEdit (Cursor) and PostToolUse (Claude Code) hooks that run tsc and eslint automatically.",
+  "author": { "name": "Recursive" },
+  "color": "#10b981",
+  "hooks": "./hooks/hooks.json",
+  "rules": "./rules/"
+}
