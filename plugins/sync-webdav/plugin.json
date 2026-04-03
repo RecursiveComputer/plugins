@@ -5,6 +5,7 @@
   "description": "Sync Recursive data to a WebDAV server (Nextcloud, ownCloud, Synology, or any WebDAV endpoint).",
   "author": { "name": "Recursive" },
   "color": "#0284c7",
+  "icon": "cloud-arrow-up",
   "category": "sync",
   "tags": ["sync", "webdav", "nextcloud", "owncloud", "synology", "self-hosted"],
   "provides": {

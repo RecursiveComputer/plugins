@@ -5,6 +5,7 @@
   "description": "Sync Recursive data to S3-compatible object storage (AWS S3, Cloudflare R2, MinIO, Backblaze B2).",
   "author": { "name": "Recursive" },
   "color": "#ff9900",
+  "icon": "cloud-arrow-up",
   "category": "sync",
   "tags": ["sync", "s3", "aws", "cloudflare-r2", "minio", "backblaze", "object-storage"],
   "provides": {

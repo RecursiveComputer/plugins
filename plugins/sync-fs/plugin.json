@@ -5,6 +5,7 @@
   "description": "Sync Recursive data to a local or network-mounted folder (Dropbox, iCloud Drive, Google Drive, NAS).",
   "author": { "name": "Recursive" },
   "color": "#10b981",
+  "icon": "cloud-arrow-up",
   "category": "sync",
   "tags": ["sync", "filesystem", "dropbox", "icloud", "google-drive", "nas"],
   "provides": {
