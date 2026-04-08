@@ -1,9 +1,17 @@
 {
+  "description": "Run type-check and lint after file edits",
   "hooks": {
-    "afterFileEdit": [
+    "PostToolUse": [
       {
-        "command": "${PLUGIN_ROOT}/hooks/verify-edit.sh",
-        "failClosed": true
+        "matcher": "Write|Edit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "${CLAUDE_PLUGIN_ROOT}/hooks/verify-edit.sh",
+            "timeout": 120,
+            "statusMessage": "Running verification..."
+          }
+        ]
       }
     ]
   }
