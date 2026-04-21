@@ -8,7 +8,7 @@
 
 import https from 'node:https';
 import http from 'node:http';
-import type { SyncProvider, StorageInfo } from '../../state/sync/provider';
+import type { SyncProvider, StorageInfo } from '@recursive/core-sync/provider';
 import type { SyncManifest } from '../../types/sync';
 
 const MANIFEST_FILENAME = '.sync-manifest.json';
