@@ -11,7 +11,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import type { SyncProvider, StorageInfo } from '@recursive/core-sync/provider';
-import type { SyncManifest } from '../../../apps/recursive/types/sync';
+import type { SyncManifest } from '@recursive/core-types/sync';
 
 const MANIFEST_FILENAME = '.sync-manifest.json';
 
