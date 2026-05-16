@@ -16,15 +16,20 @@ This applies after every batch of file edits — not after each individual keyst
 
 ## Working Tree Safety — CRITICAL
 
-You are sharing the working directory with the user. The user may have uncommitted changes in progress. You MUST NOT modify git state in any way:
+You are sharing the working directory with the user. The user may have uncommitted changes in progress. Git commands that mutate working-tree state are **not banned**, but they are **gated** — before running any of the following, you MUST call `user_ask` with the exact command and a one-line reason, then wait for explicit approval:
 
-- **NEVER** run `git stash` (push, pop, apply, drop, or bare `git stash`)
-- **NEVER** run `git reset` (soft, mixed, or hard)
-- **NEVER** run `git checkout -- <file>` or `git restore` to discard changes
-- **NEVER** run `git clean` to remove untracked files
-- **NEVER** run `git switch` or `git checkout <branch>` to change branches
+- `git stash` (push, pop, apply, drop, or bare `git stash`)
+- `git reset` (soft, mixed, or hard)
+- `git checkout -- <file>` or `git restore` (discard uncommitted changes)
+- `git clean` (remove untracked files)
+- `git switch` or `git checkout <branch>` (change branches)
 
-Run verification commands (`tsc`, `eslint`) directly against the current working tree as-is. If pre-existing changes cause lint or type errors, note them in your response — do NOT stash or reset to get a "clean" baseline. The user's uncommitted work takes absolute priority over verification cleanliness.
+Rules for the gate:
+
+- **Ask separately for each invocation.** Do not batch ("approve all three") — one `user_ask` per command.
+- **Inspection is not gated.** `git status`, `git diff`, `git show HEAD:<path>`, `git log -p`, `git blame`, etc. run freely.
+- **If the user declines, do not retry the same command.** Find another path.
+- **Don't reach for these to get a clean verification baseline.** If `tsc` / `eslint` surfaces pre-existing failures, note them in your response — do not ask to stash or reset just to silence them. The user's uncommitted work takes absolute priority over verification cleanliness.
 
 ## When to Skip
 
