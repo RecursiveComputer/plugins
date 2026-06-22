@@ -6,6 +6,7 @@
   "author": { "name": "Recursive" },
   "color": "#10b981",
   "icon": "check-double",
+  "bundledOptIn": true,
   "hooks": "./hooks/hooks.json",
   "rules": "./rules/"
 }
