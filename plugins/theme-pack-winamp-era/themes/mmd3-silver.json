@@ -1,0 +1,13 @@
+{
+  "name": "MMD3 Silver",
+  "slug": "mmd3-silver",
+  "description": "A smooth early-2000s silver media-player palette with blue LCD accents.",
+  "seeds": {
+    "dark": { "primary": "#2f343a", "secondary": "#1f2328" },
+    "light": { "primary": "#f4f6f8", "secondary": "#cfd5dc" },
+    "accent": "#2f9bff",
+    "success": "#64b45f",
+    "error": "#d85c57",
+    "warning": "#dca83a"
+  }
+}

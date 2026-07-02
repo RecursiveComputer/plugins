@@ -1,0 +1,10 @@
+{
+  "id": "theme-pack-sublime-classics",
+  "name": "Sublime Classics",
+  "version": "1.0.0",
+  "description": "Classic Sublime Text-inspired color schemes, packaged as Recursive themes.",
+  "author": { "name": "Recursive" },
+  "color": "#ff9800",
+  "icon": "palette",
+  "themes": "./themes/"
+}

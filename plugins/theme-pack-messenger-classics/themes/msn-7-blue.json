@@ -1,0 +1,13 @@
+{
+  "name": "MSN 7 Blue",
+  "slug": "msn-7-blue",
+  "description": "A Messenger 7-inspired glossy blue palette with green online-state accents.",
+  "seeds": {
+    "dark": { "primary": "#173f7a", "secondary": "#0f2c5a" },
+    "light": { "primary": "#f5fbff", "secondary": "#d7edff" },
+    "accent": "#4aa3ff",
+    "success": "#5bbd3f",
+    "error": "#d64a3f",
+    "warning": "#f5c24b"
+  }
+}

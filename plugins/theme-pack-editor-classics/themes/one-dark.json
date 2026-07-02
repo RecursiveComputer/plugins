@@ -1,0 +1,11 @@
+{
+  "name": "One Dark",
+  "slug": "one-dark",
+  "seeds": {
+    "dark": { "primary": "#282c34", "secondary": "#21252b" },
+    "accent": "#528bff",
+    "success": "#98c379",
+    "error": "#e06c75",
+    "warning": "#e5c07b"
+  }
+}

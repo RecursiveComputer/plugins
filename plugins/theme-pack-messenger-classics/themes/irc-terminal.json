@@ -1,0 +1,13 @@
+{
+  "name": "IRC Terminal",
+  "slug": "irc-terminal",
+  "description": "A terminal-first IRC palette with near-black surfaces, phosphor green, and amber highlights.",
+  "seeds": {
+    "dark": { "primary": "#050806", "secondary": "#101510" },
+    "light": { "primary": "#f3f6ef", "secondary": "#dfe8d8" },
+    "accent": "#39ff88",
+    "success": "#73d13d",
+    "error": "#ff5f56",
+    "warning": "#ffbd2e"
+  }
+}

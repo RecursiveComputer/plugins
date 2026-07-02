@@ -1,0 +1,13 @@
+{
+  "name": "Predawn",
+  "slug": "predawn",
+  "description": "A Predawn-inspired palette with quiet charcoal surfaces and clear blue accents.",
+  "seeds": {
+    "dark": { "primary": "#282828", "secondary": "#1f1f1f" },
+    "light": { "primary": "#f7f7f7", "secondary": "#ececec" },
+    "accent": "#66d9ef",
+    "success": "#a6e22e",
+    "error": "#f92672",
+    "warning": "#e6db74"
+  }
+}

@@ -1,0 +1,13 @@
+{
+  "name": "Zune",
+  "slug": "zune",
+  "description": "The black-and-orange XP Zune theme recast as a high-contrast Recursive palette.",
+  "seeds": {
+    "dark": { "primary": "#1d1a17", "secondary": "#2b2520" },
+    "light": { "primary": "#fbf5ee", "secondary": "#eadfd4" },
+    "accent": "#f58220",
+    "success": "#7da453",
+    "error": "#c94f37",
+    "warning": "#f0b23e"
+  }
+}

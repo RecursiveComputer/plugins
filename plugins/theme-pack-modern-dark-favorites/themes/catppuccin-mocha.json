@@ -1,0 +1,12 @@
+{
+  "name": "Catppuccin",
+  "slug": "catppuccin-mocha",
+  "seeds": {
+    "dark":  { "primary": "#11111b", "secondary": "#11111b" },
+    "light": { "primary": "#eff1f5", "secondary": "#e6e9ef" },
+    "accent": "#89b4fa",
+    "success": "#a6e3a1",
+    "error": "#f38ba8",
+    "warning": "#f9e2af"
+  }
+}

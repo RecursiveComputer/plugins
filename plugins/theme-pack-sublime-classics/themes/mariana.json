@@ -1,0 +1,13 @@
+{
+  "name": "Mariana",
+  "slug": "mariana",
+  "description": "A Sublime Mariana-inspired palette with blue-grey surfaces and soft aqua accents.",
+  "seeds": {
+    "dark": { "primary": "#303841", "secondary": "#343d46" },
+    "light": { "primary": "#f4f7f9", "secondary": "#e7edf2" },
+    "accent": "#75b5aa",
+    "success": "#99c794",
+    "error": "#ec5f67",
+    "warning": "#fac863"
+  }
+}

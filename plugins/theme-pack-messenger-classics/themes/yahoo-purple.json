@@ -1,0 +1,13 @@
+{
+  "name": "Yahoo Purple",
+  "slug": "yahoo-purple",
+  "description": "A Yahoo Messenger-inspired purple palette with bright yellow and magenta accents.",
+  "seeds": {
+    "dark": { "primary": "#35116b", "secondary": "#24104c" },
+    "light": { "primary": "#fbf7ff", "secondary": "#eadcff" },
+    "accent": "#7b2cff",
+    "success": "#48a868",
+    "error": "#d93d7a",
+    "warning": "#f6d04d"
+  }
+}

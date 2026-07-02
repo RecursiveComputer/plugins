@@ -1,0 +1,13 @@
+{
+  "name": "Luna Olive",
+  "slug": "luna-olive",
+  "description": "The olive XP Luna variant with mossy surfaces, soft blue controls, and warm alerts.",
+  "seeds": {
+    "dark": { "primary": "#4c5f2a", "secondary": "#37451f" },
+    "light": { "primary": "#fbfbef", "secondary": "#e8ecd1" },
+    "accent": "#6d8fc6",
+    "success": "#7f9b41",
+    "error": "#b84435",
+    "warning": "#d7a941"
+  }
+}

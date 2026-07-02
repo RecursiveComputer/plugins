@@ -1,0 +1,13 @@
+{
+  "name": "Luna Blue",
+  "slug": "luna-blue",
+  "description": "Windows XP's default blue-and-green Luna look translated into a bright Recursive palette.",
+  "seeds": {
+    "dark": { "primary": "#1f3f8b", "secondary": "#17356f" },
+    "light": { "primary": "#f3f7ff", "secondary": "#d9e8ff" },
+    "accent": "#3b7ddd",
+    "success": "#6aa84f",
+    "error": "#d04437",
+    "warning": "#f6b73c"
+  }
+}

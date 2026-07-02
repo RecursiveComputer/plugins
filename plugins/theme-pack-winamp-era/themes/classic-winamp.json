@@ -1,0 +1,13 @@
+{
+  "name": "Classic Winamp",
+  "slug": "classic-winamp",
+  "description": "Charcoal chrome, electric blue displays, and lime meters inspired by classic Winamp.",
+  "seeds": {
+    "dark": { "primary": "#20242a", "secondary": "#11151a" },
+    "light": { "primary": "#f1f3f5", "secondary": "#d9dee3" },
+    "accent": "#00a6ff",
+    "success": "#9cff00",
+    "error": "#ff4f5e",
+    "warning": "#ffd24a"
+  }
+}

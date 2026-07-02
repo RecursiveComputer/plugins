@@ -1,0 +1,12 @@
+{
+  "name": "Nord",
+  "slug": "nord",
+  "seeds": {
+    "dark":  { "primary": "#2e3440", "secondary": "#2b303b" },
+    "light": { "primary": "#eceff4", "secondary": "#e5e9f0" },
+    "accent": "#88c0d0",
+    "success": "#a3be8c",
+    "error": "#bf616a",
+    "warning": "#ebcb8b"
+  }
+}

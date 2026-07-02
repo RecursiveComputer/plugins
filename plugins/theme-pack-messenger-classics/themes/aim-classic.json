@@ -1,0 +1,13 @@
+{
+  "name": "AIM Classic",
+  "slug": "aim-classic",
+  "description": "A friendly AIM-era palette with warm yellow presence, sky blue actions, and soft system chrome.",
+  "seeds": {
+    "dark": { "primary": "#26384f", "secondary": "#182638" },
+    "light": { "primary": "#fff8d8", "secondary": "#e6efff" },
+    "accent": "#2f7ed8",
+    "success": "#41a541",
+    "error": "#d4473f",
+    "warning": "#f2c94c"
+  }
+}

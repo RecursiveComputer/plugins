@@ -1,0 +1,11 @@
+{
+  "name": "Monokai",
+  "slug": "monokai",
+  "seeds": {
+    "dark": { "primary": "#1e1f1c", "secondary": "#19191a" },
+    "accent": "#66d9ef",
+    "success": "#a6e22e",
+    "error": "#f92672",
+    "warning": "#e6db74"
+  }
+}

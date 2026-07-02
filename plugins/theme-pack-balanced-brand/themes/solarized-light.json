@@ -1,0 +1,12 @@
+{
+  "name": "Solarized",
+  "slug": "solarized-light",
+  "seeds": {
+    "dark":  { "primary": "#002b36", "secondary": "#073642" },
+    "light": { "primary": "#fdf6e3", "secondary": "#eee8d5" },
+    "accent": "#268bd2",
+    "success": "#859900",
+    "error": "#dc322f",
+    "warning": "#b58900"
+  }
+}

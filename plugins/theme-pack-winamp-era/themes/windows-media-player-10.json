@@ -1,0 +1,13 @@
+{
+  "name": "Windows Media Player 10",
+  "slug": "windows-media-player-10",
+  "description": "A glossy WMP 10-inspired palette with pale blue chrome and saturated playback accents.",
+  "seeds": {
+    "dark": { "primary": "#1d3148", "secondary": "#132437" },
+    "light": { "primary": "#f4f9ff", "secondary": "#d8e8f7" },
+    "accent": "#2d8cff",
+    "success": "#69a84f",
+    "error": "#d24b40",
+    "warning": "#f4b64c"
+  }
+}

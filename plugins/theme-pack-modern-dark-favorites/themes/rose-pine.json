@@ -1,0 +1,12 @@
+{
+  "name": "Rosé Pine",
+  "slug": "rose-pine",
+  "seeds": {
+    "dark":  { "primary": "#191724", "secondary": "#171523" },
+    "light": { "primary": "#faf4ed", "secondary": "#f2e9e1" },
+    "accent": "#c4a7e7",
+    "success": "#31748f",
+    "error": "#eb6f92",
+    "warning": "#f6c177"
+  }
+}

@@ -1,0 +1,13 @@
+{
+  "name": "Vitesse Dark",
+  "slug": "vitesse-dark",
+  "description": "A restrained Vitesse-inspired dark palette with soft neutrals and mint-blue accents.",
+  "seeds": {
+    "dark": { "primary": "#121212", "secondary": "#1b1b1b" },
+    "light": { "primary": "#ffffff", "secondary": "#f1f3f5" },
+    "accent": "#4fd1c5",
+    "success": "#78c379",
+    "error": "#e06c75",
+    "warning": "#d19a66"
+  }
+}

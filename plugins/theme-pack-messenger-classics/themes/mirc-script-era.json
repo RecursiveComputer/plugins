@@ -1,0 +1,13 @@
+{
+  "name": "mIRC Script Era",
+  "slug": "mirc-script-era",
+  "description": "A late-90s mIRC script-inspired palette with cobalt panels and punchy status colors.",
+  "seeds": {
+    "dark": { "primary": "#071b4a", "secondary": "#0d1230" },
+    "light": { "primary": "#f1f5ff", "secondary": "#dbe4ff" },
+    "accent": "#00b7ff",
+    "success": "#00cc66",
+    "error": "#ff3b5f",
+    "warning": "#ffd166"
+  }
+}

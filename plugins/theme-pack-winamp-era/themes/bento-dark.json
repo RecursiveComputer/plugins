@@ -1,0 +1,13 @@
+{
+  "name": "Bento Dark",
+  "slug": "bento-dark",
+  "description": "A modern Winamp Bento-inspired palette with glossy dark panels and icy blue controls.",
+  "seeds": {
+    "dark": { "primary": "#121820", "secondary": "#1f2933" },
+    "light": { "primary": "#f7fafc", "secondary": "#e2e8f0" },
+    "accent": "#4bb3fd",
+    "success": "#7bd65a",
+    "error": "#ff5a6d",
+    "warning": "#ffca3a"
+  }
+}

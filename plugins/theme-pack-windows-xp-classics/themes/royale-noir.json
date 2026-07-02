@@ -1,0 +1,13 @@
+{
+  "name": "Royale Noir",
+  "slug": "royale-noir",
+  "description": "The leaked dark Royale-inspired look with midnight blues and emerald highlights.",
+  "seeds": {
+    "dark": { "primary": "#101820", "secondary": "#182430" },
+    "light": { "primary": "#f2f6f8", "secondary": "#dfe8ee" },
+    "accent": "#2aa876",
+    "success": "#4caf50",
+    "error": "#e15241",
+    "warning": "#f4b942"
+  }
+}

@@ -1,0 +1,13 @@
+{
+  "name": "Gruvbox Dark",
+  "slug": "gruvbox-dark",
+  "description": "A warm retro Gruvbox-inspired palette with amber, green, and red status colors.",
+  "seeds": {
+    "dark": { "primary": "#282828", "secondary": "#1d2021" },
+    "light": { "primary": "#fbf1c7", "secondary": "#ebdbb2" },
+    "accent": "#83a598",
+    "success": "#b8bb26",
+    "error": "#fb4934",
+    "warning": "#fabd2f"
+  }
+}

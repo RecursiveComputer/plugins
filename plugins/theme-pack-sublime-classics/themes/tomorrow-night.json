@@ -1,0 +1,13 @@
+{
+  "name": "Tomorrow Night",
+  "slug": "tomorrow-night",
+  "description": "A Tomorrow Night-inspired palette with muted editor neutrals and readable status colors.",
+  "seeds": {
+    "dark": { "primary": "#1d1f21", "secondary": "#282a2e" },
+    "light": { "primary": "#ffffff", "secondary": "#eaeaea" },
+    "accent": "#81a2be",
+    "success": "#b5bd68",
+    "error": "#cc6666",
+    "warning": "#f0c674"
+  }
+}

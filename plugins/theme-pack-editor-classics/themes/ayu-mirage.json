@@ -1,0 +1,11 @@
+{
+  "name": "Ayu",
+  "slug": "ayu-mirage",
+  "seeds": {
+    "dark": { "primary": "#191e28", "secondary": "#171b24" },
+    "accent": "#ffcc66",
+    "success": "#87d96c",
+    "error": "#f28779",
+    "warning": "#ffd173"
+  }
+}

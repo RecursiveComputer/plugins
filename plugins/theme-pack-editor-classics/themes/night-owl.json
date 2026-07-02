@@ -1,0 +1,12 @@
+{
+  "name": "Night Owl",
+  "slug": "night-owl",
+  "seeds": {
+    "dark":  { "primary": "#011627", "secondary": "#010e1a" },
+    "light": { "primary": "#fbfbfb", "secondary": "#f0f0f0" },
+    "accent": "#82aaff",
+    "success": "#22da6e",
+    "error": "#ef5350",
+    "warning": "#ffeb95"
+  }
+}

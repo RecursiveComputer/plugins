@@ -1,0 +1,10 @@
+{
+  "id": "theme-pack-balanced-brand",
+  "name": "Balanced & Brand",
+  "version": "1.0.0",
+  "description": "Balanced light/dark palettes and iconic brand looks — Nord, Solarized, GitHub, and Slack Aubergine.",
+  "author": { "name": "Recursive" },
+  "color": "#88c0d0",
+  "icon": "palette",
+  "themes": "./themes/"
+}

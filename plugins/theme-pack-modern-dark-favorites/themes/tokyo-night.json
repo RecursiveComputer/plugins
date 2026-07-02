@@ -1,0 +1,11 @@
+{
+  "name": "Tokyo Night",
+  "slug": "tokyo-night",
+  "seeds": {
+    "dark": { "primary": "#1a1b26", "secondary": "#16161e" },
+    "accent": "#7aa2f7",
+    "success": "#9ece6a",
+    "error": "#f7768e",
+    "warning": "#e0af68"
+  }
+}

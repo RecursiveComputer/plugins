@@ -1,0 +1,13 @@
+{
+  "name": "Material Palenight",
+  "slug": "material-palenight",
+  "description": "A Material Theme Palenight-inspired palette with violet-blue surfaces and cyan focus accents.",
+  "seeds": {
+    "dark": { "primary": "#292d3e", "secondary": "#1f2233" },
+    "light": { "primary": "#fafafa", "secondary": "#eef1f8" },
+    "accent": "#82aaff",
+    "success": "#c3e88d",
+    "error": "#f07178",
+    "warning": "#ffcb6b"
+  }
+}

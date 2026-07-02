@@ -1,0 +1,13 @@
+{
+  "name": "Cobalt2",
+  "slug": "cobalt2",
+  "description": "A high-energy cobalt editor palette with golden actions and bright cyan highlights.",
+  "seeds": {
+    "dark": { "primary": "#193549", "secondary": "#122738" },
+    "light": { "primary": "#f6fbff", "secondary": "#e8f2fb" },
+    "accent": "#ffc600",
+    "success": "#3ad900",
+    "error": "#ff628c",
+    "warning": "#ff9d00"
+  }
+}

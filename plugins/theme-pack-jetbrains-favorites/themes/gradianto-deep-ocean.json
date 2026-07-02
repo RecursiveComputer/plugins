@@ -1,0 +1,13 @@
+{
+  "name": "Gradianto Deep Ocean",
+  "slug": "gradianto-deep-ocean",
+  "description": "A Gradianto-inspired deep ocean palette with teal surfaces and cool blue emphasis.",
+  "seeds": {
+    "dark": { "primary": "#0f1f2e", "secondary": "#102a38" },
+    "light": { "primary": "#f2fbfb", "secondary": "#dff2f4" },
+    "accent": "#4dd0e1",
+    "success": "#80cbc4",
+    "error": "#ff5370",
+    "warning": "#ffcb6b"
+  }
+}

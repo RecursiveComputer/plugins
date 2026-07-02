@@ -1,0 +1,11 @@
+{
+  "name": "Slack Aubergine",
+  "slug": "slack-aubergine",
+  "seeds": {
+    "dark": { "primary": "#1a1d21", "secondary": "#4a154b" },
+    "accent": "#36c5f0",
+    "success": "#2eb67d",
+    "error": "#e01e5a",
+    "warning": "#ecb22e"
+  }
+}

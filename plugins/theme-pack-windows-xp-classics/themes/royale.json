@@ -1,0 +1,13 @@
+{
+  "name": "Royale",
+  "slug": "royale",
+  "description": "A glossy Media Center-era blue palette inspired by the Windows XP Royale visual style.",
+  "seeds": {
+    "dark": { "primary": "#123d7a", "secondary": "#0e2f5f" },
+    "light": { "primary": "#f6fbff", "secondary": "#dcecff" },
+    "accent": "#5aa9ff",
+    "success": "#4aa564",
+    "error": "#d9534f",
+    "warning": "#f0ad4e"
+  }
+}
