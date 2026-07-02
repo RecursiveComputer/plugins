@@ -1,0 +1,81 @@
+{
+  "id": "cloudflare-integration",
+  "name": "Cloudflare",
+  "version": "1.0.0",
+  "description": "Trigger Recursive automations from Cloudflare Notifications — deploy alerts, health checks, security events, and usage alerts arrive as webhook deliveries and an agent picks them up. Requires a Pro or Teams license.",
+  "author": { "name": "Recursive" },
+  "color": "#F6821F",
+  "icon": "globe",
+  "bundledOptIn": true,
+  "skills": "./skills/",
+  "triggers": {
+    "module": "./triggers/index.ts",
+    "setupSkill": "connecting-cloudflare",
+    "requiredSettings": ["webhook_secret"],
+    "events": [
+      {
+        "type": "alert",
+        "label": "Any notification",
+        "description": "Fires on every Cloudflare notification delivered to this webhook, regardless of alert type. Narrow with filters (alert_type, account_id, policy_id, zone, project).",
+        "filters": ["alert_type", "account_id", "policy_id", "zone", "project"]
+      },
+      {
+        "type": "deployment",
+        "label": "Deployment alert (Pages / Workers)",
+        "description": "Pages and Workers build/deployment notifications (alert types prefixed pages_* / workers_*).",
+        "filters": ["alert_type", "account_id", "project"]
+      },
+      {
+        "type": "health_check",
+        "label": "Health check status change",
+        "description": "Health check status notifications (alert types prefixed health_check*).",
+        "filters": ["alert_type", "account_id", "zone"]
+      },
+      {
+        "type": "security",
+        "label": "Security event (DoS / WAF / firewall)",
+        "description": "Security notifications — DoS/DDoS attacks, firewall anomalies, WAF and security insights alerts.",
+        "filters": ["alert_type", "account_id", "zone"]
+      }
+    ]
+  },
+  "onboarding": {
+    "subtitle": "Connect Cloudflare Notifications so agents pick up deploy alerts, health checks, and security events.",
+    "steps": [
+      {
+        "kind": "link",
+        "title": "Open Cloudflare Notifications",
+        "desc": "In the Cloudflare dashboard, go to Notifications → Destinations to create a Webhook destination pointed at your Recursive instance.",
+        "url": "https://dash.cloudflare.com/?to=/:account/notifications/destinations",
+        "actionLabel": "Open Cloudflare"
+      },
+      {
+        "kind": "field",
+        "title": "Set a Webhook Secret",
+        "desc": "Choose a strong random string, save it here, then use the same value as the Secret when creating the Cloudflare webhook destination. Cloudflare sends it on every delivery in the cf-webhook-auth header.",
+        "field": { "key": "webhook_secret", "secret": true, "placeholder": "e.g. a long random string" },
+        "actionLabel": "Save"
+      },
+      {
+        "kind": "verify",
+        "title": "Verify setup",
+        "desc": "Confirm the required credentials are in place. Saving the destination in Cloudflare sends a test delivery that verifies the connection end-to-end.",
+        "actionLabel": "Verify"
+      }
+    ]
+  },
+  "settings": {
+    "defaults": {
+      "webhook_secret": ""
+    },
+    "schema": [
+      {
+        "key": "webhook_secret",
+        "type": "password",
+        "label": "Webhook Secret",
+        "description": "Shared secret set on the Cloudflare webhook destination (Notifications → Destinations → Webhooks). Cloudflare sends it in the cf-webhook-auth header on every delivery; verify() checks it with a constant-time compare.",
+        "section": "Credentials"
+      }
+    ]
+  }
+}
