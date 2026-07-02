@@ -1,0 +1,103 @@
+{
+  "id": "github-integration",
+  "name": "GitHub",
+  "version": "1.0.0",
+  "description": "Trigger Recursive automations from GitHub — issues, pull requests, pushes, releases, and comments fire event-mode automations via repository webhooks. Requires a Pro or Teams license.",
+  "author": { "name": "Recursive" },
+  "color": "#24292F",
+  "icon": "github",
+  "bundledOptIn": true,
+  "skills": "./skills/",
+  "triggers": {
+    "module": "./triggers/index.ts",
+    "setupSkill": "connecting-github",
+    "requiredSettings": ["webhook_secret"],
+    "events": [
+      {
+        "type": "issues",
+        "label": "Issue activity (opened, edited, closed…)",
+        "description": "An issue was opened, edited, closed, reopened, labeled, or assigned. Filter by action (e.g. opened) to narrow.",
+        "filters": ["repo", "action", "sender"]
+      },
+      {
+        "type": "issue_comment",
+        "label": "Issue / PR comment",
+        "description": "A comment was created, edited, or deleted on an issue or pull request.",
+        "filters": ["repo", "action", "sender"]
+      },
+      {
+        "type": "pull_request",
+        "label": "Pull request activity (opened, synchronize, closed…)",
+        "description": "A pull request was opened, edited, synchronized, closed, merged, or review-requested. Filter by action to narrow.",
+        "filters": ["repo", "action", "sender"]
+      },
+      {
+        "type": "push",
+        "label": "Push to a branch",
+        "description": "Commits were pushed to a branch or tag. Filter by branch (e.g. main) to narrow.",
+        "filters": ["repo", "branch", "sender"]
+      },
+      {
+        "type": "release",
+        "label": "Release activity (published, created…)",
+        "description": "A release was published, created, edited, or deleted.",
+        "filters": ["repo", "action", "sender"]
+      }
+    ]
+  },
+  "onboarding": {
+    "subtitle": "Connect a GitHub repository so issues, pull requests, pushes, and releases trigger agents.",
+    "steps": [
+      {
+        "kind": "link",
+        "title": "Open your repository's webhook settings",
+        "desc": "Repository → Settings → Webhooks → Add webhook (or org-level Settings → Webhooks to cover every repo).",
+        "url": "https://github.com/settings/repositories",
+        "actionLabel": "Open GitHub"
+      },
+      {
+        "kind": "field",
+        "title": "Set a Webhook Secret",
+        "desc": "Generate a random secret, paste it into the webhook's Secret field on GitHub, and save the same value here. Verifies inbound requests (X-Hub-Signature-256).",
+        "field": { "key": "webhook_secret", "secret": true, "placeholder": "e.g. openssl rand -hex 32" },
+        "actionLabel": "Save"
+      },
+      {
+        "kind": "field",
+        "title": "Add a GitHub Token (optional)",
+        "desc": "Fine-grained personal access token or classic token. Optional — needed only for agents to post results back (comment on issues/PRs). Not used to verify webhooks.",
+        "optional": true,
+        "field": { "key": "github_token", "secret": true, "placeholder": "github_pat_… or ghp_…" },
+        "actionLabel": "Save"
+      },
+      {
+        "kind": "verify",
+        "title": "Verify setup",
+        "desc": "Confirm the required credentials are in place.",
+        "actionLabel": "Verify"
+      }
+    ]
+  },
+  "settings": {
+    "defaults": {
+      "webhook_secret": "",
+      "github_token": ""
+    },
+    "schema": [
+      {
+        "key": "webhook_secret",
+        "type": "password",
+        "label": "Webhook Secret",
+        "description": "The webhook's Secret value (repository/org Settings → Webhooks). Used to verify the X-Hub-Signature-256 HMAC on every inbound request.",
+        "section": "Credentials"
+      },
+      {
+        "key": "github_token",
+        "type": "password",
+        "label": "GitHub Token",
+        "description": "Personal access token (github_pat_… / ghp_…). Optional — required only for agents to post results back to GitHub (issue/PR comments). Never used for webhook verification.",
+        "section": "Credentials"
+      }
+    ]
+  }
+}
