@@ -222,7 +222,7 @@ export class GithubAuthProvider implements AuthProvider {
       { headers: this.apiHeaders(token) },
     );
     if (res.status === 404) return { deny: true, reason: `${login} is not a collaborator on ${repo.owner}/${repo.name}` };
-    if (!res.ok) return { deny: true, reason: `permission check failed (${res.status})` };
+    if (!res.ok) throw new Error(`github-auth: permission check failed (${res.status})`);
 
     const data = await res.json();
     const key = permissionKey({ role_name: data.role_name, permission: data.permission });
@@ -278,7 +278,7 @@ export class GithubAuthProvider implements AuthProvider {
       { headers: this.apiHeaders(token) },
     );
     if (res.status === 404) return 'revoked';
-    if (!res.ok) return 'revoked';
+    if (!res.ok) throw new Error(`github-auth: permission refresh failed (${res.status})`);
     const data = await res.json();
     const key = permissionKey({ role_name: data.role_name, permission: data.permission });
     if (this.roleMap[key] === 'deny' || key === 'none') return 'revoked';
