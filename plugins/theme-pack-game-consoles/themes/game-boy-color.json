@@ -1,0 +1,13 @@
+{
+  "name": "Game Boy Color",
+  "slug": "game-boy-color",
+  "description": "The 1998 Game Boy Color in translucent \"Berry\" — bright magenta over a plum shell.",
+  "seeds": {
+    "dark": { "primary": "#1c0f16", "secondary": "#2a1420" },
+    "light": { "primary": "#f8e4ef", "secondary": "#f0cfe0" },
+    "accent": "#e0247a",
+    "success": "#46b07a",
+    "error": "#e34d6a",
+    "warning": "#eab13f"
+  }
+}

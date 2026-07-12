@@ -1,0 +1,13 @@
+{
+  "name": "Atari 2600",
+  "slug": "atari-2600",
+  "description": "The 1977 woodgrain Atari VCS — warm brown panelling and switch-orange accents.",
+  "seeds": {
+    "dark": { "primary": "#1c1512", "secondary": "#26190f" },
+    "light": { "primary": "#e8dcc8", "secondary": "#dccbb0" },
+    "accent": "#e2661f",
+    "success": "#7a9a3a",
+    "error": "#cf4a2e",
+    "warning": "#e2a026"
+  }
+}

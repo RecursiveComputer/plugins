@@ -1,0 +1,13 @@
+{
+  "name": "Super Nintendo",
+  "slug": "super-nintendo",
+  "description": "The 16-bit SNES — lavender-grey shell with the four coloured face buttons as status colours.",
+  "seeds": {
+    "dark": { "primary": "#1b1720", "secondary": "#251f2e" },
+    "light": { "primary": "#e9e6f2", "secondary": "#dcd7ea" },
+    "accent": "#8b7ec8",
+    "success": "#4fb477",
+    "error": "#d84a4a",
+    "warning": "#e8c14a"
+  }
+}

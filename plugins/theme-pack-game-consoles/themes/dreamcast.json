@@ -1,0 +1,13 @@
+{
+  "name": "Dreamcast",
+  "slug": "dreamcast",
+  "description": "The 1999 Sega Dreamcast — off-white shell warmed by its orange swirl logo.",
+  "seeds": {
+    "dark": { "primary": "#16181c", "secondary": "#1f2228" },
+    "light": { "primary": "#f2f0ea", "secondary": "#e4e1d7" },
+    "accent": "#ff6a13",
+    "success": "#3aa76d",
+    "error": "#e34b3f",
+    "warning": "#f2a71b"
+  }
+}

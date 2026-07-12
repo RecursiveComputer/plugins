@@ -1,0 +1,13 @@
+{
+  "name": "Xbox Series",
+  "slug": "xbox-series",
+  "description": "The modern Xbox Series X — matte-black monolith with its signature bright green.",
+  "seeds": {
+    "dark": { "primary": "#0c0f0c", "secondary": "#141813" },
+    "light": { "primary": "#eef2ee", "secondary": "#dee6de" },
+    "accent": "#16b21a",
+    "success": "#3fb95d",
+    "error": "#e5484d",
+    "warning": "#e3a324"
+  }
+}

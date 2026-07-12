@@ -1,0 +1,13 @@
+{
+  "name": "Switch",
+  "slug": "switch",
+  "description": "The 2017 Nintendo Switch — charcoal-and-white chrome with neon-red and neon-blue Joy-Cons.",
+  "seeds": {
+    "dark": { "primary": "#16181d", "secondary": "#1b2a3a" },
+    "light": { "primary": "#f4f5f7", "secondary": "#e4eaf2" },
+    "accent": "#fa2a3c",
+    "success": "#37c65a",
+    "error": "#ff4d5e",
+    "warning": "#ffb02e"
+  }
+}

@@ -1,0 +1,13 @@
+{
+  "name": "NES",
+  "slug": "nes",
+  "description": "The 1985 Nintendo Entertainment System — front-loader grey chrome with its signature red stripe.",
+  "seeds": {
+    "dark": { "primary": "#1a1a1c", "secondary": "#232326" },
+    "light": { "primary": "#d7d3c8", "secondary": "#c5c1b6" },
+    "accent": "#e60012",
+    "success": "#4c9a2a",
+    "error": "#ff5b52",
+    "warning": "#d9a441"
+  }
+}

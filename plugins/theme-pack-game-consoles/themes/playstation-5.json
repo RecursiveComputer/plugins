@@ -1,0 +1,13 @@
+{
+  "name": "PlayStation 5",
+  "slug": "playstation-5",
+  "description": "The modern PS5 — two-tone white-and-black chrome lit by its electric blue LED glow.",
+  "seeds": {
+    "dark": { "primary": "#0b0e14", "secondary": "#131824" },
+    "light": { "primary": "#f4f6fa", "secondary": "#e5e9f0" },
+    "accent": "#2e6ff2",
+    "success": "#3ecf8e",
+    "error": "#e5484d",
+    "warning": "#f5a623"
+  }
+}

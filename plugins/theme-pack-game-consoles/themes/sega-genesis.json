@@ -1,0 +1,13 @@
+{
+  "name": "Sega Genesis",
+  "slug": "sega-genesis",
+  "description": "The 16-bit Sega Genesis / Mega Drive — black chrome, bold red, and a stripe of 16-bit gold.",
+  "seeds": {
+    "dark": { "primary": "#101012", "secondary": "#18181b" },
+    "light": { "primary": "#e8e8ea", "secondary": "#d8d8dc" },
+    "accent": "#d51e28",
+    "success": "#38a169",
+    "error": "#e2483d",
+    "warning": "#d4af37"
+  }
+}

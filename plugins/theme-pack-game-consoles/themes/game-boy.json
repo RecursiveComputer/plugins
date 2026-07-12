@@ -1,0 +1,13 @@
+{
+  "name": "Game Boy",
+  "slug": "game-boy",
+  "description": "The pea-green dot-matrix LCD of the 1989 Game Boy — olive shadows and phosphor lime.",
+  "seeds": {
+    "dark": { "primary": "#0f280f", "secondary": "#16351a" },
+    "light": { "primary": "#c4cfa1", "secondary": "#b0bd8f" },
+    "accent": "#9bbc0f",
+    "success": "#6a8e0a",
+    "error": "#c8503c",
+    "warning": "#c8a02a"
+  }
+}

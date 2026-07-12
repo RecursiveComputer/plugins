@@ -1,0 +1,13 @@
+{
+  "name": "PlayStation 2",
+  "slug": "playstation-2",
+  "description": "The best-selling PS2 — jet-black tower with its deep cobalt power-LED blue.",
+  "seeds": {
+    "dark": { "primary": "#0a0b12", "secondary": "#12162a" },
+    "light": { "primary": "#eef0f6", "secondary": "#dde2f0" },
+    "accent": "#2b45e0",
+    "success": "#38c07e",
+    "error": "#e04b52",
+    "warning": "#e2a83a"
+  }
+}

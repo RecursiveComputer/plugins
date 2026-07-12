@@ -1,0 +1,13 @@
+{
+  "name": "Wii",
+  "slug": "wii",
+  "description": "The 2006 Nintendo Wii — glossy piano-white lit by its icy blue disc-slot glow.",
+  "seeds": {
+    "dark": { "primary": "#0c1418", "secondary": "#12202a" },
+    "light": { "primary": "#f7fbfd", "secondary": "#e6f1f7" },
+    "accent": "#10b6e8",
+    "success": "#35c07a",
+    "error": "#e5556a",
+    "warning": "#f2b53a"
+  }
+}

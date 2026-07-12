@@ -1,0 +1,13 @@
+{
+  "name": "GameCube",
+  "slug": "gamecube",
+  "description": "The 2001 Nintendo GameCube — deep glossy indigo, cooler and darker than the SNES lavender.",
+  "seeds": {
+    "dark": { "primary": "#14131f", "secondary": "#1c1a2e" },
+    "light": { "primary": "#e9e7f4", "secondary": "#dad6ec" },
+    "accent": "#5b53c6",
+    "success": "#46b17a",
+    "error": "#e04b57",
+    "warning": "#e6b13f"
+  }
+}

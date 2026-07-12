@@ -1,0 +1,13 @@
+{
+  "name": "Neo Geo",
+  "slug": "neo-geo",
+  "description": "SNK's arcade-grade Neo Geo — black cabinet chrome struck with 24-bit arcade gold.",
+  "seeds": {
+    "dark": { "primary": "#121110", "secondary": "#1c1917" },
+    "light": { "primary": "#efe9db", "secondary": "#e0d6bf" },
+    "accent": "#f2a900",
+    "success": "#4aa860",
+    "error": "#d83a34",
+    "warning": "#f2c341"
+  }
+}

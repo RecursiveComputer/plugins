@@ -1,0 +1,13 @@
+{
+  "name": "Virtual Boy",
+  "slug": "virtual-boy",
+  "description": "The 1995 Virtual Boy — its unmistakable red-LED monochrome glow on pure black.",
+  "seeds": {
+    "dark": { "primary": "#120000", "secondary": "#200404" },
+    "light": { "primary": "#f5dede", "secondary": "#ecc9c9" },
+    "accent": "#ff1a1a",
+    "success": "#ff5c3c",
+    "error": "#ff0018",
+    "warning": "#ff8c1a"
+  }
+}
