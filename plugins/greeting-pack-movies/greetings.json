@@ -1,0 +1,505 @@
+{
+  "version": 1,
+  "slug": "movies",
+  "name": "Movies",
+  "description": "Familiar film and television lines with a project twist.",
+  "source": "Recursive Movies greetings",
+  "placeholder": "{project}",
+  "count": 70,
+  "defaultTones": ["creative"],
+  "toneWeights": {
+    "creative": 1
+  },
+  "greetings": [
+    {
+      "text": "Are you not entertained by {project}?",
+      "description": "A greeting for a new workspace session — tone: creative (quote-inspired, absurdist). Use {project} for the project display name.",
+      "days": [],
+      "timeranges": [12, 17],
+      "tone": "creative"
+    },
+    {
+      "text": "As if! — {project}",
+      "description": "A greeting for a new workspace session — tone: creative (quote-inspired, absurdist). Use {project} for the project display name.",
+      "days": [],
+      "timeranges": [6, 21],
+      "tone": "creative"
+    },
+    {
+      "text": "As you wish — {project}",
+      "description": "A greeting for a new workspace session — tone: creative (quote-inspired). Use {project} for the project display name.",
+      "days": [],
+      "timeranges": [6, 21],
+      "tone": "creative"
+    },
+    {
+      "text": "Bond. {project} Bond.",
+      "description": "A greeting for a new workspace session — tone: creative (quote-inspired, absurdist). Use {project} for the project display name.",
+      "days": [],
+      "timeranges": [6, 21],
+      "tone": "creative"
+    },
+    {
+      "text": "Carpe {project}",
+      "description": "A greeting for a new workspace session — tone: creative (quote-inspired, absurdist). Use {project} for the project display name.",
+      "days": [],
+      "timeranges": [6, 12],
+      "tone": "creative"
+    },
+    {
+      "text": "Clear eyes, full {project}, can't lose",
+      "description": "A greeting for a new workspace session — tone: creative (quote-inspired). Use {project} for the project display name.",
+      "days": [],
+      "timeranges": [6, 21],
+      "tone": "creative"
+    },
+    {
+      "text": "Don't panic — it's just {project}",
+      "description": "A greeting for a new workspace session — tone: creative (quote-inspired). Use {project} for the project display name.",
+      "days": [],
+      "timeranges": [6, 21],
+      "tone": "creative"
+    },
+    {
+      "text": "Elementary, dear {project}",
+      "description": "A greeting for a new workspace session — tone: creative (quote-inspired, absurdist). Use {project} for the project display name.",
+      "days": [],
+      "timeranges": [6, 21],
+      "tone": "creative"
+    },
+    {
+      "text": "Frankly, my dear, I give a damn about {project}",
+      "description": "A greeting for a new workspace session — tone: creative (quote-inspired, absurdist). Use {project} for the project display name.",
+      "days": [],
+      "timeranges": [6, 21],
+      "tone": "creative"
+    },
+    {
+      "text": "Great Scott — {project}!",
+      "description": "A greeting for a new workspace session — tone: creative (quote-inspired, absurdist). Use {project} for the project display name.",
+      "days": [],
+      "timeranges": [6, 21],
+      "tone": "creative"
+    },
+    {
+      "text": "Hasta la vista, {project}",
+      "description": "A greeting for a new workspace session — tone: creative (quote-inspired, absurdist). Use {project} for the project display name.",
+      "days": [],
+      "timeranges": [6, 21],
+      "tone": "creative"
+    },
+    {
+      "text": "Hello, my name is {project}",
+      "description": "A greeting for a new workspace session — tone: creative (quote-inspired, absurdist). Use {project} for the project display name.",
+      "days": [],
+      "timeranges": [6, 21],
+      "tone": "creative"
+    },
+    {
+      "text": "Here's looking at you, {project}",
+      "description": "A greeting for a new workspace session — tone: creative (quote-inspired). Use {project} for the project display name.",
+      "days": [],
+      "timeranges": [6, 21],
+      "tone": "creative"
+    },
+    {
+      "text": "Hold onto your {project}",
+      "description": "A greeting for a new workspace session — tone: creative (quote-inspired, absurdist). Use {project} for the project display name.",
+      "days": [],
+      "timeranges": [12, 17],
+      "tone": "creative"
+    },
+    {
+      "text": "I feel the need — the need for {project}",
+      "description": "A greeting for a new workspace session — tone: creative (quote-inspired, absurdist). Use {project} for the project display name.",
+      "days": [],
+      "timeranges": [6, 21],
+      "tone": "creative"
+    },
+    {
+      "text": "I find your lack of {project} disturbing",
+      "description": "A greeting for a new workspace session — tone: creative (quote-inspired, absurdist). Use {project} for the project display name.",
+      "days": [],
+      "timeranges": [6, 21],
+      "tone": "creative"
+    },
+    {
+      "text": "I love {project}",
+      "description": "A greeting for a new workspace session — tone: creative (quote-inspired). Use {project} for the project display name.",
+      "days": [],
+      "timeranges": [6, 21],
+      "tone": "creative"
+    },
+    {
+      "text": "I think, therefore {project}",
+      "description": "A greeting for a new workspace session — tone: creative (quote-inspired, absurdist). Use {project} for the project display name.",
+      "days": [],
+      "timeranges": [6, 21],
+      "tone": "creative"
+    },
+    {
+      "text": "I'll be back — {project}",
+      "description": "A greeting for a new workspace session — tone: creative (quote-inspired, absurdist). Use {project} for the project display name.",
+      "days": [],
+      "timeranges": [6, 21],
+      "tone": "creative"
+    },
+    {
+      "text": "If you build it, {project} will come",
+      "description": "A greeting for a new workspace session — tone: creative (quote-inspired). Use {project} for the project display name.",
+      "days": [],
+      "timeranges": [6, 21],
+      "tone": "creative"
+    },
+    {
+      "text": "Inconceivable! Not {project}!",
+      "description": "A greeting for a new workspace session — tone: creative (quote-inspired). Use {project} for the project display name.",
+      "days": [],
+      "timeranges": [12, 17],
+      "tone": "creative"
+    },
+    {
+      "text": "Just keep swimming in {project}",
+      "description": "A greeting for a new workspace session — tone: creative (quote-inspired). Use {project} for the project display name.",
+      "days": [],
+      "timeranges": [6, 21],
+      "tone": "creative"
+    },
+    {
+      "text": "Keep your friends close and {project} closer",
+      "description": "A greeting for a new workspace session — tone: creative (quote-inspired, absurdist). Use {project} for the project display name.",
+      "days": [],
+      "timeranges": [6, 21],
+      "tone": "creative"
+    },
+    {
+      "text": "Life finds a way in {project}",
+      "description": "A greeting for a new workspace session — tone: creative (quote-inspired). Use {project} for the project display name.",
+      "days": [],
+      "timeranges": [6, 21],
+      "tone": "creative"
+    },
+    {
+      "text": "Life moves pretty fast — {project}",
+      "description": "A greeting for a new workspace session — tone: creative (quote-inspired, absurdist). Use {project} for the project display name.",
+      "days": [],
+      "timeranges": [6, 21],
+      "tone": "creative"
+    },
+    {
+      "text": "Live long and prosper in {project}",
+      "description": "A greeting for a new workspace session — tone: creative (quote-inspired). Use {project} for the project display name.",
+      "days": [],
+      "timeranges": [6, 21],
+      "tone": "creative"
+    },
+    {
+      "text": "May the {project} be with you",
+      "description": "A greeting for a new workspace session — tone: creative (quote-inspired). Use {project} for the project display name.",
+      "days": [],
+      "timeranges": [6, 21],
+      "tone": "creative"
+    },
+    {
+      "text": "Nobody puts {project} in a corner",
+      "description": "A greeting for a new workspace session — tone: creative (quote-inspired). Use {project} for the project display name.",
+      "days": [],
+      "timeranges": [12, 21],
+      "tone": "creative"
+    },
+    {
+      "text": "Nothing is true, everything is {project}",
+      "description": "A greeting for a new workspace session — tone: creative (quote-inspired, absurdist). Use {project} for the project display name.",
+      "days": [],
+      "timeranges": [6, 21],
+      "tone": "creative"
+    },
+    {
+      "text": "On Wednesdays we wear {project}",
+      "description": "A greeting for a new workspace session — tone: creative (quote-inspired, absurdist). Use {project} for the project display name.",
+      "days": ["Wednesday"],
+      "timeranges": [6, 21],
+      "tone": "creative"
+    },
+    {
+      "text": "One small step for {project}",
+      "description": "A greeting for a new workspace session — tone: creative (quote-inspired). Use {project} for the project display name.",
+      "days": [],
+      "timeranges": [6, 12],
+      "tone": "creative"
+    },
+    {
+      "text": "Remember who you are — {project}",
+      "description": "A greeting for a new workspace session — tone: creative (quote-inspired). Use {project} for the project display name.",
+      "days": [],
+      "timeranges": [6, 21],
+      "tone": "creative"
+    },
+    {
+      "text": "Resistance is futile — welcome to {project}",
+      "description": "A greeting for a new workspace session — tone: creative (quote-inspired, absurdist). Use {project} for the project display name.",
+      "days": [],
+      "timeranges": [6, 21],
+      "tone": "creative"
+    },
+    {
+      "text": "Run, {project}, run!",
+      "description": "A greeting for a new workspace session — tone: creative (quote-inspired, absurdist). Use {project} for the project display name.",
+      "days": [],
+      "timeranges": [6, 21],
+      "tone": "creative"
+    },
+    {
+      "text": "Serenity now — {project}",
+      "description": "A greeting for a new workspace session — tone: creative (quote-inspired, absurdist). Use {project} for the project display name.",
+      "days": [],
+      "timeranges": [6, 21],
+      "tone": "creative"
+    },
+    {
+      "text": "Show me the {project}!",
+      "description": "A greeting for a new workspace session — tone: creative (quote-inspired, absurdist). Use {project} for the project display name.",
+      "days": [],
+      "timeranges": [6, 21],
+      "tone": "creative"
+    },
+    {
+      "text": "So long, and thanks for all the {project}",
+      "description": "A greeting for a new workspace session — tone: creative (quote-inspired, absurdist). Use {project} for the project display name.",
+      "days": [],
+      "timeranges": [6, 21],
+      "tone": "creative"
+    },
+    {
+      "text": "Stay classy, {project}",
+      "description": "A greeting for a new workspace session — tone: creative (quote-inspired). Use {project} for the project display name.",
+      "days": [],
+      "timeranges": [17, 21],
+      "tone": "creative"
+    },
+    {
+      "text": "The {project} abides",
+      "description": "A greeting for a new workspace session — tone: creative (quote-inspired, absurdist). Use {project} for the project display name.",
+      "days": [],
+      "timeranges": [17, 21],
+      "tone": "creative"
+    },
+    {
+      "text": "The first rule of {project} is...",
+      "description": "A greeting for a new workspace session — tone: creative (quote-inspired, absurdist). Use {project} for the project display name.",
+      "days": [],
+      "timeranges": [6, 21],
+      "tone": "creative"
+    },
+    {
+      "text": "The force is strong with {project}",
+      "description": "A greeting for a new workspace session — tone: creative (quote-inspired). Use {project} for the project display name.",
+      "days": [],
+      "timeranges": [6, 21],
+      "tone": "creative"
+    },
+    {
+      "text": "The name's {project}",
+      "description": "A greeting for a new workspace session — tone: creative (quote-inspired). Use {project} for the project display name.",
+      "days": [],
+      "timeranges": [6, 21],
+      "tone": "creative"
+    },
+    {
+      "text": "There is no spoon — only {project}",
+      "description": "A greeting for a new workspace session — tone: creative (quote-inspired). Use {project} for the project display name.",
+      "days": [],
+      "timeranges": [21, 6],
+      "tone": "creative"
+    },
+    {
+      "text": "There's no place like {project}",
+      "description": "A greeting for a new workspace session — tone: creative (quote-inspired). Use {project} for the project display name.",
+      "days": [],
+      "timeranges": [6, 21],
+      "tone": "creative"
+    },
+    {
+      "text": "These aren't the {project} you're looking for",
+      "description": "A greeting for a new workspace session — tone: creative (quote-inspired). Use {project} for the project display name.",
+      "days": [],
+      "timeranges": [12, 17],
+      "tone": "creative"
+    },
+    {
+      "text": "To {project} and beyond!",
+      "description": "A greeting for a new workspace session — tone: creative (quote-inspired). Use {project} for the project display name.",
+      "days": [],
+      "timeranges": [6, 21],
+      "tone": "creative"
+    },
+    {
+      "text": "Veni, vidi, {project}",
+      "description": "A greeting for a new workspace session — tone: creative (quote-inspired, absurdist). Use {project} for the project display name.",
+      "days": [],
+      "timeranges": [6, 21],
+      "tone": "creative"
+    },
+    {
+      "text": "Welcome to the real {project}",
+      "description": "A greeting for a new workspace session — tone: creative (quote-inspired, absurdist). Use {project} for the project display name.",
+      "days": [],
+      "timeranges": [6, 21],
+      "tone": "creative"
+    },
+    {
+      "text": "Where we're going with {project}, we don't need roads",
+      "description": "A greeting for a new workspace session — tone: creative (quote-inspired). Use {project} for the project display name.",
+      "days": [],
+      "timeranges": [6, 21],
+      "tone": "creative"
+    },
+    {
+      "text": "Why so serious about {project}?",
+      "description": "A greeting for a new workspace session — tone: creative (quote-inspired, absurdist). Use {project} for the project display name.",
+      "days": [],
+      "timeranges": [6, 21],
+      "tone": "creative"
+    },
+    {
+      "text": "Winter is coming to {project}",
+      "description": "A greeting for a new workspace session — tone: creative (quote-inspired, absurdist). Use {project} for the project display name.",
+      "days": [],
+      "timeranges": [6, 21],
+      "tone": "creative"
+    },
+    {
+      "text": "Yo Adrian — it's {project}!",
+      "description": "A greeting for a new workspace session — tone: creative (quote-inspired). Use {project} for the project display name.",
+      "days": [],
+      "timeranges": [17, 21],
+      "tone": "creative"
+    },
+    {
+      "text": "You had me at {project}",
+      "description": "A greeting for a new workspace session — tone: creative (quote-inspired). Use {project} for the project display name.",
+      "days": [],
+      "timeranges": [6, 21],
+      "tone": "creative"
+    },
+    {
+      "text": "You're gonna need a bigger {project}",
+      "description": "A greeting for a new workspace session — tone: creative (quote-inspired, absurdist). Use {project} for the project display name.",
+      "days": [],
+      "timeranges": [6, 21],
+      "tone": "creative"
+    },
+    {
+      "text": "As if!",
+      "description": "A greeting for a new workspace session — tone: creative.",
+      "tone": "creative",
+      "days": [],
+      "timeranges": [6, 21]
+    },
+    {
+      "text": "As you wish",
+      "description": "A greeting for a new workspace session — tone: creative.",
+      "tone": "creative",
+      "days": [],
+      "timeranges": [6, 21]
+    },
+    {
+      "text": "Frankly, my dear, I give a damn about something",
+      "description": "A greeting for a new workspace session — tone: creative.",
+      "tone": "creative",
+      "days": [],
+      "timeranges": [6, 21]
+    },
+    {
+      "text": "Great Scott!",
+      "description": "A greeting for a new workspace session — tone: creative.",
+      "tone": "creative",
+      "days": [],
+      "timeranges": [6, 21]
+    },
+    {
+      "text": "I'll be back",
+      "description": "A greeting for a new workspace session — tone: creative.",
+      "tone": "creative",
+      "days": [],
+      "timeranges": [6, 21]
+    },
+    {
+      "text": "Just keep swimming",
+      "description": "A greeting for a new workspace session — tone: creative.",
+      "tone": "creative",
+      "days": [],
+      "timeranges": [6, 21]
+    },
+    {
+      "text": "Life finds a way",
+      "description": "A greeting for a new workspace session — tone: creative.",
+      "tone": "creative",
+      "days": [],
+      "timeranges": [6, 21]
+    },
+    {
+      "text": "Life moves pretty fast",
+      "description": "A greeting for a new workspace session — tone: creative.",
+      "tone": "creative",
+      "days": [],
+      "timeranges": [6, 21]
+    },
+    {
+      "text": "Live long and prosper",
+      "description": "A greeting for a new workspace session — tone: creative.",
+      "tone": "creative",
+      "days": [],
+      "timeranges": [6, 21]
+    },
+    {
+      "text": "One small step",
+      "description": "A greeting for a new workspace session — tone: creative.",
+      "tone": "creative",
+      "days": [],
+      "timeranges": [6, 12]
+    },
+    {
+      "text": "Plot twist",
+      "description": "A greeting for a new workspace session — tone: creative.",
+      "tone": "creative",
+      "days": [],
+      "timeranges": [6, 21]
+    },
+    {
+      "text": "Remember who you are",
+      "description": "A greeting for a new workspace session — tone: creative.",
+      "tone": "creative",
+      "days": [],
+      "timeranges": [6, 21]
+    },
+    {
+      "text": "Serenity now",
+      "description": "A greeting for a new workspace session — tone: creative.",
+      "tone": "creative",
+      "days": [],
+      "timeranges": [6, 21]
+    },
+    {
+      "text": "The force is strong",
+      "description": "A greeting for a new workspace session — tone: creative.",
+      "tone": "creative",
+      "days": [],
+      "timeranges": [6, 21]
+    },
+    {
+      "text": "Where we're going, we don't need roads",
+      "description": "A greeting for a new workspace session — tone: creative.",
+      "tone": "creative",
+      "days": [],
+      "timeranges": [6, 21]
+    },
+    {
+      "text": "Why so serious about something?",
+      "description": "A greeting for a new workspace session — tone: creative.",
+      "tone": "creative",
+      "days": [],
+      "timeranges": [6, 21]
+    }
+  ]
+}

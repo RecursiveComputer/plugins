@@ -1,10 +1,12 @@
 {
   "id": "theme-pack-game-consoles",
-  "name": "Game Consoles",
-  "version": "1.1.0",
-  "description": "Palettes inspired by 15 historic and modern game consoles — Game Boy, NES, SNES, Genesis, Dreamcast, PS5, Xbox, Atari 2600, GameCube, Wii, Switch, PS2, Virtual Boy, Neo Geo, and Game Boy Color — packaged as Recursive themes.",
+  "name": "Console Themes & Greetings",
+  "version": "1.2.0",
+  "description": "Palettes inspired by 15 historic and modern game consoles, plus video-game session greetings.",
   "author": { "name": "Recursive" },
   "color": "#7c4dff",
   "icon": "gamepad-2",
-  "themes": "./themes/"
+  "bundledOptIn": true,
+  "themes": "./themes/",
+  "greetings": "./greetings.json"
 }
