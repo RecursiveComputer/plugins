@@ -1,9 +1,9 @@
 {
   "version": 1,
   "slug": "movies",
-  "name": "Movies",
+  "name": "Roll Credits",
   "description": "Familiar film and television lines with a project twist.",
-  "source": "Recursive Movies greetings",
+  "source": "Recursive Roll Credits greetings",
   "placeholder": "{project}",
   "count": 70,
   "defaultTones": ["creative"],

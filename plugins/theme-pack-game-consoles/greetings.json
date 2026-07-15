@@ -1,9 +1,9 @@
 {
   "version": 1,
   "slug": "gaming",
-  "name": "Gaming",
+  "name": "Press Start",
   "description": "Video-game riffs for starting a new quest.",
-  "source": "Recursive Gaming greetings",
+  "source": "Recursive Press Start greetings",
   "placeholder": "{project}",
   "count": 44,
   "defaultTones": ["creative"],
