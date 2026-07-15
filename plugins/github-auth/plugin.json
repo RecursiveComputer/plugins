@@ -1,0 +1,152 @@
+{
+  "id": "github-auth",
+  "name": "GitHub Auth",
+  "version": "1.0.0",
+  "description": "Sign in to a shared workspace with GitHub and inherit your role from the linked repository's collaborator permissions — admin → admin, push/maintain → member, pull/triage → guest. Zero-admin onboarding: everyone with repo access can join. Ships as an auth-provider plugin with zero core edits.",
+  "author": { "name": "Recursive" },
+  "color": "#24292F",
+  "icon": "github",
+  "category": "identity",
+  "tags": ["auth", "identity", "github", "sso", "permissions", "multiplayer"],
+  "bundledOptIn": true,
+  "provides": {
+    "auth_provider": {
+      "id": "github",
+      "name": "GitHub",
+      "description": "Repo-collaborator-derived identity + roles via GitHub App (or PAT fallback).",
+      "entry": "provider.js",
+      "config_schema": {
+        "type": "object",
+        "properties": {
+          "auth_mode": {
+            "type": "string",
+            "enum": ["app", "pat"],
+            "description": "How the provider authenticates to the GitHub API for permission checks. 'app' = GitHub App installation token (preferred — installation-scoped, org-approvable). 'pat' = a personal access token fallback.",
+            "default": "pat"
+          },
+          "client_id": {
+            "type": "string",
+            "description": "GitHub App / OAuth App client id. Required for device flow (host sign-in) and web flow (guest sign-in)."
+          },
+          "client_secret": {
+            "type": "string",
+            "description": "OAuth client secret. Required only for the web (authorization-code) flow used by invited guests via the worker trampoline."
+          },
+          "app_id": {
+            "type": "string",
+            "description": "GitHub App id (auth_mode = app). Used to mint installation access tokens for permission checks."
+          },
+          "installation_id": {
+            "type": "string",
+            "description": "GitHub App installation id on the org/repo (auth_mode = app)."
+          },
+          "private_key": {
+            "type": "string",
+            "description": "GitHub App private key (PEM, RS256). Used to sign the App JWT (auth_mode = app)."
+          },
+          "api_token": {
+            "type": "string",
+            "description": "Personal access token used for collaborator/permission reads (auth_mode = pat). Needs repo read + org member read."
+          },
+          "repo": {
+            "type": "string",
+            "description": "Default linked repository as 'owner/name'. The workspace auth-link overrides this."
+          },
+          "role_map": {
+            "type": "object",
+            "description": "Optional override of the GitHub-permission → workspace-role map. Keys: admin, maintain, write/push, triage, read/pull. Values: owner|admin|member|guest|deny.",
+            "additionalProperties": { "type": "string" }
+          },
+          "sync_interval_minutes": {
+            "type": "number",
+            "description": "How often to re-pull the collaborator directory and re-verify members. Default 30.",
+            "default": 30
+          }
+        }
+      }
+    }
+  },
+  "settings": {
+    "defaults": {
+      "auth_mode": "pat",
+      "client_id": "",
+      "client_secret": "",
+      "app_id": "",
+      "installation_id": "",
+      "private_key": "",
+      "api_token": "",
+      "repo": "",
+      "sync_interval_minutes": 30
+    },
+    "schema": [
+      {
+        "key": "auth_mode",
+        "type": "enum",
+        "options": ["app", "pat"],
+        "label": "Auth mode",
+        "description": "GitHub App (recommended — installation-scoped, org-approvable) or a personal access token fallback.",
+        "section": "Mode"
+      },
+      {
+        "key": "client_id",
+        "type": "string",
+        "label": "OAuth Client ID",
+        "description": "GitHub App / OAuth App client id — used for device flow (host sign-in) and web flow (guest sign-in).",
+        "section": "Sign-in"
+      },
+      {
+        "key": "client_secret",
+        "type": "password",
+        "label": "OAuth Client Secret",
+        "description": "Required only for the web (authorization-code) guest flow via the worker trampoline.",
+        "section": "Sign-in"
+      },
+      {
+        "key": "app_id",
+        "type": "string",
+        "label": "GitHub App ID",
+        "description": "App id used to mint installation tokens for permission checks.",
+        "section": "GitHub App",
+        "visibleWhen": { "key": "auth_mode", "equals": "app" }
+      },
+      {
+        "key": "installation_id",
+        "type": "string",
+        "label": "Installation ID",
+        "description": "The App's installation id on your org/repo.",
+        "section": "GitHub App",
+        "visibleWhen": { "key": "auth_mode", "equals": "app" }
+      },
+      {
+        "key": "private_key",
+        "type": "password",
+        "label": "App Private Key (PEM)",
+        "description": "RS256 private key that signs the App JWT.",
+        "section": "GitHub App",
+        "visibleWhen": { "key": "auth_mode", "equals": "app" }
+      },
+      {
+        "key": "api_token",
+        "type": "password",
+        "label": "Personal Access Token",
+        "description": "Token used for collaborator/permission reads. Needs repo read + org member read.",
+        "section": "PAT",
+        "visibleWhen": { "key": "auth_mode", "equals": "pat" }
+      },
+      {
+        "key": "repo",
+        "type": "string",
+        "label": "Linked repository",
+        "description": "Default repository as owner/name. The workspace auth-link overrides this.",
+        "section": "Repository"
+      },
+      {
+        "key": "sync_interval_minutes",
+        "type": "number",
+        "label": "Sync interval (minutes)",
+        "description": "How often to re-pull collaborators and re-verify members. Default 30.",
+        "section": "Repository"
+      }
+    ]
+  }
+}
