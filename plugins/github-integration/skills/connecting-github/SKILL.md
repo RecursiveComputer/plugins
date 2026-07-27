@@ -1,5 +1,6 @@
 ---
 name: connecting-github
+title: Connecting GitHub
 description: "Walks through connecting a GitHub repository to Recursive end-to-end: store the Webhook Secret in plugin settings, create the event automation, add the repository webhook pointed at the inbound trigger URL, and verify via GitHub's ping delivery. Use when the user wants issues, pull requests, pushes, comments, or releases to trigger automations."
 ---
 
