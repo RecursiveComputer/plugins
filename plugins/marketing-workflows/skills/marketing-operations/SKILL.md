@@ -4,8 +4,8 @@ description: Design campaign operations, routing, tracking, QA, launch sequencin
 execution:
   mode: managed
   timeout_minutes: 45
-  tools: task_get, session_artifact_write, automation_create
-  mutations: create_task, create_artifact, create_automation
+  tools: task_get, task_create, model_advise, session_delegate, session_artifact_write, automation_create
+  mutations: create_task, create_session, create_artifact, create_automation
 ---
 
 # Marketing Operations

@@ -4,8 +4,8 @@ description: Orchestrate an evidence-backed marketing campaign from a bound chan
 execution:
   mode: managed
   timeout_minutes: 120
-  tools: task_get, todo_write, session_artifact_write, inbox_post, automation_create
-  mutations: create_task, create_artifact, create_decision, create_automation
+  tools: task_get, task_create, model_advise, session_delegate, todo_write, session_artifact_write, inbox_post, automation_create
+  mutations: create_task, create_session, create_artifact, create_decision, create_automation
 ---
 
 # Marketing Campaign
