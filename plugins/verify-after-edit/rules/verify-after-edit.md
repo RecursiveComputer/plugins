@@ -36,6 +36,24 @@ npx eslint packages/core-shell/src/ packages/core-server/src/ --quiet
 
 Adjust the paths to match the actual directories you edited.
 
+### Architecture checks
+
+If the batch touched `packages/`, `apps/`, or `plugins/` source, also run:
+
+```
+npm run test:arch
+```
+
+It is fast (~1s) and enforces the subsystem contracts in `docs/architecture/contracts/`:
+package layering, the permissions guard, and the sync-spine write seam. A failure names
+the contract it violated and the refactor that would retire the rule.
+
+Never make it pass by widening a rule or by hand-adding to a baseline in
+`tests/architecture/baselines/` — those may shrink, never grow. If you changed an
+invariant on purpose, change the contract in the same commit.
+
+When editing the checks themselves, run `npm run typecheck:arch`.
+
 ## Error handling
 
 Fix all errors in files you modified. Pre-existing failures in untouched files: note in your response, don't block on them.
