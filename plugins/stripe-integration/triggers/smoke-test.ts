@@ -1,13 +1,3 @@
-/**
- * Standalone smoke test for the Stripe trigger source.
- *
- *   bun plugins/shared/stripe-integration/triggers/smoke-test.ts
- *
- * Exercises verify() (Stripe-Signature t=/v1= HMAC accept/reject, secret-roll
- * multi-v1 headers, malformed headers, and the 5-minute replay window) and
- * normalize() (declared event types, amount formatting, dashboard permalinks,
- * and filter keys).
- */
 import assert from 'node:assert/strict';
 import crypto from 'node:crypto';
 import { verify, normalize } from './index.ts';
@@ -20,12 +10,10 @@ const connection: TriggerConnection = {
   settings: { signing_secret: SECRET },
 };
 
-/** v1 = HMAC_SHA256(secret, "<t>.<raw body>") — exactly what Stripe signs. */
 function v1(body: string, timestamp: number, secret = SECRET): string {
   return crypto.createHmac('sha256', secret).update(`${timestamp}.${body}`, 'utf8').digest('hex');
 }
 
-/** Build a `Stripe-Signature` header like Stripe's: t=<ts>,v1=<sig>[,…]. */
 function sigHeader(body: string, timestamp: number, secret = SECRET): string {
   return `t=${timestamp},v1=${v1(body, timestamp, secret)}`;
 }
@@ -37,7 +25,6 @@ const one = (v: NormalizedTriggerEvent | NormalizedTriggerEvent[] | null): Norma
   return v;
 };
 
-// ── Sample payloads ──────────────────────────────────────────────────
 
 const checkoutEvent = {
   id: 'evt_1AbCdEfGhIjKlMnO',
@@ -74,23 +61,19 @@ const disputeEvent = {
   },
 };
 
-// ── verify() ─────────────────────────────────────────────────────────
 
-// Correct fresh signature → ok.
 {
   const body = JSON.stringify(checkoutEvent);
   const v = verify(body, { 'stripe-signature': sigHeader(body, nowS()) }, connection);
   assert.deepEqual(v, { ok: true }, 'verify accepts a fresh, correctly signed request');
 }
 
-// Wrong secret → rejected.
 {
   const body = JSON.stringify(checkoutEvent);
   const v = verify(body, { 'stripe-signature': sigHeader(body, nowS(), 'whsec_wrong') }, connection);
   assert.equal('ok' in v && v.ok, false, 'verify rejects a signature made with the wrong secret');
 }
 
-// Tampered body → rejected (the HMAC covers "<t>.<raw body>").
 {
   const body = JSON.stringify(checkoutEvent);
   const tampered = JSON.stringify({ ...checkoutEvent, livemode: true });
@@ -98,13 +81,11 @@ const disputeEvent = {
   assert.equal('ok' in v && v.ok, false, 'verify rejects when the body was tampered with');
 }
 
-// Missing header → rejected.
 {
   const v = verify(JSON.stringify(checkoutEvent), {}, connection);
   assert.equal('ok' in v && v.ok, false, 'verify rejects a missing Stripe-Signature header');
 }
 
-// Malformed header (no t / no v1) → rejected.
 {
   const body = JSON.stringify(checkoutEvent);
   for (const header of ['v1=deadbeef', `t=${nowS()}`, 'garbage', 't=,v1=']) {
@@ -113,7 +94,6 @@ const disputeEvent = {
   }
 }
 
-// Stale timestamp (> 5 min old) → replay rejected even with a valid HMAC.
 {
   const body = JSON.stringify(checkoutEvent);
   const stale = nowS() - 6 * 60;
@@ -122,7 +102,6 @@ const disputeEvent = {
   assert.ok('reason' in v && /replay|stale/i.test(v.reason ?? ''), 'rejection names the replay window');
 }
 
-// Multiple v1 values (secret roll): any matching v1 accepts.
 {
   const body = JSON.stringify(checkoutEvent);
   const ts = nowS();
@@ -131,7 +110,6 @@ const disputeEvent = {
   assert.deepEqual(v, { ok: true }, 'any matching v1 candidate accepts (secret roll)');
 }
 
-// Multiple v1 values, none matching → rejected.
 {
   const body = JSON.stringify(checkoutEvent);
   const ts = nowS();
@@ -140,9 +118,7 @@ const disputeEvent = {
   assert.equal('ok' in v && v.ok, false, 'all-wrong v1 candidates are rejected');
 }
 
-// ── normalize() ──────────────────────────────────────────────────────
 
-// checkout.session.completed → typed event, amount in title, test-mode URL.
 {
   const e = one(normalize(checkoutEvent, {}, connection));
   assert.equal(e.event_type, 'checkout.session.completed', 'event_type comes from payload.type');
@@ -158,7 +134,6 @@ const disputeEvent = {
   });
 }
 
-// charge.dispute.created → live-mode URL, reason surfaced.
 {
   const e = one(normalize(disputeEvent, {}, connection));
   assert.equal(e.event_type, 'charge.dispute.created');
@@ -169,14 +144,12 @@ const disputeEvent = {
   assert.equal(e.match?.currency, 'eur');
 }
 
-// Undeclared-but-valid Stripe event types still normalize (generic describe).
 {
   const e = one(normalize({ id: 'evt_3', type: 'payment_intent.succeeded', data: { object: {} } }, {}, connection));
   assert.equal(e.event_type, 'payment_intent.succeeded');
   assert.ok(e.title, 'generic events still get a title');
 }
 
-// Non-Stripe / partial shapes → nothing to dispatch, nothing throws.
 {
   assert.equal(normalize({}, {}, connection), null, 'payload without id+type is dropped');
   assert.equal(normalize({ type: 'checkout.session.completed' }, {}, connection), null, 'missing event id is dropped');

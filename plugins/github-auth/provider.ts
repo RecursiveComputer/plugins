@@ -1,20 +1,3 @@
-/**
- * GitHub auth provider (Phase A2 PoC).
- *
- * Implements the core `AuthProvider` seam entirely from within the plugin — no
- * core edits. It piggybacks on GitHub repo-collaborator permissions: whoever can
- * access the linked repo can sign in and lands at their repo-derived workspace
- * role (admin → admin, maintain/push → member, triage/pull → guest, none →
- * deny). Sign-in is GitHub device flow (host-side, no public callback) or the
- * authorization-code web flow (invited guests, via the worker trampoline).
- *
- * Auth to the GitHub API for permission reads is a GitHub App installation token
- * (preferred — installation-scoped, org-approvable) or a PAT fallback.
- *
- * Value dependencies are limited to node builtins + global `fetch`, so the
- * registry's esbuild `transformSync` compile works without npm resolution. The
- * only core import is TYPE-ONLY (`@recursive/core-identity/auth`).
- */
 
 import crypto from 'node:crypto';
 import type {
@@ -45,7 +28,6 @@ interface GithubAuthConfig {
   repo?: string;
   role_map?: Record<string, string>;
   sync_interval_minutes?: number;
-  /** Test-only injection hook. */
   __fetch?: FetchLike;
 }
 
@@ -54,7 +36,6 @@ const GH_WEB = 'https://github.com';
 const SCOPES = 'read:user read:org user:email';
 const API_VERSION = '2022-11-28';
 
-/** GitHub permission key → workspace role. Overridable via config.role_map. */
 const DEFAULT_ROLE_MAP: Record<string, string> = {
   admin: 'admin',
   maintain: 'member',
@@ -85,7 +66,6 @@ export class GithubAuthProvider implements AuthProvider {
   private fetchImpl: FetchLike = ((input, init) => (globalThis.fetch as any)(input, init)) as FetchLike;
   private installationToken: { token: string; expiresAt: number } | null = null;
 
-  /** Test seam: swap the fetch implementation. */
   setFetchForTesting(fn: FetchLike): void {
     this.fetchImpl = fn;
   }
@@ -112,7 +92,6 @@ export class GithubAuthProvider implements AuthProvider {
     this.installationToken = null;
   }
 
-  // ── Identity ──────────────────────────────────────────────────────
 
   async beginAuth(ctx: AuthBeginContext): Promise<AuthBeginResult> {
     if (!this.config.client_id) throw new Error('github-auth: client_id not configured');
@@ -127,7 +106,6 @@ export class GithubAuthProvider implements AuthProvider {
       return { url: `${GH_WEB}/login/oauth/authorize?${params.toString()}` };
     }
 
-    // Device flow (host-side, no public callback).
     const res = await this.fetchImpl(`${GH_WEB}/login/device/code`, {
       method: 'POST',
       headers: { Accept: 'application/json', 'Content-Type': 'application/json' },
@@ -164,7 +142,6 @@ export class GithubAuthProvider implements AuthProvider {
     };
   }
 
-  /** Device-code poll OR authorization-code exchange → an access token. */
   private async exchangeForToken(payload: Record<string, unknown>): Promise<string> {
     const clientId = this.config.client_id;
     if (!clientId) throw new Error('github-auth: client_id not configured');
@@ -188,7 +165,6 @@ export class GithubAuthProvider implements AuthProvider {
     });
     const data = await res.json();
     if (data.error) {
-      // authorization_pending / slow_down / expired_token — surfaced so the host can re-poll.
       throw new Error(`github-auth: ${data.error}`);
     }
     if (!data.access_token) throw new Error('github-auth: no access_token in token response');
@@ -203,12 +179,10 @@ export class GithubAuthProvider implements AuthProvider {
         return primary ? str(primary.email) : undefined;
       }
     } catch {
-      /* email scope may be absent — non-fatal */
     }
     return undefined;
   }
 
-  // ── Permissions ───────────────────────────────────────────────────
 
   async resolveRole(identity: ExternalIdentity, ws: WorkspaceLink): Promise<ResolvedRole> {
     const repo = this.repoFor(ws);
@@ -286,8 +260,6 @@ export class GithubAuthProvider implements AuthProvider {
   }
 
   async revoke(): Promise<void> {
-    // GitHub tokens can't be server-revoked without the user's own token; the
-    // member-store revocation (deleting the bearer hash) is the effective seam.
   }
 
   async testConnection(): Promise<{ ok: boolean; error?: string }> {
@@ -300,7 +272,6 @@ export class GithubAuthProvider implements AuthProvider {
     }
   }
 
-  // ── Helpers ───────────────────────────────────────────────────────
 
   private mapKeyToRole(key: string, reason: string): { role: Role; reason: string } | { deny: true; reason: string } {
     const mapped = this.roleMap[key] ?? 'deny';
@@ -329,7 +300,6 @@ export class GithubAuthProvider implements AuthProvider {
     return res.json();
   }
 
-  /** The token used for permission reads: installation token (app) or PAT. */
   private async apiToken(): Promise<string> {
     if (this.config.auth_mode === 'pat') {
       if (!this.config.api_token) throw new Error('github-auth: api_token not configured');
@@ -365,7 +335,6 @@ export class GithubAuthProvider implements AuthProvider {
   }
 }
 
-/** Normalize a GitHub permission response to a single canonical key. */
 function permissionKey(input: {
   role_name?: string;
   permission?: string;
@@ -396,7 +365,6 @@ function permissionKey(input: {
   }
 }
 
-/** Sign a short-lived GitHub App JWT (RS256). */
 function signAppJwt(appId: string, privateKey: string, now: number): string {
   const header = b64url(JSON.stringify({ alg: 'RS256', typ: 'JWT' }));
   const payload = b64url(JSON.stringify({ iat: now - 60, exp: now + 540, iss: appId }));

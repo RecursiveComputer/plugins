@@ -1,19 +1,3 @@
-/**
- * GitHub trigger source — verify() + normalize() for the Recursive inbound
- * trigger ingress route.
- *
- *   POST /api/triggers/inbound/github-integration/:connectionId
- *
- * All GitHub specifics live here so core stays integration-agnostic:
- *   - Webhook signing: `X-Hub-Signature-256: sha256=HMAC_SHA256(secret, body)`,
- *     per https://docs.github.com/webhooks/using-webhooks/validating-webhook-deliveries
- *   - The `ping` event (sent when a webhook is created) is answered as a
- *     handshake — GitHub marks the hook green, nothing is dispatched.
- *   - `issues` / `issue_comment` / `pull_request` / `push` / `release`
- *     normalization with repo/action/sender/branch filter keys.
- *
- * The connection secret is the webhook's **Secret** field.
- */
 import crypto from 'node:crypto';
 import type {
   TriggerSourceModule,
@@ -50,13 +34,10 @@ export function verify(
   headers: Record<string, string | undefined>,
   connection: TriggerConnection,
 ): TriggerVerifyResult {
-  // The webhook secret lives in the plugin's settings (configured once via the
-  // plugin settings UI / `connecting-github` skill), not per-automation.
   const settingsSecret = connection.settings?.webhook_secret;
   const secret = (typeof settingsSecret === 'string' && settingsSecret) ? settingsSecret : connection.secret;
   const signature = headers['x-hub-signature-256'];
 
-  // Signature check (skipped only when no webhook secret is configured).
   if (secret) {
     if (!signature) {
       return { ok: false, reason: 'Missing X-Hub-Signature-256 header' };
@@ -67,8 +48,6 @@ export function verify(
     }
   }
 
-  // `ping` handshake — GitHub sends it when the webhook is created. Answer
-  // 200 so the delivery shows green; nothing to dispatch.
   if (headers['x-github-event'] === 'ping') {
     return {
       handshake: true,
@@ -94,7 +73,6 @@ export function normalize(
   const sender = str(asRecord(body.sender).login);
   const action = str(body.action);
 
-  // GitHub's per-delivery GUID — used by the ingress route for retry de-dup.
   const deliveryId = str(headers['x-github-delivery']);
 
   let title: string | undefined;
@@ -150,7 +128,6 @@ export function normalize(
       break;
     }
     default:
-      // Event types we don't declare — nothing to dispatch.
       return null;
   }
 
@@ -160,8 +137,6 @@ export function normalize(
     url,
     summary,
     delivery_id: deliveryId,
-    // Repo name doubles as a project hint (Recursive projects are usually
-    // named after their repo).
     project_hint: str(repository.name),
     match: {
       event_type: eventType,
@@ -170,8 +145,6 @@ export function normalize(
       ...(sender ? { sender } : {}),
       ...(branch ? { branch } : {}),
     },
-    // Carry the reply coordinates so a post-back hook can comment on the
-    // issue/PR with the configured github_token.
     raw: { repo, action, sender, branch, event_type: eventType, payload },
   };
 }

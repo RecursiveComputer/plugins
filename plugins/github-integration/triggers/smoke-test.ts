@@ -1,13 +1,3 @@
-/**
- * Standalone smoke test for the GitHub trigger source.
- *
- *   bun plugins/shared/github-integration/triggers/smoke-test.ts
- *
- * Exercises verify() (X-Hub-Signature-256 HMAC accept/reject + the signed
- * `ping` handshake) and normalize() (issues / issue_comment / pull_request /
- * push / release event types, filter keys, and defensive handling of
- * undeclared events).
- */
 import assert from 'node:assert/strict';
 import crypto from 'node:crypto';
 import { verify, normalize } from './index.ts';
@@ -20,7 +10,6 @@ const connection: TriggerConnection = {
   settings: { webhook_secret: SECRET },
 };
 
-/** Sign a body exactly like GitHub does: sha256=HMAC_SHA256(secret, raw body). */
 function sign(body: string, secret = SECRET): string {
   return 'sha256=' + crypto.createHmac('sha256', secret).update(body, 'utf8').digest('hex');
 }
@@ -30,7 +19,6 @@ const one = (v: NormalizedTriggerEvent | NormalizedTriggerEvent[] | null): Norma
   return v;
 };
 
-// ── Sample payloads ──────────────────────────────────────────────────
 
 const issuesPayload = {
   action: 'opened',
@@ -87,23 +75,19 @@ const pingPayload = {
   repository: { full_name: 'acme/web', name: 'web' },
 };
 
-// ── verify() ─────────────────────────────────────────────────────────
 
-// Correct signature → ok.
 {
   const body = JSON.stringify(issuesPayload);
   const v = verify(body, { 'x-hub-signature-256': sign(body), 'x-github-event': 'issues' }, connection);
   assert.deepEqual(v, { ok: true }, 'verify accepts a correct X-Hub-Signature-256');
 }
 
-// Wrong secret → rejected.
 {
   const body = JSON.stringify(issuesPayload);
   const v = verify(body, { 'x-hub-signature-256': sign(body, 'wrong-secret'), 'x-github-event': 'issues' }, connection);
   assert.equal('ok' in v && v.ok, false, 'verify rejects a signature made with the wrong secret');
 }
 
-// Tampered body (signature over different bytes) → rejected.
 {
   const body = JSON.stringify(issuesPayload);
   const tampered = JSON.stringify({ ...issuesPayload, action: 'closed' });
@@ -111,13 +95,11 @@ const pingPayload = {
   assert.equal('ok' in v && v.ok, false, 'verify rejects when the body was tampered with');
 }
 
-// Missing signature header → rejected.
 {
   const v = verify(JSON.stringify(issuesPayload), { 'x-github-event': 'issues' }, connection);
   assert.equal('ok' in v && v.ok, false, 'verify rejects a missing X-Hub-Signature-256 header');
 }
 
-// Signed `ping` → handshake (webhook creation shows green, nothing dispatched).
 {
   const body = JSON.stringify(pingPayload);
   const v = verify(body, { 'x-hub-signature-256': sign(body), 'x-github-event': 'ping' }, connection);
@@ -125,16 +107,13 @@ const pingPayload = {
   assert.ok(v.body.includes('pong'), 'handshake body answers pong');
 }
 
-// Unsigned/badly-signed `ping` must still be rejected (auth before handshake).
 {
   const body = JSON.stringify(pingPayload);
   const v = verify(body, { 'x-hub-signature-256': sign(body, 'wrong'), 'x-github-event': 'ping' }, connection);
   assert.equal('ok' in v && (v as { ok: boolean }).ok, false, 'ping handshake does not bypass signature auth');
 }
 
-// ── normalize() ──────────────────────────────────────────────────────
 
-// issues → event_type from the X-GitHub-Event header, full match keys.
 {
   const e = one(normalize(issuesPayload, {
     'x-github-event': 'issues',
@@ -154,7 +133,6 @@ const pingPayload = {
   });
 }
 
-// push → branch extracted from refs/heads/*, branch filter key present.
 {
   const e = one(normalize(pushPayload, {
     'x-github-event': 'push',
@@ -168,7 +146,6 @@ const pingPayload = {
   assert.equal(e.url, 'https://github.com/acme/web/commit/bbb');
 }
 
-// pull_request → PR number, action filter.
 {
   const e = one(normalize(prPayload, { 'x-github-event': 'pull_request' }, connection));
   assert.equal(e.event_type, 'pull_request');
@@ -178,7 +155,6 @@ const pingPayload = {
   assert.equal(e.url, 'https://github.com/acme/web/pull/7');
 }
 
-// release → tag in title.
 {
   const e = one(normalize(releasePayload, { 'x-github-event': 'release' }, connection));
   assert.equal(e.event_type, 'release');
@@ -186,14 +162,12 @@ const pingPayload = {
   assert.equal(e.match?.action, 'published');
 }
 
-// ping and undeclared event types → nothing to dispatch.
 {
   assert.equal(normalize(pingPayload, { 'x-github-event': 'ping' }, connection), null, 'ping is never dispatched');
   assert.equal(normalize({ action: 'created' }, { 'x-github-event': 'star' }, connection), null, 'undeclared events are dropped');
   assert.equal(normalize(issuesPayload, {}, connection), null, 'no X-GitHub-Event header → nothing');
 }
 
-// Weird/partial shapes don't throw.
 {
   const e = one(normalize({}, { 'x-github-event': 'issues' }, connection));
   assert.equal(e.event_type, 'issues');

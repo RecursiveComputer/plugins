@@ -1,29 +1,3 @@
-/**
- * Cloudflare trigger source — verify() + normalize() for the Recursive inbound
- * trigger ingress route.
- *
- *   POST /api/triggers/inbound/cloudflare-integration/:connectionId
- *
- * All Cloudflare specifics live here so core stays integration-agnostic:
- *   - Shared-secret auth: Cloudflare Notification webhook destinations send
- *     the destination's secret verbatim in the `cf-webhook-auth` header on
- *     every delivery (plain equality, NOT an HMAC signature). We compare it
- *     against the plugin's `webhook_secret` setting with a constant-time
- *     compare.
- *   - Destination-creation handshake: saving a webhook destination in the
- *     Cloudflare dashboard fires a one-time test POST ("Hello World! This is
- *     a test message from Cloudflare! …"). A verified request that looks like
- *     that test is answered as a handshake (200, no dispatch) so the
- *     destination saves cleanly and the connection gets its verified stamp.
- *   - Notification normalization: payload shapes vary by alert type
- *     (Workers/Pages deploys, health checks, security events, usage alerts),
- *     so every field is read defensively. `alert_type` is bucketed into the
- *     typed convenience events (`deployment` / `health_check` / `security`);
- *     every notification ALSO emits the generic `alert` event so an
- *     "any notification" automation always fires.
- *
- * The connection secret is the **webhook destination secret** the user chose.
- */
 import crypto from 'node:crypto';
 import type {
   TriggerSourceModule,
@@ -52,9 +26,6 @@ function str(v: unknown): string | undefined {
   return typeof v === 'string' && v ? v : undefined;
 }
 
-/** Cloudflare's destination-creation test delivery has no alert_type and a
- * recognizable "test message from Cloudflare" text (shape not guaranteed —
- * match loosely). */
 function isDestinationTest(body: Record<string, unknown>): boolean {
   if (str(body.alert_type)) return false;
   const text = str(body.text);
@@ -68,13 +39,10 @@ export function verify(
   headers: Record<string, string | undefined>,
   connection: TriggerConnection,
 ): TriggerVerifyResult {
-  // The webhook secret lives in the plugin's settings (configured once via the
-  // plugin settings UI / `connecting-cloudflare` skill), not per-automation.
   const settingsSecret = connection.settings?.webhook_secret;
   const secret = (typeof settingsSecret === 'string' && settingsSecret) ? settingsSecret : connection.secret;
   const auth = headers['cf-webhook-auth'];
 
-  // Shared-secret check (skipped only when no secret is configured).
   if (secret) {
     if (!auth) {
       return { ok: false, reason: 'Missing cf-webhook-auth header' };
@@ -84,9 +52,6 @@ export function verify(
     }
   }
 
-  // Destination-creation handshake — Cloudflare POSTs a test message when the
-  // webhook destination is saved. Answer 200 without dispatching so the
-  // destination saves and the connection is stamped verified.
   if (isDestinationTest(parseBody(rawBody))) {
     return {
       handshake: true,
@@ -98,7 +63,6 @@ export function verify(
   return { ok: true };
 }
 
-/** Bucket a Cloudflare alert_type into one of the typed convenience events. */
 function categorize(alertType: string): 'deployment' | 'health_check' | 'security' | null {
   const t = alertType.toLowerCase();
   if (t.startsWith('pages_') || t.startsWith('workers_') || t.includes('deploy')) return 'deployment';
@@ -120,7 +84,6 @@ export function normalize(
   const body = (payload && typeof payload === 'object' && !Array.isArray(payload)
     ? payload : {}) as Record<string, unknown>;
 
-  // Shapes vary by alert type — read everything defensively.
   const alertType = str(body.alert_type);
   const name = str(body.name);
   const text = str(body.text);
@@ -130,7 +93,6 @@ export function normalize(
   const data = (body.data && typeof body.data === 'object' && !Array.isArray(body.data)
     ? body.data : {}) as Record<string, unknown>;
 
-  // Zone / Pages-project hints, when the alert carries them.
   const zone = str(data.zone_name) ?? str(data.zone) ?? str(body.zone_name);
   const project = str(data.project_name) ?? str(data.project) ?? str(body.project_name);
 
@@ -148,10 +110,6 @@ export function normalize(
     ...(project ? { project } : {}),
   };
 
-  // Stable-ish per-delivery id for retry de-duplication — Cloudflare sends no
-  // delivery-id header, so derive one from the payload when it's specific
-  // enough. Each emitted event gets a distinct suffix so the generic `alert`
-  // and the typed convenience event aren't deduped against each other.
   const deliveryBase = ts && (policyId || alertType)
     ? `cf:${policyId ?? '-'}:${alertType ?? '-'}:${ts}`
     : undefined;
@@ -165,14 +123,12 @@ export function normalize(
     raw: payload,
   };
 
-  // Every notification fires the generic `alert` event…
   const events: NormalizedTriggerEvent[] = [{
     ...base,
     event_type: 'alert',
     ...(deliveryBase ? { delivery_id: `${deliveryBase}:alert` } : {}),
   }];
 
-  // …plus its typed convenience event when the alert_type buckets into one.
   const category = alertType ? categorize(alertType) : null;
   if (category) {
     events.push({
