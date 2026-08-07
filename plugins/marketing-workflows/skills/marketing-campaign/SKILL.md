@@ -31,6 +31,23 @@ Use installed plugins when authorized; absence must degrade to a concrete handof
 - Notion or another knowledge plugin for approved briefs and source material.
 - Product/project plugins for roadmap evidence and all project mutations.
 - Website, social, and email plugins for previews and approved publication.
+  - Direct social publishing: `bluesky_*`, `mastodon_*`, `linkedin_*`, `reddit_*`, `x_*`. All five
+    share one contract. `*_preview_post` is offline and may run before approval — use it so the
+    review package quotes copy already known to fit. `*_post` and `*_delete_post` are the step-7
+    effect only, and are fail-closed: they refuse unless the workspace owner enabled
+    `allow_publish` in that plugin's settings. Pass the approval's `decision_id` as
+    `approval_id` so the plugin's receipt ties the post to this gate. A `BOUNDARY_VIOLATION`
+    from those tools is a correct refusal — report it as a blocked publication with the setting
+    a human must change, never as a campaign failure and never by routing around it.
+    - Approval is **per network**, because the audiences differ. Do not treat approval for one
+      network as covering another; each `*_post` call needs content a human approved for that
+      network.
+    - Only Mastodon schedules natively (`scheduled_at`). Bluesky, LinkedIn, Reddit, and X refuse
+      it by design — a timed post there is a Recursive Automation calling the tool at that time.
+      Never report a post as scheduled when it is an automation that has not run yet.
+    - Reddit posts land in a community someone else moderates: confirm the subreddit's rules
+      allow the post, and treat `SUBREDDIT_NOTALLOWED` as a stop, not a prompt to pick another
+      subreddit unilaterally.
 - Analytics plugins for baselines, instrumentation checks, and follow-up measurement.
 
 Never require a named provider and never infer authority from plugin availability.
