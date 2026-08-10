@@ -1,0 +1,10 @@
+{
+  "name": "@recursive/plugin-sync-fs",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "dependencies": {
+    "@recursive/core-sync": "*",
+    "@recursive/core-types": "*"
+  }
+}

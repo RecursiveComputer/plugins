@@ -1,0 +1,9 @@
+{
+  "name": "@recursive/plugin-github-auth",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "dependencies": {
+    "@recursive/core-identity": "*"
+  }
+}
