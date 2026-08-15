@@ -1,53 +1,104 @@
 {
+  "manifestFormat": 2,
   "id": "stripe-integration",
   "name": "Stripe",
   "version": "1.0.0",
   "description": "Trigger Recursive automations from Stripe — completed checkouts, failed payments, subscription changes, refunds, and disputes dispatch agent sessions. Requires a Pro or Teams license.",
-  "author": { "name": "Recursive" },
+  "author": {
+    "name": "Recursive"
+  },
   "color": "#635BFF",
   "icon": "credit-card",
   "bundledOptIn": true,
   "skills": "./skills/",
   "triggers": {
-    "module": "./triggers/index.ts",
-    "setupSkill": "connecting-stripe",
-    "requiredSettings": ["signing_secret"],
-    "events": [
+    "source": {
+      "module": "./triggers/index.ts",
+      "setupSkill": "connecting-stripe",
+      "requiredSettings": [
+        "signing_secret"
+      ],
+      "events": [
+        {
+          "type": "checkout.session.completed",
+          "label": "Checkout completed",
+          "description": "A Checkout Session finished successfully (payment or subscription started).",
+          "filters": [
+            "livemode",
+            "currency",
+            "customer",
+            "account"
+          ]
+        },
+        {
+          "type": "invoice.payment_failed",
+          "label": "Invoice payment failed",
+          "description": "A payment attempt for an invoice failed (card declined, insufficient funds, …).",
+          "filters": [
+            "livemode",
+            "currency",
+            "customer",
+            "account"
+          ]
+        },
+        {
+          "type": "customer.subscription.created",
+          "label": "Subscription created",
+          "description": "A customer started a new subscription.",
+          "filters": [
+            "livemode",
+            "currency",
+            "customer",
+            "account"
+          ]
+        },
+        {
+          "type": "customer.subscription.deleted",
+          "label": "Subscription canceled",
+          "description": "A customer's subscription ended or was canceled.",
+          "filters": [
+            "livemode",
+            "currency",
+            "customer",
+            "account"
+          ]
+        },
+        {
+          "type": "charge.refunded",
+          "label": "Charge refunded",
+          "description": "A charge was fully or partially refunded.",
+          "filters": [
+            "livemode",
+            "currency",
+            "customer",
+            "account"
+          ]
+        },
+        {
+          "type": "charge.dispute.created",
+          "label": "Dispute opened",
+          "description": "A customer disputed a charge (chargeback opened).",
+          "filters": [
+            "livemode",
+            "currency",
+            "customer",
+            "account"
+          ]
+        }
+      ]
+    }
+  },
+  "settings": {
+    "defaults": {
+      "signing_secret": ""
+    },
+    "schema": [
       {
-        "type": "checkout.session.completed",
-        "label": "Checkout completed",
-        "description": "A Checkout Session finished successfully (payment or subscription started).",
-        "filters": ["livemode", "currency", "customer", "account"]
-      },
-      {
-        "type": "invoice.payment_failed",
-        "label": "Invoice payment failed",
-        "description": "A payment attempt for an invoice failed (card declined, insufficient funds, …).",
-        "filters": ["livemode", "currency", "customer", "account"]
-      },
-      {
-        "type": "customer.subscription.created",
-        "label": "Subscription created",
-        "description": "A customer started a new subscription.",
-        "filters": ["livemode", "currency", "customer", "account"]
-      },
-      {
-        "type": "customer.subscription.deleted",
-        "label": "Subscription canceled",
-        "description": "A customer's subscription ended or was canceled.",
-        "filters": ["livemode", "currency", "customer", "account"]
-      },
-      {
-        "type": "charge.refunded",
-        "label": "Charge refunded",
-        "description": "A charge was fully or partially refunded.",
-        "filters": ["livemode", "currency", "customer", "account"]
-      },
-      {
-        "type": "charge.dispute.created",
-        "label": "Dispute opened",
-        "description": "A customer disputed a charge (chargeback opened).",
-        "filters": ["livemode", "currency", "customer", "account"]
+        "key": "signing_secret",
+        "type": "password",
+        "label": "Signing Secret",
+        "description": "Stripe webhook endpoint signing secret (whsec_…, from Developers → Webhooks → your endpoint → Signing secret). Used to verify inbound requests.",
+        "section": "Credentials"
       }
     ]
   },
@@ -65,7 +116,11 @@
         "kind": "field",
         "title": "Add your Signing Secret",
         "desc": "On the endpoint's page: Signing secret → Reveal (whsec_…). Verifies inbound requests.",
-        "field": { "key": "signing_secret", "secret": true, "placeholder": "whsec_…" },
+        "field": {
+          "key": "signing_secret",
+          "secret": true,
+          "placeholder": "whsec_…"
+        },
         "actionLabel": "Save"
       },
       {
@@ -73,20 +128,6 @@
         "title": "Verify setup",
         "desc": "Confirm the required credentials are in place.",
         "actionLabel": "Verify"
-      }
-    ]
-  },
-  "settings": {
-    "defaults": {
-      "signing_secret": ""
-    },
-    "schema": [
-      {
-        "key": "signing_secret",
-        "type": "password",
-        "label": "Signing Secret",
-        "description": "Stripe webhook endpoint signing secret (whsec_…, from Developers → Webhooks → your endpoint → Signing secret). Used to verify inbound requests.",
-        "section": "Credentials"
       }
     ]
   }

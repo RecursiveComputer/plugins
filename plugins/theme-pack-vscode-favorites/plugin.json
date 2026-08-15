@@ -1,9 +1,12 @@
 {
+  "manifestFormat": 2,
   "id": "theme-pack-vscode-favorites",
   "name": "VS Code Favorites",
   "version": "1.0.0",
   "description": "Popular VS Code-inspired palettes, packaged as Recursive themes.",
-  "author": { "name": "Recursive" },
+  "author": {
+    "name": "Recursive"
+  },
   "color": "#007acc",
   "icon": "palette",
   "themes": "./themes/"

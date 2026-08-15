@@ -1,9 +1,12 @@
 {
+  "manifestFormat": 2,
   "id": "theme-pack-messenger-classics",
   "name": "Messenger Classics",
   "version": "1.0.0",
   "description": "Nostalgic chat and instant messenger palettes, packaged as Recursive themes.",
-  "author": { "name": "Recursive" },
+  "author": {
+    "name": "Recursive"
+  },
   "color": "#5b8def",
   "icon": "palette",
   "themes": "./themes/"

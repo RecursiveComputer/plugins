@@ -1,9 +1,12 @@
 {
+  "manifestFormat": 2,
   "id": "theme-pack-winamp-era",
   "name": "Winamp Era",
   "version": "1.0.0",
   "description": "MP3 player and skin-culture palettes from the Winamp era, packaged as Recursive themes.",
-  "author": { "name": "Recursive" },
+  "author": {
+    "name": "Recursive"
+  },
   "color": "#00a6ff",
   "icon": "palette",
   "themes": "./themes/"

@@ -1,9 +1,12 @@
 {
+  "manifestFormat": 2,
   "id": "theme-pack-game-consoles",
   "name": "Press Start: Console Themes & Greetings",
   "version": "1.2.1",
   "description": "A game-on collection of palettes inspired by 15 historic and modern consoles, plus session greetings.",
-  "author": { "name": "Recursive" },
+  "author": {
+    "name": "Recursive"
+  },
   "color": "#7c4dff",
   "icon": "gamepad-2",
   "bundledOptIn": true,

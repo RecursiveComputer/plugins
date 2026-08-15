@@ -1,9 +1,12 @@
 {
+  "manifestFormat": 2,
   "id": "theme-pack-modern-dark-favorites",
   "name": "Modern Dark Favorites",
   "version": "1.0.0",
   "description": "Today's most-loved dark palettes — Dracula, Tokyo Night, Catppuccin, and Rosé Pine.",
-  "author": { "name": "Recursive" },
+  "author": {
+    "name": "Recursive"
+  },
   "color": "#bd93f9",
   "icon": "palette",
   "themes": "./themes/"

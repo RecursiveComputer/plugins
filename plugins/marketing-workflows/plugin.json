@@ -1,12 +1,20 @@
 {
+  "manifestFormat": 2,
   "id": "marketing-workflows",
   "name": "Marketing Workflows",
   "version": "0.1.0",
   "description": "Channel-agnostic, review-gated campaign orchestration built from composable marketing Skills.",
-  "author": { "name": "Recursive" },
+  "author": {
+    "name": "Recursive"
+  },
   "color": "#E11D48",
   "icon": "megaphone",
   "category": "agent",
-  "tags": ["marketing", "campaigns", "workspace-agent", "skills"],
+  "tags": [
+    "marketing",
+    "campaigns",
+    "workspace-agent",
+    "skills"
+  ],
   "skills": "./skills/"
 }

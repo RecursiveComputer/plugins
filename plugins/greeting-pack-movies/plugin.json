@@ -1,9 +1,12 @@
 {
+  "manifestFormat": 2,
   "id": "greeting-pack-movies",
   "name": "Roll Credits: Movie Greetings",
   "version": "1.0.1",
   "description": "Familiar film and television lines with a project twist.",
-  "author": { "name": "Recursive" },
+  "author": {
+    "name": "Recursive"
+  },
   "color": "#FF3B30",
   "icon": "video",
   "bundledOptIn": true,

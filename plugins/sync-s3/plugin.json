@@ -1,15 +1,26 @@
 {
+  "manifestFormat": 2,
   "id": "sync-s3",
   "name": "S3 / R2 Sync",
   "version": "1.0.0",
   "description": "Sync Recursive data to S3-compatible object storage (AWS S3, Cloudflare R2, MinIO, Backblaze B2).",
-  "author": { "name": "Recursive" },
+  "author": {
+    "name": "Recursive"
+  },
   "color": "#ff9900",
   "icon": "cloud-arrow-up",
   "category": "sync",
-  "tags": ["sync", "s3", "aws", "cloudflare-r2", "minio", "backblaze", "object-storage"],
-  "provides": {
-    "sync_provider": {
+  "tags": [
+    "sync",
+    "s3",
+    "aws",
+    "cloudflare-r2",
+    "minio",
+    "backblaze",
+    "object-storage"
+  ],
+  "sync": {
+    "provider": {
       "id": "s3",
       "name": "S3 / Object Storage",
       "description": "Sync to any S3-compatible object storage — AWS S3, Cloudflare R2, MinIO, Backblaze B2.",
@@ -17,14 +28,36 @@
       "config_schema": {
         "type": "object",
         "properties": {
-          "bucket": { "type": "string", "description": "S3 bucket name." },
-          "region": { "type": "string", "description": "AWS region (e.g. us-east-1). Use 'auto' for R2." },
-          "endpoint": { "type": "string", "description": "Custom endpoint URL for R2/MinIO/B2 (e.g. https://acct.r2.cloudflarestorage.com)." },
-          "access_key_id": { "type": "string", "description": "Access key ID." },
-          "secret_access_key": { "type": "string", "description": "Secret access key." },
-          "prefix": { "type": "string", "description": "Key prefix inside the bucket (e.g. recursive-sync/). Default: recursive-sync/" }
+          "bucket": {
+            "type": "string",
+            "description": "S3 bucket name."
+          },
+          "region": {
+            "type": "string",
+            "description": "AWS region (e.g. us-east-1). Use 'auto' for R2."
+          },
+          "endpoint": {
+            "type": "string",
+            "description": "Custom endpoint URL for R2/MinIO/B2 (e.g. https://acct.r2.cloudflarestorage.com)."
+          },
+          "access_key_id": {
+            "type": "string",
+            "description": "Access key ID."
+          },
+          "secret_access_key": {
+            "type": "string",
+            "description": "Secret access key."
+          },
+          "prefix": {
+            "type": "string",
+            "description": "Key prefix inside the bucket (e.g. recursive-sync/). Default: recursive-sync/"
+          }
         },
-        "required": ["bucket", "access_key_id", "secret_access_key"]
+        "required": [
+          "bucket",
+          "access_key_id",
+          "secret_access_key"
+        ]
       }
     }
   }

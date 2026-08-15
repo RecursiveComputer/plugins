@@ -1,9 +1,12 @@
 {
+  "manifestFormat": 2,
   "id": "theme-pack-windows-xp-classics",
   "name": "Windows XP Classics",
   "version": "1.0.0",
   "description": "Nostalgic Windows XP visual-style palettes, packaged as Recursive themes.",
-  "author": { "name": "Recursive" },
+  "author": {
+    "name": "Recursive"
+  },
   "color": "#3a6ea5",
   "icon": "palette",
   "themes": "./themes/"

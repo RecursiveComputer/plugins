@@ -1,9 +1,12 @@
 {
+  "manifestFormat": 2,
   "id": "theme-pack-jetbrains-favorites",
   "name": "JetBrains Favorites",
   "version": "1.0.0",
   "description": "Popular JetBrains Marketplace-inspired palettes, packaged as Recursive themes.",
-  "author": { "name": "Recursive" },
+  "author": {
+    "name": "Recursive"
+  },
   "color": "#fc801d",
   "icon": "palette",
   "themes": "./themes/"

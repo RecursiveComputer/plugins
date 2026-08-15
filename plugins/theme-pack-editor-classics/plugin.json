@@ -1,9 +1,12 @@
 {
+  "manifestFormat": 2,
   "id": "theme-pack-editor-classics",
   "name": "Editor Classics",
   "version": "1.0.0",
   "description": "Timeless code-editor palettes — Monokai, One Dark, Night Owl, and Ayu Mirage.",
-  "author": { "name": "Recursive" },
+  "author": {
+    "name": "Recursive"
+  },
   "color": "#66d9ef",
   "icon": "palette",
   "themes": "./themes/"
