@@ -9,5 +9,10 @@
     "success": "#6aa84f",
     "error": "#d04437",
     "warning": "#f6b73c"
+  },
+  "structure": {
+    "radius": 0,
+    "density": 1.1,
+    "typography": "retro"
   }
 }

@@ -8,5 +8,10 @@
     "success": "#a6e3a1",
     "error": "#f38ba8",
     "warning": "#f9e2af"
+  },
+  "structure": {
+    "radius": 1.4,
+    "density": 1,
+    "typography": "system"
   }
 }
