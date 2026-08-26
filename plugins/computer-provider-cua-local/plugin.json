@@ -1,0 +1,88 @@
+{
+  "manifestFormat": 2,
+  "id": "computer-provider-cua-local",
+  "name": "Local Computer",
+  "version": "0.1.0",
+  "description": "Persistent isolated desktop on this machine using Cua Sandbox.",
+  "author": { "name": "Recursive" },
+  "color": "#16a34a",
+  "icon": "desktop",
+  "computer": {
+    "provider": {
+      "id": "local",
+      "label": "Local",
+      "description": "Isolated Linux VM stored and run on this machine through Cua Sandbox.",
+      "kind": "local",
+      "entry": "./provider.ts"
+    }
+  },
+  "onboarding": {
+    "subtitle": "Prepare an isolated desktop on this device for all of your bots.",
+    "verify": {
+      "endpoint": "/api/computer-provider-cua-local/verify"
+    },
+    "steps": [
+      {
+        "kind": "install",
+        "title": "Install or upgrade Cua",
+        "desc": "Runs in Recursive's terminal only after you click Install. Cua Sandbox 0.4.3 or newer is required for the local VM path.",
+        "optional": true,
+        "command": "python3 -m pip install --upgrade 'cua-sandbox>=0.4.3' cua",
+        "actionLabel": "Install Cua"
+      },
+      {
+        "kind": "instructions",
+        "title": "Install virtualization",
+        "desc": "Install a virtualization backend for your operating system.",
+        "optional": true,
+        "markdown": "**macOS**\n```bash\npython3 -m pip install --upgrade 'cua-sandbox>=0.4.3' cua\nbrew install qemu\n```\n\n**Windows**\n```powershell\npy -m pip install --upgrade 'cua-sandbox>=0.4.3' cua\nwinget install SoftwareFreedomConservancy.QEMU\n```\n\n**Linux**\n```bash\npython3 -m pip install --upgrade 'cua-sandbox>=0.4.3' cua\n# Install qemu-system with your distribution package manager\n```\n\nRecursive never runs these system installers silently. You approve them on your device, then Recursive verifies the selected runtime."
+      },
+      {
+        "kind": "field",
+        "title": "Choose the Python environment",
+        "desc": "Use the Python 3.12+ command where the cua package is installed.",
+        "field": {
+          "key": "pythonPath",
+          "placeholder": "python3"
+        },
+        "actionLabel": "Save Python command"
+      },
+      {
+        "kind": "verify",
+        "title": "Test Cua and virtualization",
+        "desc": "Checks that Cua can load and the configured VM or container backend is available.",
+        "actionLabel": "Test Local computer"
+      }
+    ]
+  },
+  "settings": {
+    "defaults": {
+      "pythonPath": "python3",
+      "image": "linux",
+      "virtualMachine": true
+    },
+    "schema": [
+      {
+        "key": "pythonPath",
+        "type": "string",
+        "label": "Python command",
+        "description": "Python 3.12+ environment containing the cua package.",
+        "section": "Runtime"
+      },
+      {
+        "key": "image",
+        "type": "string",
+        "label": "Sandbox image",
+        "description": "Cua image constructor. Linux is the supported default.",
+        "section": "Runtime"
+      },
+      {
+        "key": "virtualMachine",
+        "type": "boolean",
+        "label": "Full virtual machine",
+        "description": "Use a VM rather than a container for stronger isolation.",
+        "section": "Isolation"
+      }
+    ]
+  }
+}

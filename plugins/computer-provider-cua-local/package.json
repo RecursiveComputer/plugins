@@ -1,0 +1,10 @@
+{
+  "name": "@recursive/plugin-computer-provider-cua-local",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Local isolated Cua Sandbox computer provider for Recursive",
+  "dependencies": {
+    "@recursive/core-types": "*"
+  }
+}
