@@ -15,3 +15,9 @@ brew install qemu
 On Linux or Windows, install QEMU with the platform package manager instead.
 
 Use Plugins → Local Computer to select the Python environment. Container mode is faster but weaker isolation; VM mode is the default.
+
+The pinned Linux desktop currently published by Cua is x86_64. Recursive selects
+that disk explicitly on Apple Silicon and runs it through QEMU software emulation;
+the first download is large and startup is slower than on an x86_64 host. This
+avoids Cua Sandbox 0.4.3's unimplemented ARM Linux base-image builder. Docker is
+only required when Full virtual machine is disabled.

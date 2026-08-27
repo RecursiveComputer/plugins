@@ -1,15 +1,17 @@
 import asyncio
 import base64
 import json
+import platform
 import re
 import shlex
 import shutil
 import sys
-from datetime import datetime, timedelta, timezone
 from importlib.metadata import PackageNotFoundError, version
 
 
 MINIMUM_CUA_SANDBOX = (0, 4, 3)
+X86_64_MACHINES = {"amd64", "x86_64"}
+ARM64_MACHINES = {"aarch64", "arm64"}
 
 
 def version_tuple(value):
@@ -44,6 +46,22 @@ def image_for(Image, name, vm):
     return builder()
 
 
+def configure_linux_vm_registry_arch(image, vm):
+    if str(image or "linux").lower() != "linux" or not vm:
+        return None
+    machine = platform.machine().lower()
+    if machine not in ARM64_MACHINES:
+        return "amd64" if machine in X86_64_MACHINES else None
+
+    # Cua's pinned Ubuntu VM disk is currently published for amd64 only. Its
+    # registry resolver otherwise selects the Apple Silicon host architecture,
+    # misses that disk, and falls into an unimplemented local Linux builder.
+    from cua_sandbox.registry import container_disk
+
+    container_disk._host_architecture = lambda: "amd64"
+    return "amd64"
+
+
 async def connect(Sandbox, name):
     try:
         return await Sandbox.connect(name, local=True)
@@ -55,6 +73,10 @@ async def run(operation, payload):
     require_supported_cua()
     from cua import Image, QEMURuntime, Sandbox
 
+    guest_arch = configure_linux_vm_registry_arch(
+        payload.get("image"), payload.get("vm", True)
+    )
+
     if operation == "status":
         image = str(payload.get("image") or "linux").lower()
         if image == "linux" and payload.get("vm", True) and not shutil.which("qemu-system-x86_64"):
@@ -64,13 +86,17 @@ async def run(operation, payload):
         if image == "macos" and not shutil.which("lume"):
             raise RuntimeError("Local macOS computers require Lume.")
         await Sandbox.list(local=True)
-        return {"ready": True}
+        return {
+            "ready": True,
+            "guest_arch": guest_arch,
+            "emulated": guest_arch == "amd64" and platform.machine().lower() in ARM64_MACHINES,
+        }
 
     name = payload["name"]
     if operation == "provision":
         runtime = None
         if str(payload.get("image") or "linux").lower() == "linux" and payload.get("vm", True):
-            runtime = QEMURuntime(mode="bare-metal")
+            runtime = QEMURuntime(mode="bare-metal", arch="x86_64")
         sandbox = await Sandbox.create(
             image_for(Image, payload.get("image"), payload.get("vm", True)),
             name=name,
@@ -162,13 +188,6 @@ async def run(operation, payload):
             if result.returncode != 0:
                 raise RuntimeError(result.stderr or "Could not write sandbox file")
             return {"written": True}
-        if operation == "live_view":
-            url = await sandbox.get_display_url()
-            return {
-                "url": url,
-                "expires_at": (datetime.now(timezone.utc) + timedelta(minutes=10)).isoformat(),
-                "interactive": bool(payload.get("interactive")),
-            }
         raise ValueError(f"Unsupported local computer operation: {operation}")
     finally:
         await sandbox.disconnect()

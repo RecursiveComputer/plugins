@@ -4,7 +4,6 @@ import { spawn } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 
 import type {
-  SandboxLiveView,
   SandboxObserveResult,
   SandboxProvider,
   SandboxProviderPluginModule,
@@ -22,6 +21,20 @@ export interface LocalComputerReadiness {
   ok: boolean;
   message: string;
   setup_hint?: string;
+}
+
+interface LocalStatusResult {
+  ready: true;
+  guest_arch: string | null;
+  emulated: boolean;
+}
+
+export function sanitizeLocalComputerDiagnostic(value: string): string {
+  return value
+    .split(/\r?\n/)
+    .filter((line) => !/^Credential helper 'docker-credential-[^']+' failed:/.test(line.trim()))
+    .join('\n')
+    .trim();
 }
 
 function settings(input: Record<string, unknown>): LocalSettings {
@@ -60,7 +73,9 @@ function runHelper<Result>(
     child.once('close', (code) => {
       clearTimeout(timer);
       const output = Buffer.concat(stdout).toString('utf8').trim();
-      const diagnostic = Buffer.concat(stderr).toString('utf8').trim();
+      const diagnostic = sanitizeLocalComputerDiagnostic(
+        Buffer.concat(stderr).toString('utf8').trim(),
+      );
       if (code !== 0) {
         reject(new Error(diagnostic || output || `Local computer ${operation} failed.`));
         return;
@@ -91,10 +106,12 @@ export async function verifyLocalComputer(
 ): Promise<LocalComputerReadiness> {
   const runtime = settings(input);
   try {
-    await runHelper(runtime, 'status', {}, 10_000);
+    const status = await runHelper<LocalStatusResult>(runtime, 'status', {}, 10_000);
     return {
       ok: true,
-      message: `Cua and the ${runtime.virtualMachine ? 'virtual machine' : 'container'} runtime are ready.`,
+      message: status.emulated
+        ? 'Cua and QEMU are ready. This Apple Silicon device will run Cua’s x86_64 Linux VM with software emulation.'
+        : `Cua and the ${runtime.virtualMachine ? 'virtual machine' : 'container'} runtime are ready.`,
     };
   } catch (error) {
     return {
@@ -170,13 +187,10 @@ class CuaLocalSandboxProvider implements SandboxProvider {
   }
 
   async liveViewUrl(
-    sandboxId: string,
-    options: { interactive?: boolean } = {},
-  ): Promise<SandboxLiveView> {
-    return runHelper(this.runtime, 'live_view', {
-      name: sandboxId,
-      interactive: options.interactive === true,
-    });
+    _sandboxId: string,
+    _options: { interactive?: boolean } = {},
+  ): Promise<null> {
+    return null;
   }
 }
 

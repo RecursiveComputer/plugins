@@ -50,7 +50,7 @@
       {
         "kind": "verify",
         "title": "Test Cua and virtualization",
-        "desc": "Checks that Cua can load and the configured VM or container backend is available.",
+        "desc": "Checks that Cua can load and the configured VM or container backend is available. On Apple Silicon, the current Cua Linux disk runs through x86_64 software emulation and may start slowly.",
         "actionLabel": "Test Local computer"
       }
     ]
@@ -80,7 +80,7 @@
         "key": "virtualMachine",
         "type": "boolean",
         "label": "Full virtual machine",
-        "description": "Use a VM rather than a container for stronger isolation.",
+        "description": "Use a VM rather than a container for stronger isolation. The current Linux VM uses x86_64 emulation on Apple Silicon.",
         "section": "Isolation"
       }
     ]
