@@ -1,0 +1,53 @@
+{
+  "manifestFormat": 2,
+  "id": "computer-provider-e2b",
+  "name": "E2B Computer",
+  "version": "0.1.0",
+  "description": "Managed persistent Linux desktop hosted by E2B.",
+  "author": {
+    "name": "Recursive"
+  },
+  "thumbnail": "./assets/e2b-logo.png",
+  "color": "#171717",
+  "icon": "cloud",
+  "computer": {
+    "provider": {
+      "id": "e2b",
+      "label": "E2B",
+      "description": "Managed persistent Linux desktop hosted by E2B.",
+      "kind": "cloud",
+      "entry": "./provider.ts"
+    }
+  },
+  "settings": {
+    "defaults": {
+      "e2bApiKey": "",
+      "e2bTemplate": "desktop",
+      "idleTimeoutMinutes": 15
+    },
+    "schema": [
+      {
+        "key": "e2bApiKey",
+        "type": "string",
+        "secret": true,
+        "label": "E2B API key",
+        "description": "Used to provision isolated persistent Linux desktops. E2B_API_KEY is also supported.",
+        "section": "Provider"
+      },
+      {
+        "key": "e2bTemplate",
+        "type": "string",
+        "label": "E2B template",
+        "description": "Desktop template name or id.",
+        "section": "Provider"
+      },
+      {
+        "key": "idleTimeoutMinutes",
+        "type": "number",
+        "label": "Idle suspend",
+        "description": "Pause the computer after this many idle minutes while retaining its disk.",
+        "section": "Lifecycle"
+      }
+    ]
+  }
+}
