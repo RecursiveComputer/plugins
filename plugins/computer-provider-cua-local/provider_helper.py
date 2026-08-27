@@ -1,10 +1,15 @@
 import asyncio
 import base64
+import hashlib
+import io
 import json
+import math
 import platform
 import re
 import shlex
 import shutil
+import socket
+import subprocess
 import sys
 from importlib.metadata import PackageNotFoundError, version
 
@@ -12,6 +17,9 @@ from importlib.metadata import PackageNotFoundError, version
 MINIMUM_CUA_SANDBOX = (0, 4, 3)
 X86_64_MACHINES = {"amd64", "x86_64"}
 ARM64_MACHINES = {"aarch64", "arm64"}
+SANDBOXES = {}
+SANDBOX_LOCKS = {}
+QMP_PORTS = {}
 
 
 def version_tuple(value):
@@ -69,6 +77,210 @@ async def connect(Sandbox, name):
         return await Sandbox.resume(name, local=True)
 
 
+async def connected_sandbox(Sandbox, name):
+    sandbox = SANDBOXES.get(name)
+    if sandbox is None:
+        sandbox = await connect(Sandbox, name)
+        SANDBOXES[name] = sandbox
+    return sandbox
+
+
+async def disconnect_sandbox(name):
+    sandbox = SANDBOXES.pop(name, None)
+    if sandbox is not None:
+        await sandbox.disconnect()
+
+
+async def disconnect_all():
+    sandboxes = list(SANDBOXES.values())
+    SANDBOXES.clear()
+    await asyncio.gather(
+        *(sandbox.disconnect() for sandbox in sandboxes), return_exceptions=True
+    )
+
+
+def free_tcp_port():
+    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as candidate:
+        candidate.bind(("127.0.0.1", 0))
+        return candidate.getsockname()[1]
+
+
+def qmp_port_from_running_process(name):
+    if platform.system() == "Windows":
+        return None
+    result = subprocess.run(
+        ["ps", "-axo", "command="],
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+    if result.returncode != 0:
+        return None
+    for command in result.stdout.splitlines():
+        try:
+            arguments = shlex.split(command)
+        except ValueError:
+            continue
+        try:
+            name_index = arguments.index("-name")
+            qmp_index = arguments.index("-qmp")
+        except ValueError:
+            continue
+        if name_index + 1 >= len(arguments) or qmp_index + 1 >= len(arguments):
+            continue
+        if arguments[name_index + 1].split(",", 1)[0] != name:
+            continue
+        match = re.match(
+            r"^tcp:(?:127\.0\.0\.1|localhost|\[::1\]):(\d+)(?:,|$)",
+            arguments[qmp_index + 1],
+        )
+        if match:
+            return int(match.group(1))
+    return None
+
+
+def repair_qmp_port_for_suspend(name):
+    from cua_sandbox import sandbox_state
+
+    state = sandbox_state.load(name)
+    if not state or state.get("runtime_type") != "qemu-baremetal":
+        return
+    qmp_port = state.get("qmp_port")
+    if isinstance(qmp_port, int) and not isinstance(qmp_port, bool) and qmp_port > 0:
+        return
+    qmp_port = QMP_PORTS.get(name) or qmp_port_from_running_process(name)
+    if qmp_port is None:
+        raise RuntimeError(
+            f"Could not locate the QEMU control port for local computer {name}."
+        )
+    sandbox_state.update(name, qmp_port=qmp_port)
+
+
+def positive_integer(value):
+    if isinstance(value, bool) or not isinstance(value, (int, float)):
+        return None
+    if not math.isfinite(value) or value <= 0:
+        return None
+    return max(1, round(value))
+
+
+def normalized_source_region(requested, desktop_width, desktop_height):
+    if requested is None:
+        return {"x": 0, "y": 0, "width": desktop_width, "height": desktop_height}
+    if not isinstance(requested, dict):
+        raise ValueError("source_region must contain finite coordinates and dimensions")
+    values = [
+        requested.get("x"),
+        requested.get("y"),
+        requested.get("width"),
+        requested.get("height"),
+    ]
+    if any(
+        isinstance(value, bool)
+        or not isinstance(value, (int, float))
+        or not math.isfinite(value)
+        for value in values
+    ):
+        raise ValueError("source_region must contain finite coordinates and dimensions")
+    x, y, width, height = values
+    if width <= 0 or height <= 0:
+        raise ValueError("source_region dimensions must be greater than zero")
+    left = max(0, min(desktop_width, math.floor(x)))
+    top = max(0, min(desktop_height, math.floor(y)))
+    right = max(0, min(desktop_width, math.ceil(x + width)))
+    bottom = max(0, min(desktop_height, math.ceil(y + height)))
+    if right <= left or bottom <= top:
+        raise ValueError("source_region must intersect the desktop")
+    return {"x": left, "y": top, "width": right - left, "height": bottom - top}
+
+
+def normalized_observe_options(options, desktop_width, desktop_height):
+    if not isinstance(options, dict):
+        options = {}
+    requested_format = options.get("format")
+    if requested_format not in (None, "png", "webp"):
+        raise ValueError("format must be png or webp")
+    quality = options.get("quality")
+    if isinstance(quality, bool) or not isinstance(quality, (int, float)) or not math.isfinite(quality):
+        quality = 80
+    else:
+        quality = min(100, max(1, round(quality)))
+    return {
+        "format": "webp" if requested_format == "webp" else "png",
+        "quality": quality,
+        "max_raster_width": positive_integer(options.get("max_raster_width")),
+        "max_raster_height": positive_integer(options.get("max_raster_height")),
+        "source_region": normalized_source_region(
+            options.get("source_region"), desktop_width, desktop_height
+        ),
+    }
+
+
+def optimized_observation(image_base64, desktop_width, desktop_height, options):
+    request = normalized_observe_options(options, desktop_width, desktop_height)
+    source_region = request["source_region"]
+    has_transform = (
+        request["format"] == "webp"
+        or request["max_raster_width"] is not None
+        or request["max_raster_height"] is not None
+        or source_region["x"] != 0
+        or source_region["y"] != 0
+        or source_region["width"] != desktop_width
+        or source_region["height"] != desktop_height
+    )
+    if not has_transform:
+        encoded = image_base64.encode("utf-8")
+        raster_width = desktop_width
+        raster_height = desktop_height
+    else:
+        try:
+            from PIL import Image
+        except ImportError as error:
+            raise RuntimeError(
+                "Local computer frame transforms require Pillow in the Python environment."
+            ) from error
+        try:
+            source = Image.open(io.BytesIO(base64.b64decode(image_base64)))
+            source.load()
+        except Exception as error:
+            raise RuntimeError("Local computer returned an invalid screenshot image.") from error
+        image = source.crop(
+            (
+                source_region["x"],
+                source_region["y"],
+                source_region["x"] + source_region["width"],
+                source_region["y"] + source_region["height"],
+            )
+        )
+        max_width = request["max_raster_width"]
+        max_height = request["max_raster_height"]
+        if max_width is not None or max_height is not None:
+            limit_width = max_width if max_width is not None else image.width
+            limit_height = max_height if max_height is not None else image.height
+            image.thumbnail((limit_width, limit_height), Image.Resampling.LANCZOS)
+        raster_width = image.width
+        raster_height = image.height
+        output = io.BytesIO()
+        if request["format"] == "webp":
+            image.save(output, format="WEBP", quality=request["quality"], method=4)
+        else:
+            image.save(output, format="PNG")
+        encoded = output.getvalue()
+        image_base64 = base64.b64encode(encoded).decode("ascii")
+    return {
+        "image_base64": image_base64,
+        "width": desktop_width,
+        "height": desktop_height,
+        "mime_type": "image/webp" if request["format"] == "webp" else "image/png",
+        "raster_width": raster_width,
+        "raster_height": raster_height,
+        "desktop_width": desktop_width,
+        "desktop_height": desktop_height,
+        "source_region": source_region,
+        "dedupe_key": hashlib.sha256(encoded).hexdigest(),
+    }
+
+
 async def run(operation, payload):
     require_supported_cua()
     from cua import Image, QEMURuntime, Sandbox
@@ -95,33 +307,44 @@ async def run(operation, payload):
     name = payload["name"]
     if operation == "provision":
         runtime = None
+        qmp_port = None
         if str(payload.get("image") or "linux").lower() == "linux" and payload.get("vm", True):
-            runtime = QEMURuntime(mode="bare-metal", arch="x86_64")
+            qmp_port = free_tcp_port()
+            runtime = QEMURuntime(mode="bare-metal", arch="x86_64", qmp_port=qmp_port)
         sandbox = await Sandbox.create(
             image_for(Image, payload.get("image"), payload.get("vm", True)),
             name=name,
             local=True,
             runtime=runtime,
         )
-        await sandbox.disconnect()
+        if qmp_port is not None:
+            from cua_sandbox import sandbox_state
+
+            QMP_PORTS[name] = qmp_port
+            sandbox_state.update(name, qmp_port=qmp_port)
+        SANDBOXES[name] = sandbox
         return {"sandbox_id": name}
     if operation == "reconnect":
-        sandbox = await connect(Sandbox, name)
-        await sandbox.disconnect()
+        await connected_sandbox(Sandbox, name)
         return {"sandbox_id": name}
     if operation == "stop":
+        await disconnect_sandbox(name)
+        repair_qmp_port_for_suspend(name)
         await Sandbox.suspend(name, local=True)
+        QMP_PORTS.pop(name, None)
         return {"stopped": True}
     if operation == "destroy":
+        await disconnect_sandbox(name)
         await Sandbox.delete(name, local=True)
+        QMP_PORTS.pop(name, None)
         return {"destroyed": True}
 
-    sandbox = await connect(Sandbox, name)
+    sandbox = await connected_sandbox(Sandbox, name)
     try:
         if operation == "observe":
             image = await sandbox.screenshot_base64()
             width, height = await sandbox.get_dimensions()
-            return {"image_base64": image, "width": width, "height": height}
+            return optimized_observation(image, width, height, payload.get("options"))
         if operation == "act":
             applied = 0
             for action in payload.get("actions", []):
@@ -189,15 +412,62 @@ async def run(operation, payload):
                 raise RuntimeError(result.stderr or "Could not write sandbox file")
             return {"written": True}
         raise ValueError(f"Unsupported local computer operation: {operation}")
-    finally:
-        await sandbox.disconnect()
+    except Exception:
+        await disconnect_sandbox(name)
+        raise
+
+
+async def dispatch(operation, payload):
+    name = payload.get("name")
+    if not name or operation == "status":
+        return await run(operation, payload)
+    lock = SANDBOX_LOCKS.setdefault(name, asyncio.Lock())
+    async with lock:
+        return await run(operation, payload)
+
+
+async def serve_request(request, write_lock):
+    request_id = request.get("id")
+    try:
+        result = await dispatch(request["operation"], request.get("payload") or {})
+        response = {"id": request_id, "result": result}
+    except Exception as error:
+        response = {"id": request_id, "error": str(error)}
+    async with write_lock:
+        print(json.dumps(response), flush=True)
+
+
+async def serve():
+    write_lock = asyncio.Lock()
+    tasks = set()
+    while True:
+        line = await asyncio.to_thread(sys.stdin.readline)
+        if not line:
+            break
+        try:
+            request = json.loads(line)
+        except Exception as error:
+            print(json.dumps({"id": None, "error": str(error)}), flush=True)
+            continue
+        task = asyncio.create_task(serve_request(request, write_lock))
+        tasks.add(task)
+        task.add_done_callback(tasks.discard)
+    if tasks:
+        await asyncio.gather(*tasks, return_exceptions=True)
+    await disconnect_all()
 
 
 async def main():
     operation = sys.argv[1]
+    if operation == "serve":
+        await serve()
+        return
     payload = read_payload()
-    result = await run(operation, payload)
-    print(json.dumps(result))
+    try:
+        result = await dispatch(operation, payload)
+        print(json.dumps(result))
+    finally:
+        await disconnect_all()
 
 
 if __name__ == "__main__":

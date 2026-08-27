@@ -1,9 +1,10 @@
 import crypto from 'node:crypto';
 import path from 'node:path';
-import { spawn } from 'node:child_process';
+import { spawn, type ChildProcessWithoutNullStreams } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 
 import type {
+  SandboxObserveOptions,
   SandboxObserveResult,
   SandboxProvider,
   SandboxProviderPluginModule,
@@ -29,6 +30,20 @@ interface LocalStatusResult {
   emulated: boolean;
 }
 
+type HelperResponse = {
+  id: number;
+  result?: unknown;
+  error?: string;
+};
+
+type PendingHelperRequest = {
+  resolve(value: unknown): void;
+  reject(error: Error): void;
+  timer: ReturnType<typeof setTimeout>;
+};
+
+const helperClients = new Map<string, PersistentHelperClient>();
+
 export function sanitizeLocalComputerDiagnostic(value: string): string {
   return value
     .split(/\r?\n/)
@@ -48,48 +63,136 @@ function settings(input: Record<string, unknown>): LocalSettings {
   };
 }
 
+class PersistentHelperClient {
+  private child: ChildProcessWithoutNullStreams | null = null;
+  private stdout = '';
+  private stderr = '';
+  private nextId = 1;
+  private readonly pending = new Map<number, PendingHelperRequest>();
+
+  constructor(
+    private readonly pythonPath: string,
+    private readonly onClose: () => void,
+  ) {}
+
+  request<Result>(
+    operation: string,
+    payload: Record<string, unknown>,
+    timeoutMs: number,
+  ): Promise<Result> {
+    const child = this.process();
+    const id = this.nextId++;
+    return new Promise<Result>((resolve, reject) => {
+      const timer = setTimeout(() => {
+        this.pending.delete(id);
+        reject(new Error(`Local computer ${operation} timed out.`));
+        this.close();
+      }, timeoutMs);
+      this.pending.set(id, {
+        resolve: (value) => resolve(value as Result),
+        reject,
+        timer,
+      });
+      child.stdin.write(`${JSON.stringify({ id, operation, payload })}\n`, (error) => {
+        if (!error) return;
+        this.fail(error);
+      });
+    });
+  }
+
+  private process(): ChildProcessWithoutNullStreams {
+    if (this.child && !this.child.killed) return this.child;
+    const child = spawn(this.pythonPath, [HELPER_PATH, 'serve'], {
+      stdio: ['pipe', 'pipe', 'pipe'],
+    });
+    this.child = child;
+    this.stdout = '';
+    this.stderr = '';
+    child.stdout.on('data', (chunk: Buffer) => this.readStdout(chunk));
+    child.stderr.on('data', (chunk: Buffer) => {
+      this.stderr = `${this.stderr}${chunk.toString('utf8')}`.slice(-8_192);
+    });
+    child.once('error', (error) => this.fail(error));
+    child.once('close', (code) => {
+      const diagnostic = sanitizeLocalComputerDiagnostic(this.stderr);
+      this.fail(
+        new Error(
+          diagnostic ||
+            `Local computer helper stopped${code === null ? '' : ` with code ${code}`}.`,
+        ),
+      );
+    });
+    return child;
+  }
+
+  private readStdout(chunk: Buffer): void {
+    this.stdout += chunk.toString('utf8');
+    let newline = this.stdout.indexOf('\n');
+    while (newline >= 0) {
+      const line = this.stdout.slice(0, newline).trim();
+      this.stdout = this.stdout.slice(newline + 1);
+      if (line) this.resolveLine(line);
+      newline = this.stdout.indexOf('\n');
+    }
+  }
+
+  private resolveLine(line: string): void {
+    let response: HelperResponse;
+    try {
+      response = JSON.parse(line) as HelperResponse;
+    } catch {
+      this.fail(new Error(`Local computer returned an invalid response: ${line.slice(0, 500)}`));
+      return;
+    }
+    const request = this.pending.get(response.id);
+    if (!request) return;
+    clearTimeout(request.timer);
+    this.pending.delete(response.id);
+    if (response.error) request.reject(new Error(response.error));
+    else request.resolve(response.result);
+  }
+
+  private close(): void {
+    const child = this.child;
+    this.child = null;
+    if (child && !child.killed) child.kill('SIGTERM');
+    this.onClose();
+  }
+
+  private fail(error: Error): void {
+    if (!this.child && this.pending.size === 0) return;
+    const child = this.child;
+    this.child = null;
+    if (child && !child.killed) child.kill('SIGTERM');
+    for (const request of this.pending.values()) {
+      clearTimeout(request.timer);
+      request.reject(error);
+    }
+    this.pending.clear();
+    this.onClose();
+  }
+}
+
 function runHelper<Result>(
   runtime: LocalSettings,
   operation: string,
   payload: Record<string, unknown>,
   timeoutMs = 120_000,
 ): Promise<Result> {
-  return new Promise((resolve, reject) => {
-    const child = spawn(runtime.pythonPath, [HELPER_PATH, operation], {
-      stdio: ['pipe', 'pipe', 'pipe'],
-    });
-    const stdout: Buffer[] = [];
-    const stderr: Buffer[] = [];
-    const timer = setTimeout(() => {
-      child.kill('SIGTERM');
-      reject(new Error(`Local computer ${operation} timed out.`));
-    }, timeoutMs);
-    child.stdout.on('data', (chunk: Buffer) => stdout.push(chunk));
-    child.stderr.on('data', (chunk: Buffer) => stderr.push(chunk));
-    child.once('error', (error) => {
-      clearTimeout(timer);
-      reject(error);
-    });
-    child.once('close', (code) => {
-      clearTimeout(timer);
-      const output = Buffer.concat(stdout).toString('utf8').trim();
-      const diagnostic = sanitizeLocalComputerDiagnostic(
-        Buffer.concat(stderr).toString('utf8').trim(),
-      );
-      if (code !== 0) {
-        reject(new Error(diagnostic || output || `Local computer ${operation} failed.`));
-        return;
-      }
-      try {
-        resolve(JSON.parse(output) as Result);
-      } catch {
-        reject(new Error(`Local computer returned an invalid response: ${output || diagnostic}`));
+  let client = helperClients.get(runtime.pythonPath);
+  if (!client) {
+    client = new PersistentHelperClient(runtime.pythonPath, () => {
+      if (helperClients.get(runtime.pythonPath) === client) {
+        helperClients.delete(runtime.pythonPath);
       }
     });
-    child.stdin.end(
-      JSON.stringify({ ...payload, image: runtime.image, vm: runtime.virtualMachine }),
-    );
-  });
+    helperClients.set(runtime.pythonPath, client);
+  }
+  return client.request<Result>(
+    operation,
+    { ...payload, image: runtime.image, vm: runtime.virtualMachine },
+    timeoutMs,
+  );
 }
 
 function setupHint(runtime: LocalSettings): string {
@@ -153,8 +256,11 @@ class CuaLocalSandboxProvider implements SandboxProvider {
     await runHelper(this.runtime, 'destroy', { name: sandboxId });
   }
 
-  async observe(sandboxId: string): Promise<SandboxObserveResult> {
-    return runHelper(this.runtime, 'observe', { name: sandboxId });
+  async observe(
+    sandboxId: string,
+    options?: SandboxObserveOptions,
+  ): Promise<SandboxObserveResult> {
+    return runHelper(this.runtime, 'observe', { name: sandboxId, ...(options ? { options } : {}) });
   }
 
   async act(sandboxId: string, actions: Record<string, unknown>[]): Promise<{ applied: number }> {
@@ -186,10 +292,7 @@ class CuaLocalSandboxProvider implements SandboxProvider {
     });
   }
 
-  async liveViewUrl(
-    _sandboxId: string,
-    _options: { interactive?: boolean } = {},
-  ): Promise<null> {
+  async liveViewUrl(_sandboxId: string, _options: { interactive?: boolean } = {}): Promise<null> {
     return null;
   }
 }

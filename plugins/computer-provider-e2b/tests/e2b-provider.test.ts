@@ -1,4 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
+import sharp from 'sharp';
 
 const e2b = vi.hoisted(() => {
   const sandbox = {
@@ -110,5 +111,39 @@ describe('E2B computer provider', () => {
     expect(e2b.sandbox.stream.stop).toHaveBeenCalledOnce();
     expect(e2b.sandbox.pause).toHaveBeenCalledWith({ keepMemory: true, apiKey: 'test-key' });
     expect(e2b.kill).toHaveBeenCalledWith('sandbox-1', { apiKey: 'test-key' });
+  });
+
+  it('crops, scales, and encodes an optimized WebP frame in desktop coordinates', async () => {
+    e2b.sandbox.screenshot.mockResolvedValue(
+      await sharp({
+        create: { width: 8, height: 4, channels: 3, background: '#2f6feb' },
+      })
+        .png()
+        .toBuffer(),
+    );
+    e2b.sandbox.getScreenSize.mockResolvedValue({ width: 8, height: 4 });
+
+    const observed = await provider().observe('sandbox-1', {
+      format: 'webp',
+      quality: 55,
+      max_raster_width: 3,
+      max_raster_height: 2,
+      source_region: { x: 2, y: 1, width: 4, height: 2 },
+    });
+
+    expect(observed).toMatchObject({
+      width: 8,
+      height: 4,
+      desktop_width: 8,
+      desktop_height: 4,
+      mime_type: 'image/webp',
+      raster_width: 3,
+      raster_height: 2,
+      source_region: { x: 2, y: 1, width: 4, height: 2 },
+      dedupe_key: expect.stringMatching(/^[a-f0-9]{64}$/),
+    });
+    expect((await sharp(Buffer.from(observed.image_base64, 'base64')).metadata()).format).toBe(
+      'webp',
+    );
   });
 });

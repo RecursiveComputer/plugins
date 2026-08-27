@@ -36,6 +36,7 @@ registry = types.ModuleType("cua_sandbox.registry")
 registry.container_disk = container_disk
 sandbox = types.ModuleType("cua_sandbox")
 sandbox.registry = registry
+sandbox.sandbox_state = types.SimpleNamespace(update=lambda *args, **kwargs: None)
 sys.modules["cua_sandbox"] = sandbox
 sys.modules["cua_sandbox.registry"] = registry
 sys.modules["cua_sandbox.registry.container_disk"] = container_disk
@@ -85,6 +86,92 @@ print(json.dumps({
       registry_arch: 'amd64',
       qemu_arch: 'x86_64',
       qemu_mode: 'bare-metal',
+    });
+  });
+
+  it('keeps one Cua connection warm across frame requests', () => {
+    const helperPath = fileURLToPath(new URL('../provider_helper.py', import.meta.url));
+    const script = `
+import importlib.util
+import asyncio
+import json
+import sys
+import types
+
+spec = importlib.util.spec_from_file_location("provider_helper", sys.argv[1])
+helper = importlib.util.module_from_spec(spec)
+spec.loader.exec_module(helper)
+helper.platform.machine = lambda: "x86_64"
+helper.require_supported_cua = lambda: None
+
+counts = {"connect": 0, "disconnect": 0, "screenshot": 0}
+class Image:
+    pass
+class QEMURuntime:
+    pass
+class ConnectedSandbox:
+    async def screenshot_base64(self):
+        counts["screenshot"] += 1
+        return "image"
+    async def get_dimensions(self):
+        return (1280, 720)
+    async def disconnect(self):
+        counts["disconnect"] += 1
+class Sandbox:
+    @classmethod
+    async def connect(cls, name, local=True):
+        counts["connect"] += 1
+        return ConnectedSandbox()
+cua = types.ModuleType("cua")
+cua.Image = Image
+cua.QEMURuntime = QEMURuntime
+cua.Sandbox = Sandbox
+sys.modules["cua"] = cua
+
+async def exercise():
+    payload = {"name": "test", "image": "linux", "vm": True}
+    first = await helper.dispatch("observe", payload)
+    second = await helper.dispatch("observe", payload)
+    before_close = dict(counts)
+    await helper.disconnect_all()
+    return first, second, before_close, counts
+
+first, second, before_close, after_close = asyncio.run(exercise())
+print(json.dumps({
+    "first": first,
+    "second": second,
+    "before_close": before_close,
+    "after_close": after_close,
+}))
+`;
+    const result = spawnSync('python3', ['-c', script, helperPath], { encoding: 'utf8' });
+
+    expect(result.status, result.stderr).toBe(0);
+    expect(JSON.parse(result.stdout)).toMatchObject({
+      first: {
+        image_base64: 'image',
+        width: 1280,
+        height: 720,
+        mime_type: 'image/png',
+        raster_width: 1280,
+        raster_height: 720,
+        desktop_width: 1280,
+        desktop_height: 720,
+        source_region: { x: 0, y: 0, width: 1280, height: 720 },
+      },
+      second: {
+        image_base64: 'image',
+        width: 1280,
+        height: 720,
+        mime_type: 'image/png',
+        raster_width: 1280,
+        raster_height: 720,
+        desktop_width: 1280,
+        desktop_height: 720,
+        source_region: { x: 0, y: 0, width: 1280, height: 720 },
+      },
+      before_close: { connect: 1, disconnect: 0, screenshot: 2 },
+      after_close: { connect: 1, disconnect: 1, screenshot: 2 },
     });
   });
 
