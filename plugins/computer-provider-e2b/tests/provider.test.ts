@@ -9,7 +9,9 @@ afterEach(() => {
 describe('E2B computer provider', () => {
   test('reports setup guidance when the E2B key is missing', () => {
     vi.stubEnv('E2B_API_KEY', '');
-    expect(computerProvider.status?.({ plugin_id: 'computer-provider-e2b', settings: {} })).toMatchObject({
+    expect(
+      computerProvider.status?.({ plugin_id: 'computer-provider-e2b', settings: {} }),
+    ).toMatchObject({
       available: true,
       configured: false,
       setup_hint: 'Open Settings → Plugins → E2B Computer.',
