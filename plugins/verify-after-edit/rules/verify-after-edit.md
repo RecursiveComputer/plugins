@@ -5,7 +5,20 @@ alwaysApply: true
 
 # Verify After Edit
 
-After modifying `.ts`, `.tsx`, `.js`, `.jsx`, `.svelte`, or `.css`, run verification once per batch — not per keystroke — before claiming the work is done. Skip both checks for `.md` / `.json` / `.yaml` changes, or if the project doesn't depend on TypeScript / ESLint.
+After modifying `.ts`, `.tsx`, `.js`, `.jsx`, `.svelte`, `.css`, `.py`, `.go`, `.rs`, or `.rb`, run verification once per batch — not per keystroke — before claiming the work is done. Skip checks for `.md` / `.json` / `.yaml` changes unless they change a project-specific verification configuration.
+
+The installed hook discovers a nearest package/module from its manifest and lockfile, then runs only local scripts, executables, or language tooling already present. It never uses `npx`, `pip install`, `bundle install`, or any other dependency installation command. In a Node monorepo, it uses the nearest package manifest and the nearest `pnpm-lock.yaml`, `package-lock.json`, `yarn.lock`, or Bun lockfile; package scripts are preferred over fallback tools.
+
+For a project-owned, reviewable recipe file, generate it once with `VERIFY_AFTER_EDIT_MODE=write` (or `VERIFY_AFTER_EDIT_WRITE_MANIFEST=1`). The resulting `.recursive/verify.json` is versioned (`version: 1`) and contains explicit `argv` arrays, `cwd`, `timeout`, source metadata, and an `environment` section. It is never overwritten automatically. Do not use shell command strings: argv arrays are executed directly, without `eval` or shell interpolation.
+
+The nearest `AGENTS.md` can override an automatically discovered check with a deliberately narrow directive:
+
+```text
+verify-after-edit: typecheck: npm run typecheck
+verify-after-edit: lint: npm run lint
+```
+
+Each directive is tokenized as plain argv and rejects quotes, redirects, substitutions, pipes, and other shell syntax.
 
 ## Monorepo: scope verification to the packages you touched
 
