@@ -1,6 +1,6 @@
 ---
 name: marketing-campaign
-description: Orchestrate an evidence-backed marketing campaign from a bound channel or Recursive session, especially requests such as "@Recursive launch this" that require project routing, coordinated specialist work, a single review package, publication approval, origin delivery, and performance follow-up.
+description: "Coordinate a requested multi-channel marketing campaign through evidence, drafts, review, and authorized publication."
 execution:
   mode: managed
   timeout_minutes: 120

@@ -1,6 +1,6 @@
 ---
 name: connecting-stripe
-description: "Walks through connecting a Stripe account to Recursive end-to-end: add a webhook endpoint in the Stripe Dashboard, store the signing secret (whsec_) in plugin settings, create the event automation, and verify with a test webhook. Use when the user wants Stripe payment events (checkouts, failed payments, subscriptions, refunds, disputes) to trigger automations."
+description: "Configure Stripe payment-event webhooks to trigger Recursive automations."
 ---
 
 # Connecting Stripe

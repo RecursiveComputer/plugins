@@ -1,6 +1,6 @@
 ---
 name: connecting-cloudflare
-description: "Walks through connecting Cloudflare Notifications to Recursive end-to-end: store the webhook secret in plugin settings, create the event automation, create the Cloudflare webhook destination pointed at the inbound trigger URL, and wire a Notification policy to it. Use when the user wants Cloudflare deploy alerts, health checks, or security events to trigger automations."
+description: "Configure Cloudflare notification webhooks to trigger Recursive automations."
 ---
 
 # Connecting Cloudflare
