@@ -1,0 +1,60 @@
+{
+  "manifestFormat": 2,
+  "id": "pangolin-remote",
+  "name": "Pangolin",
+  "version": "1.0.0",
+  "description": "Connect through a dedicated Pangolin Newt site and public resource.",
+  "author": {
+    "name": "Recursive"
+  },
+  "icon": "globe",
+  "bundledOptIn": true,
+  "remoteAccess": {
+    "providers": [
+      {
+        "id": "pangolin-remote",
+        "label": "Pangolin",
+        "entry": "providers/index.ts",
+        "description": "Connect through a dedicated Pangolin Newt site and public resource.",
+        "security": "Install Newt and create a dedicated site and HTTPS resource in your Pangolin dashboard, targeting the loopback bridge. Allow the Recursive protocol paths through your resource policy. Recursive starts only this dedicated Newt process with SSH disabled. Host access still requires Recursive authentication."
+      }
+    ]
+  },
+  "settings": {
+    "defaults": {
+      "port": 18445
+    },
+    "schema": [
+      {
+        "key": "server",
+        "type": "text",
+        "label": "Pangolin server",
+        "description": "HTTPS origin of your Pangolin dashboard."
+      },
+      {
+        "key": "endpoint",
+        "type": "text",
+        "label": "HTTPS endpoint",
+        "description": "Full origin, such as https://remote.example.com, with no path."
+      },
+      {
+        "key": "site_id",
+        "type": "text",
+        "label": "Dedicated Newt site ID",
+        "description": "Create a new site for this provider; do not reuse a running site."
+      },
+      {
+        "key": "site_secret",
+        "type": "password",
+        "label": "Newt site secret",
+        "description": "Secret from that dedicated site."
+      },
+      {
+        "key": "port",
+        "type": "number",
+        "label": "Loopback bridge port",
+        "description": "Set your Pangolin resource target to http://127.0.0.1:18445, or the port chosen here."
+      }
+    ]
+  }
+}

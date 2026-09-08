@@ -1,0 +1,40 @@
+{
+  "manifestFormat": 2,
+  "id": "ngrok-remote",
+  "name": "ngrok",
+  "version": "1.0.0",
+  "description": "Connect through a reserved ngrok HTTPS endpoint.",
+  "author": {
+    "name": "Recursive"
+  },
+  "icon": "globe",
+  "bundledOptIn": true,
+  "remoteAccess": {
+    "providers": [
+      {
+        "id": "ngrok-remote",
+        "label": "ngrok",
+        "entry": "providers/index.ts",
+        "description": "Connect through a reserved ngrok HTTPS endpoint.",
+        "security": "The public ngrok endpoint carries Recursive encrypted sessions. Install the ngrok CLI and reserve a stable HTTPS endpoint in your ngrok account. Recursive owns only its agent process; the authtoken is stored privately."
+      }
+    ]
+  },
+  "settings": {
+    "defaults": {},
+    "schema": [
+      {
+        "key": "endpoint",
+        "type": "text",
+        "label": "HTTPS endpoint",
+        "description": "Full origin, such as https://remote.example.com, with no path."
+      },
+      {
+        "key": "authtoken",
+        "type": "password",
+        "label": "Agent authtoken",
+        "description": "From your ngrok dashboard."
+      }
+    ]
+  }
+}

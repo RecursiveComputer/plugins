@@ -1,0 +1,9 @@
+{
+  "name": "@recursive/plugin-custom-remote-endpoint",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "dependencies": {
+    "@recursive/plugin-sdk": "*"
+  }
+}

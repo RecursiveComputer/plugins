@@ -1,0 +1,42 @@
+{
+  "manifestFormat": 2,
+  "id": "netbird-remote",
+  "name": "NetBird",
+  "version": "1.0.0",
+  "description": "Connect through a NetBird reverse proxy to this connected peer.",
+  "author": {
+    "name": "Recursive"
+  },
+  "icon": "globe",
+  "bundledOptIn": true,
+  "remoteAccess": {
+    "providers": [
+      {
+        "id": "netbird-remote",
+        "label": "NetBird",
+        "entry": "providers/index.ts",
+        "description": "Connect through a NetBird reverse proxy to this connected peer.",
+        "security": "Connect NetBird first, then configure its public reverse proxy to forward to this peer on the bridge port. The bridge binds only the NetBird IPv4 address. Recursive does not change or stop your NetBird service; host access requires Recursive authentication."
+      }
+    ]
+  },
+  "settings": {
+    "defaults": {
+      "port": 18446
+    },
+    "schema": [
+      {
+        "key": "endpoint",
+        "type": "text",
+        "label": "HTTPS endpoint",
+        "description": "Full origin, such as https://remote.example.com, with no path."
+      },
+      {
+        "key": "port",
+        "type": "number",
+        "label": "Peer bridge port",
+        "description": "Set the NetBird reverse proxy target to this peer over HTTP on this port."
+      }
+    ]
+  }
+}

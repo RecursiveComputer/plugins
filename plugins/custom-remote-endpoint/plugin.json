@@ -1,0 +1,42 @@
+{
+  "manifestFormat": 2,
+  "id": "custom-remote-endpoint",
+  "name": "Custom Endpoint",
+  "version": "1.0.0",
+  "description": "Connect through your own HTTPS reverse proxy.",
+  "author": {
+    "name": "Recursive"
+  },
+  "icon": "globe",
+  "bundledOptIn": true,
+  "remoteAccess": {
+    "providers": [
+      {
+        "id": "custom-remote-endpoint",
+        "label": "Custom Endpoint",
+        "entry": "providers/index.ts",
+        "description": "Connect through your own HTTPS reverse proxy.",
+        "security": "Your proxy provides public HTTPS and WebSocket forwarding. Point it to the loopback bridge on this device. The bridge exposes only Recursive identity and encrypted sessions; keep your certificate renewed."
+      }
+    ]
+  },
+  "settings": {
+    "defaults": {
+      "port": 18444
+    },
+    "schema": [
+      {
+        "key": "endpoint",
+        "type": "text",
+        "label": "HTTPS endpoint",
+        "description": "Full origin, such as https://remote.example.com, with no path."
+      },
+      {
+        "key": "port",
+        "type": "number",
+        "label": "Loopback bridge port",
+        "description": "Configure your proxy upstream as http://127.0.0.1:18444, or the port chosen here."
+      }
+    ]
+  }
+}

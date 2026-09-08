@@ -1,0 +1,60 @@
+{
+  "manifestFormat": 2,
+  "id": "zerotier-remote",
+  "name": "ZeroTier",
+  "version": "1.0.0",
+  "description": "Connect privately through an authorized ZeroTier network.",
+  "author": {
+    "name": "Recursive"
+  },
+  "icon": "globe",
+  "bundledOptIn": true,
+  "remoteAccess": {
+    "providers": [
+      {
+        "id": "zerotier-remote",
+        "label": "ZeroTier",
+        "entry": "providers/index.ts",
+        "description": "Connect privately through an authorized ZeroTier network.",
+        "security": "Both devices must belong to your authorized ZeroTier network. Configure DNS for the assigned network address and supply a browser-trusted TLS certificate. Recursive binds only that address and does not join or leave networks. You maintain DNS and certificate renewal."
+      }
+    ]
+  },
+  "settings": {
+    "defaults": {
+      "port": 18447
+    },
+    "schema": [
+      {
+        "key": "network_id",
+        "type": "text",
+        "label": "Network ID",
+        "description": "16 hexadecimal characters. This device must already be authorized."
+      },
+      {
+        "key": "endpoint",
+        "type": "text",
+        "label": "Private HTTPS endpoint",
+        "description": "Hostname resolving to this ZeroTier address, including the HTTPS port, e.g. https://host.example.com:18447."
+      },
+      {
+        "key": "port",
+        "type": "number",
+        "label": "HTTPS bridge port",
+        "description": "Must match the endpoint port."
+      },
+      {
+        "key": "tls_certificate",
+        "type": "password",
+        "label": "TLS certificate (PEM)",
+        "description": "Browser-trusted certificate and intermediate chain for the hostname."
+      },
+      {
+        "key": "tls_private_key",
+        "type": "password",
+        "label": "TLS private key (PEM)",
+        "description": "Unencrypted private key matching the certificate."
+      }
+    ]
+  }
+}
