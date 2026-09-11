@@ -4,7 +4,9 @@
   "name": "Local Computer",
   "version": "0.1.0",
   "description": "Persistent isolated desktop on this machine using Cua Sandbox.",
-  "author": { "name": "Recursive" },
+  "author": {
+    "name": "Recursive"
+  },
   "color": "#16a34a",
   "icon": "desktop",
   "computer": {
@@ -19,7 +21,7 @@
   "onboarding": {
     "subtitle": "Prepare an isolated desktop on this device for all of your bots.",
     "verify": {
-      "endpoint": "/api/computer-provider-cua-local/verify"
+      "operation": "computer-provider-cua-local.onboarding.verify"
     },
     "steps": [
       {
@@ -84,5 +86,18 @@
         "section": "Isolation"
       }
     ]
+  },
+  "runtime": {
+    "operations": "./operations.ts",
+    "routes": "./routes/"
+  },
+  "storage": {
+    "config": {
+      "scopes": [
+        "user"
+      ],
+      "description": "Provider settings used by onboarding verification.",
+      "collections": []
+    }
   }
 }
