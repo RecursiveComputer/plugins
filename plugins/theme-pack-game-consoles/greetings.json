@@ -5,7 +5,7 @@
   "description": "Video-game riffs for starting a new quest.",
   "source": "Recursive Press Start greetings",
   "placeholder": "{project}",
-  "count": 44,
+  "count": 43,
   "defaultTones": ["creative"],
   "toneWeights": {
     "creative": 1
@@ -219,13 +219,6 @@
       "description": "A greeting for a new workspace session — tone: creative (quote-inspired, video game). Use {project} for the project display name.",
       "days": [],
       "timeranges": [6, 21],
-      "tone": "creative"
-    },
-    {
-      "text": "What is a man? A miserable little pile of {project}",
-      "description": "A greeting for a new workspace session — tone: creative (quote-inspired, video game, absurdist). Use {project} for the project display name.",
-      "days": [],
-      "timeranges": [21, 6],
       "tone": "creative"
     },
     {
