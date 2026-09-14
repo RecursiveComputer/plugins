@@ -89,7 +89,12 @@
   },
   "runtime": {
     "operations": "./operations.ts",
-    "routes": "./routes/"
+    "routes": "./routes/",
+    "consumes": {
+      "hostCapabilities": [
+        "settings.plugin.read"
+      ]
+    }
   },
   "storage": {
     "config": {

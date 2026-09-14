@@ -1,5 +1,4 @@
 import { defineOperation } from '@recursive/core-contract/operations';
-import { getPluginSettings } from '@recursive/core-db/plugin-settings';
 import { wirePluginOperations } from '@recursive/plugin-sdk';
 import { verifyLocalComputer } from './provider.js';
 
@@ -14,8 +13,8 @@ export const verifyOperation = defineOperation<Record<string, never>, { ok: bool
   errors: ['unauthenticated', 'forbidden', 'write_failed'], mcp: { exposed: false, destructive: false },
 });
 export default { operations: wirePluginOperations({ verify: verifyOperation }, {
-  verify: async () => {
-    const settings = getPluginSettings('computer-provider-cua-local');
+  verify: async (_input, context) => {
+    const settings = await context.host.pluginSettings.get();
     const result = await verifyLocalComputer(settings);
     return { ok: result.ok, message: result.message };
   },
