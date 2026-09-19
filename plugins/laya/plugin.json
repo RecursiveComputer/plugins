@@ -1,0 +1,130 @@
+{
+  "manifestFormat": 2,
+  "id": "laya",
+  "name": "Laya",
+  "version": "0.1.0",
+  "description": "Open-weight System 1 judgments (choice, score, noul) from Laya, running locally on this machine. A free, multilingual alternative to TypeSafe Jev for routing and guard signals.",
+  "author": {
+    "name": "Recursive"
+  },
+  "color": "#0F766E",
+  "icon": "tag",
+  "thumbnail": "./icon.png",
+  "classification": {
+    "provider": {
+      "id": "laya",
+      "label": "Laya (local)",
+      "description": "Structured choice, score, and noul judgments from Laya checkpoints run by a local Python sidecar.",
+      "entry": "./provider.ts",
+      "capabilities": {
+        "primitives": ["choice", "score", "noul"],
+        "batch": true
+      }
+    }
+  },
+  "onboarding": {
+    "subtitle": "Run calibrated routing and guard judgments on your own hardware, no API key.",
+    "verify": {
+      "operation": "laya.onboarding.verify"
+    },
+    "steps": [
+      {
+        "kind": "install",
+        "title": "Install Laya",
+        "desc": "Runs in Recursive's terminal only after you click Install. Pulls in PyTorch and Transformers; a GPU is optional.",
+        "optional": true,
+        "command": "python3 -m pip install --upgrade laya",
+        "actionLabel": "Install laya"
+      },
+      {
+        "kind": "field",
+        "title": "Choose the Python environment",
+        "desc": "Use the Python 3.10+ command where the laya package is installed.",
+        "field": {
+          "key": "pythonPath",
+          "placeholder": "python3"
+        },
+        "actionLabel": "Save Python command"
+      },
+      {
+        "kind": "verify",
+        "title": "Load a checkpoint and test",
+        "desc": "Downloads the selected checkpoint from Hugging Face on first run (~1.5 GB), then answers a probe question.",
+        "actionLabel": "Test Laya"
+      }
+    ]
+  },
+  "settings": {
+    "defaults": {
+      "pythonPath": "python3",
+      "model": "auto",
+      "device": "auto",
+      "preload": false,
+      "timeoutMs": 5000,
+      "baseUrl": ""
+    },
+    "schema": [
+      {
+        "key": "pythonPath",
+        "type": "string",
+        "label": "Python command",
+        "description": "Python environment containing the laya package. Ignored when a server URL is set.",
+        "section": "Runtime"
+      },
+      {
+        "key": "model",
+        "type": "enum",
+        "options": ["auto", "english", "multilingual", "typed-decisions"],
+        "label": "Checkpoint",
+        "description": "auto lets Laya's Router pick per request from the detected script and language; english is fastest on English-only workloads.",
+        "section": "Runtime"
+      },
+      {
+        "key": "device",
+        "type": "enum",
+        "options": ["auto", "cpu", "cuda", "mps"],
+        "label": "Device",
+        "description": "Torch device for inference. auto prefers CUDA, then Apple MPS, then CPU.",
+        "section": "Runtime"
+      },
+      {
+        "key": "preload",
+        "type": "boolean",
+        "label": "Preload every checkpoint",
+        "description": "Keep all three checkpoints resident (~4.6 GB RAM) so auto routing never reloads a model between languages.",
+        "section": "Runtime"
+      },
+      {
+        "key": "timeoutMs",
+        "type": "number",
+        "label": "Timeout (ms)",
+        "description": "Hard timeout for classifier calls. Calls made while a checkpoint is still loading fail open.",
+        "section": "Runtime"
+      },
+      {
+        "key": "baseUrl",
+        "type": "string",
+        "label": "Server URL",
+        "description": "Optional. Use a remote `laya_helper.py serve-http` instance (for example http://gpu-box:8765) instead of a local sidecar.",
+        "section": "Connection"
+      }
+    ]
+  },
+  "runtime": {
+    "operations": "./operations.ts",
+    "consumes": {
+      "hostCapabilities": [
+        "settings.plugin.read"
+      ]
+    }
+  },
+  "storage": {
+    "config": {
+      "scopes": [
+        "user"
+      ],
+      "description": "Laya sidecar runtime options; no credentials.",
+      "collections": []
+    }
+  }
+}
