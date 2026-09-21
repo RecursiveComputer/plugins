@@ -79,6 +79,14 @@ describe('buildLayaQuestions', () => {
     });
   });
 
+  it('poses ad-hoc questions with the wording the caller supplied in the input', () => {
+    const questions = buildLayaQuestions(
+      { labels: ['easy', 'hard'], input: { instructions: 'How much reasoning does this task require?', criteria: { easy: 'small' } } },
+      ['easy', 'hard'],
+    );
+    expect(questions.choice).toMatchObject({ instructions: 'How much reasoning does this task require?', criteria: { easy: 'small', hard: 'hard' } });
+  });
+
   it('expands scores mode into one noul per chunk so every candidate shares a scale', () => {
     const questions = buildLayaQuestions(
       { mode: 'scores', labels: ['7', '9'], input: { query: 'q', chunks: { '7': 'seven', '9': 'nine' } } },

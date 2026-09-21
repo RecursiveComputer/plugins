@@ -160,6 +160,9 @@ function questionInstructions(request: ClassificationRequest): string {
     return QUESTION_INSTRUCTIONS[request.question_id]!;
   }
   if (request.question_id) return request.question_id;
+  // Ad-hoc questions (live compose routing, workflow decisions) carry their wording in the input.
+  const inline = request.input.instructions;
+  if (typeof inline === 'string' && inline.trim()) return inline.trim();
   return request.mode === 'scores' ? 'Score each candidate by relevance.' : 'Select the best option.';
 }
 
