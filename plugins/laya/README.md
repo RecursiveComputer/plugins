@@ -22,10 +22,13 @@ provider.ts ──► lib/laya-client.ts ──► lib/laya-helper.ts ──► 
 ## Setup
 
 ```bash
-python3 -m pip install --upgrade laya      # pulls in torch + transformers
+python3 -m venv "$HOME/.local/share/recursive/laya"
+"$HOME/.local/share/recursive/laya/bin/python" -m pip install --upgrade laya
+echo "$HOME/.local/share/recursive/laya/bin/python"
 ```
 
-Then open the plugin's onboarding, save the Python command, and click **Test Laya**. The first test
+The virtual environment also works with externally managed Python installations such as Homebrew.
+Then open the plugin's onboarding, save the printed absolute Python path, and click **Test Laya**. The first test
 downloads the selected checkpoint from Hugging Face (~1.5 GB each) and answers a probe question.
 
 ## Settings
@@ -52,3 +55,13 @@ downloads the selected checkpoint from Hugging Face (~1.5 GB each) and answers a
 
 `npx vitest run plugins/shared/laya` — the stdio client is exercised against
 `tests/fixtures/fake-laya-helper.mjs`, a node stand-in that speaks the same protocol, so no torch is needed.
+
+To test actual model inference (including a checkpoint download on first use):
+
+```bash
+node --import tsx plugins/shared/laya/smoke.ts /absolute/path/to/venv/bin/python
+```
+
+This checks onboarding, billing/technical classification, and finite `noul` and `score` judgments.
+Set `HF_HOME` to choose the model cache directory. Mock transport tests alone do not verify the Python
+environment or checkpoint compatibility.
