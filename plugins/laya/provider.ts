@@ -9,6 +9,8 @@ import type {
   CompactionJudgmentState,
 } from '@recursive/core-types/compaction-transcript';
 
+import { classificationState } from '@recursive/core-types/classification-wire';
+
 import {
   LAYA_PROVIDER_ID,
   buildLayaQuestions,
@@ -38,7 +40,7 @@ export class LayaProvider implements ClassificationProvider {
   get model(): string { return this.settings.model; }
 
   requestBytes(request: ClassificationRequest): number {
-    return this.wireBytes(request.input, buildLayaQuestions(request, request.labels));
+    return this.wireBytes(classificationState(request.input), buildLayaQuestions(request, request.labels));
   }
 
   judgmentBytes(state: CompactionJudgmentState, questions: CompactionJudgmentQuestions): number {

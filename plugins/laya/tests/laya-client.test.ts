@@ -70,11 +70,12 @@ describe('buildLayaQuestions', () => {
       },
       ['easy', 'hard'],
     );
-    expect(questions).toEqual({
-      choice: {
-        type: 'choice',
-        instructions: expect.stringContaining('How difficult'),
-        criteria: { easy: 'Easy: trivial', hard: 'hard' },
+    expect(questions.choice).toMatchObject({
+      type: 'choice',
+      instructions: 'How difficult is the upcoming agent turn described by the state?',
+      criteria: {
+        easy: { label: 'Easy', description: 'trivial' },
+        hard: { covers: expect.any(String), excludes: expect.any(String) },
       },
     });
   });
@@ -92,8 +93,9 @@ describe('buildLayaQuestions', () => {
       { mode: 'scores', labels: ['7', '9'], input: { query: 'q', chunks: { '7': 'seven', '9': 'nine' } } },
       ['7', '9'],
     );
-    expect(questions.relevance_0).toEqual({ type: 'noul', instructions: expect.stringContaining('seven') });
-    expect(questions.relevance_1).toEqual({ type: 'noul', instructions: expect.stringContaining('nine') });
+    expect(questions.relevance_0).toMatchObject({ type: 'noul', instructions: { candidate: 'chunks.7', query: 'query' } });
+    expect(questions.relevance_1).toMatchObject({ type: 'noul', instructions: { candidate: 'chunks.9' } });
+    expect(JSON.stringify(questions)).not.toContain('seven');
   });
 });
 

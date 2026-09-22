@@ -12,6 +12,10 @@ import type {
   CompactionJudgmentState,
 } from '@recursive/core-types/compaction-transcript';
 import { DEFAULT_COMPACTION_TIMEOUT_MS } from '@recursive/core-types/compaction-transcript';
+import {
+  buildClassificationQuestions,
+  classificationState,
+} from '@recursive/core-types/classification-wire';
 
 import { getLayaHelperClient, type LayaHelperOptions } from './laya-helper.js';
 
@@ -147,59 +151,8 @@ export function createLayaTransport(settings: LayaSettings): LayaTransport {
   return settings.baseUrl ? createHttpTransport(settings) : createStdioTransport(settings);
 }
 
-/** Same platform question wording the Jev provider uses, so both providers judge identical prompts. */
-const QUESTION_INSTRUCTIONS: Record<string, string> = {
-  'route.difficulty': 'How difficult is the upcoming agent turn described by the state? easy = trivial edit or lookup, standard = ordinary implementation work, hard = ambiguous, cross-cutting, or architectural work.',
-  'tool.surface.tags': 'Which tool family will the next agent turn most need?',
-  'retry.strategy': 'Recent turns show little progress. Which strategy should the agent take next?',
-  'chunk.relevance': 'Score each candidate chunk by how directly it answers the query in the state.',
-};
-
-function questionInstructions(request: ClassificationRequest): string {
-  if (request.question_id && QUESTION_INSTRUCTIONS[request.question_id]) {
-    return QUESTION_INSTRUCTIONS[request.question_id]!;
-  }
-  if (request.question_id) return request.question_id;
-  // Ad-hoc questions (live compose routing, workflow decisions) carry their wording in the input.
-  const inline = request.input.instructions;
-  if (typeof inline === 'string' && inline.trim()) return inline.trim();
-  return request.mode === 'scores' ? 'Score each candidate by relevance.' : 'Select the best option.';
-}
-
-/**
- * Build the System One question set for a platform classification request. `scores` mode becomes one
- * independent noul per candidate so every chunk is scored on the same scale; otherwise one `choice`
- * whose criteria come from `input.candidates` / `input.criteria` when present.
- */
-export function buildLayaQuestions(
-  request: ClassificationRequest,
-  labels: readonly string[],
-): Record<string, unknown> {
-  const instructions = questionInstructions(request);
-  if (request.mode === 'scores') {
-    const chunks = request.input.chunks && typeof request.input.chunks === 'object'
-      ? (request.input.chunks as Record<string, unknown>)
-      : {};
-    return Object.fromEntries(labels.map((label, index) => [`relevance_${index}`, {
-      type: 'noul',
-      instructions: `The candidate is relevant to the query in state: ${String(chunks[label] ?? label)}`,
-    }]));
-  }
-  const candidates = Array.isArray(request.input.candidates) ? request.input.candidates : [];
-  const criteria = request.input.criteria && typeof request.input.criteria === 'object'
-    ? (request.input.criteria as Record<string, string>)
-    : {};
-  return {
-    choice: {
-      type: 'choice',
-      instructions,
-      criteria: Object.fromEntries(labels.map((label) => {
-        const candidate = candidates.find((row) => row && typeof row === 'object' && row.id === label);
-        return [label, candidate ? `${candidate.label}: ${candidate.description ?? ''}` : criteria[label] ?? label];
-      })),
-    },
-  };
-}
+/** Same question builder the Jev provider uses, so both providers judge identical prompts. */
+export const buildLayaQuestions = buildClassificationQuestions;
 
 function mapChoiceAnswer(answer: ChoiceAnswer, labels: readonly string[], latencyMs: number): ClassificationResult {
   const probabilities = answer.probabilities ?? {};
@@ -228,7 +181,7 @@ export async function evaluateLayaChoice(
   let payload: LayaPredictResponse;
   try {
     payload = await transport.predict(
-      { state: request.input, questions: buildLayaQuestions(request, labels), model: settings.model },
+      { state: classificationState(request.input), questions: buildLayaQuestions(request, labels), model: settings.model },
       timeoutMs,
     );
   } catch {
