@@ -275,11 +275,18 @@ export async function verifyLayaConnection(transport: LayaTransport, settings: L
   }
   const result = await evaluateLayaChoice(transport, { ...settings, timeoutMs: Math.max(settings.timeoutMs, 30_000) }, {
     labels: ['ok', 'fail'],
-    input: { probe: true, expected: 'ok' },
+    input: {
+      text: 'The service is working correctly. All checks passed.',
+      instructions: 'Did the service checks pass or fail?',
+      criteria: { ok: 'The checks passed and the service works.', fail: 'The checks failed or the service is broken.' },
+    },
     mode: 'single',
   });
   if (!result?.choice) {
     return { ok: false, message: 'Laya did not return a choice for the probe question.', setup_hint: setupHint(settings) };
+  }
+  if (result.choice !== 'ok') {
+    return { ok: false, message: `Laya answered "${result.choice}" for the probe; expected "ok".` };
   }
   return {
     ok: true,

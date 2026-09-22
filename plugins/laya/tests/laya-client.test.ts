@@ -186,3 +186,13 @@ describe('stdio transport end to end (fake sidecar)', () => {
     expect(verify).toMatchObject({ ok: true, message: expect.stringContaining('ok') });
   });
 });
+
+describe('onboarding verification', () => {
+  it.each(['fail', 'unrecognised'])('rejects an incorrect probe answer: %s', async (choice) => {
+    const transport = fakeTransport({ choice: { type: 'choice', choice } });
+    await expect(verifyLayaConnection(transport, settings)).resolves.toMatchObject({
+      ok: false,
+      message: expect.stringContaining('expected "ok"'),
+    });
+  });
+});

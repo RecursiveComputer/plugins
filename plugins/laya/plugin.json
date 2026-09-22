@@ -8,7 +8,7 @@
     "name": "Recursive"
   },
   "color": "#0F766E",
-  "icon": "tag",
+  "icon": "circuit-board",
   "thumbnail": "./icon.png",
   "classification": {
     "provider": {
@@ -31,9 +31,9 @@
       {
         "kind": "install",
         "title": "Install Laya",
-        "desc": "Runs in Recursive's terminal only after you click Install. Pulls in PyTorch and Transformers; a GPU is optional.",
+        "desc": "Creates an isolated Python environment under ~/.local/share/recursive/laya. Pulls in PyTorch and Transformers; a GPU is optional. Copy the printed Python path into the next step.",
         "optional": true,
-        "command": "python3 -m pip install --upgrade laya",
+        "command": "python3 -m venv \"$HOME/.local/share/recursive/laya\" && \"$HOME/.local/share/recursive/laya/bin/python\" -m pip install --upgrade laya && echo \"Python command: $HOME/.local/share/recursive/laya/bin/python\"",
         "actionLabel": "Install laya"
       },
       {
