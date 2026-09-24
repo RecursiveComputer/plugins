@@ -64,18 +64,21 @@ describe('buildLayaQuestions', () => {
   it('builds one choice with candidate descriptions as criteria', () => {
     const questions = buildLayaQuestions(
       {
-        question_id: 'route.difficulty',
         labels: ['easy', 'hard'],
-        input: { candidates: [{ id: 'easy', label: 'Easy', description: 'trivial' }] },
+        input: {
+          instructions: 'How difficult is this task?',
+          candidates: [{ id: 'easy', label: 'Easy', description: 'trivial' }],
+          criteria: { hard: { covers: 'multi-step work', excludes: 'one-line fixes' } },
+        },
       },
       ['easy', 'hard'],
     );
     expect(questions.choice).toMatchObject({
       type: 'choice',
-      instructions: 'How difficult is the upcoming agent turn described by the state?',
+      instructions: 'How difficult is this task?',
       criteria: {
         easy: { label: 'Easy', description: 'trivial' },
-        hard: { covers: expect.any(String), excludes: expect.any(String) },
+        hard: { covers: 'multi-step work', excludes: 'one-line fixes' },
       },
     });
   });
