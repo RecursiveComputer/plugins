@@ -1,0 +1,16 @@
+{
+  "manifestFormat": 2,
+  "id": "before-after",
+  "name": "Before / After",
+  "version": "1.0.0",
+  "description": "Every visible UI change ships with an embedded before/after image. A rule plus edit hooks drive the browser_before_after tool.",
+  "author": {
+    "name": "Recursive"
+  },
+  "color": "#8b5cf6",
+  "icon": "camera",
+  "rules": "./rules/",
+  "hooks": {
+    "ide": "./hooks/hooks.json"
+  }
+}
