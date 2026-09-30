@@ -1,0 +1,45 @@
+<!doctype html>
+<html><head><meta charset="utf-8">
+<style>html,body{margin:0;background:#000;overflow:hidden}canvas{display:block}</style>
+<script type="importmap">{ "imports": {
+  "three": "/node_modules/three/build/three.module.js",
+  "three/addons/": "/node_modules/three/examples/jsm/",
+  "@sparkjsdev/spark": "/node_modules/@sparkjsdev/spark/dist/spark.module.js"
+} }</script></head>
+<body><script type="module">
+import * as THREE from 'three';
+import { SparkRenderer, SplatMesh } from '@sparkjsdev/spark';
+// A Gaussian-splat set rendered frame by frame from Playwright; nothing reads the clock.
+window.__init = async (cfg) => {
+  const renderer = new THREE.WebGLRenderer({ antialias: true, preserveDrawingBuffer: true });
+  renderer.setPixelRatio(1); renderer.setSize(cfg.width, cfg.height);
+  renderer.outputColorSpace = THREE.SRGBColorSpace;
+  document.body.appendChild(renderer.domElement);
+  const scene = new THREE.Scene();
+  const fovY = 2 * Math.atan(Math.tan(cfg.hfov * Math.PI / 360) * cfg.height / cfg.width) * 180 / Math.PI;
+  const camera = new THREE.PerspectiveCamera(fovY, cfg.width / cfg.height, 0.05, 2000);
+  const spark = new SparkRenderer({ renderer, autoUpdate: false });
+  scene.add(spark);
+  for (const url of cfg.plyUrls) { const splat = new SplatMesh({ url }); scene.add(splat); await splat.initialized; }
+  // Screens (the LED wall) are real textured planes: crisp at any distance, content swappable per frame.
+  const screens = [];
+  for (const sc of cfg.screens || []) {
+    const tex = new THREE.Texture(); tex.colorSpace = THREE.SRGBColorSpace; tex.anisotropy = renderer.capabilities.getMaxAnisotropy();
+    const m = new THREE.Mesh(new THREE.PlaneGeometry(sc.width, sc.height), new THREE.MeshBasicMaterial({ map: tex, toneMapped: false }));
+    m.position.set(...sc.center); m.rotation.y = sc.yaw || 0; scene.add(m);
+    screens.push({ tex, sc });
+  }
+  const load = (url) => new Promise((res) => { const i = new Image(); i.onload = () => res(i); i.src = url; });
+  window.__frame = async (f) => {
+    for (const [i, s] of screens.entries()) {
+      const url = (f.screens && f.screens[i]) || s.sc.image;
+      if (url && s.url !== url) { s.tex.image = await load(url); s.tex.needsUpdate = true; s.url = url; }
+    }
+    camera.position.set(...f.at); camera.up.set(0, 1, 0); camera.lookAt(new THREE.Vector3(...f.look)); camera.updateMatrixWorld();
+    await spark.update({ scene, camera });
+    renderer.render(scene, camera);
+    return true;
+  };
+  return { fovY };
+};
+</script></body></html>
