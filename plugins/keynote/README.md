@@ -11,7 +11,7 @@ keynote engine (`@recursive/demo-engine`) and validated against a quality rubric
 | `skills/keynote/references/runbook.md` | The procedure, step by step, with commands and the lessons table |
 | `skills/keynote/references/{quality-rubric,craft,film-format,motion-policy,project-profile}.md` | Rules, film JSON, the per-project `KEYNOTE.md` template |
 | `skills/keynote/references/research/` | Frame-level studies of Apple's films behind the rules |
-| `skills/keynote/scripts/` | `fal-motion.py` (H3 Max plate motion, Seedance 2.5 drone moves), `mask-motion.py`, `live-plate.py`, `composite-plate.py`, `drone-join.py`, `bookend.py`, `reframe.py`, `ui-clip.py`, `music.py`, `check-jitter.py`, `validate-film.py`, `render.sh`, `capture/record.mjs`, `set/` (blockout.py, pano2splat.py, render-splat.mjs: spatially exact splat sets) |
+| `skills/keynote/scripts/` | `fal-motion.py` (H3 Max plate motion, Seedance 2.5 drone moves), `mask-motion.py`, `live-plate.py`, `composite-plate.py`, `drone-join.py`, `bookend.py`, `reframe.py`, `ui-clip.py`, `music.py`, `check-jitter.py`, `validate-film.py`, `render.sh`, `capture/record.mjs`, `set/` (blockout.py, bake.py, grade.py, key-element.py, sky-env.py, render-splat.mjs + splat-viewer.html: the spatially exact splat world) |
 
 Each project keeps a `KEYNOTE.md` profile (brand, voice, how to open the product for
 recording, the set). Recursive's is `websites/recursive/scripts/keynotes/KEYNOTE.md`.

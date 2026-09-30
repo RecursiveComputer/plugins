@@ -22,9 +22,10 @@ pano_w = int(argv[argv.index('--pano') + 1]) if '--pano' in argv else 4096
 persp = argv[argv.index('--persp') + 1] if '--persp' in argv else '1920x1080'
 os.makedirs(out, exist_ok=True)
 L = json.load(open(layout_path))
-KINDS = {'sky': 0, 'ground': 1, 'wall': 2, 'led': 3, 'roof': 4, 'column': 5, 'furniture': 6, 'trunk': 7, 'canopy': 8}
+KINDS = {'sky': 0, 'ground': 1, 'wall': 2, 'led': 3, 'roof': 4, 'column': 5, 'furniture': 6, 'trunk': 7, 'canopy': 8, 'shrub': 9, 'glass': 10, 'steel': 11}
 CLAY = {'ground': (0.62, 0.58, 0.52), 'wall': (0.72, 0.56, 0.40), 'led': (1, 1, 1), 'roof': (0.8, 0.8, 0.78),
-        'column': (0.2, 0.2, 0.2), 'furniture': (0.55, 0.42, 0.3), 'trunk': (0.25, 0.18, 0.12), 'canopy': (0.45, 0.55, 0.25)}
+        'column': (0.2, 0.2, 0.2), 'furniture': (0.55, 0.42, 0.3), 'trunk': (0.25, 0.18, 0.12), 'canopy': (0.45, 0.55, 0.25),
+        'shrub': (0.5, 0.55, 0.3), 'glass': (0.08, 0.09, 0.1), 'steel': (0.32, 0.18, 0.1)}
 
 bpy.ops.wm.read_factory_settings(use_empty=True)
 sc = bpy.context.scene
@@ -63,6 +64,17 @@ for t in L.get('trees', []):
     tag(bpy.context.object, 'trunk')
     bpy.ops.mesh.primitive_uv_sphere_add(radius=1, location=(x, y, t['trunk_height'] + t['canopy_height'] * 0.35))
     c = bpy.context.object; c.scale = (t['canopy_radius'], t['canopy_radius'], t['canopy_height'] / 2); tag(c, 'canopy')
+
+# Scatter (desert shrubs, rocks): seeded, so every render of the layout agrees.
+import random
+for sp in L.get('scatter', []):
+    rnd = random.Random(sp.get('seed', 1)); x0, y0, x1, y1 = sp['area']; n = 0
+    while n < sp['count']:
+        x, y = rnd.uniform(x0, x1), rnd.uniform(y0, y1)
+        if any(ex[0] <= x <= ex[2] and ex[1] <= y <= ex[3] for ex in sp.get('exclude', [])): continue
+        r = rnd.uniform(*sp['radius'])
+        bpy.ops.mesh.primitive_uv_sphere_add(radius=1, location=(x, y, r * 0.55), segments=12, ring_count=8)
+        o = bpy.context.object; o.scale = (r, r, r * 0.7); tag(o, sp.get('kind', 'shrub')); n += 1
 
 # Sun and sky.
 s = L['sun']; az, el = math.radians(s['azimuth_deg']), math.radians(s['elevation_deg'])

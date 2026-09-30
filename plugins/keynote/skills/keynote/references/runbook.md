@@ -13,7 +13,7 @@ environment (e.g. `set -a && . ./.env; set +a`). Neither is ever written into a 
 ## Money: generated video is the expensive part
 
 Fal bills per output second, and one careless run costs more than the whole rest of the film.
-List prices (2026-09-29; H3 doubles after its launch promo ends 2026-09-30):
+List prices (fal.ai, 2026-09-30; turbo shown at its post-promo rate; H3 bills at least 5 s):
 
 | Model | 480p | 720p/768p | 1080p | A 10 s clip at 1080p |
 | --- | --- | --- | --- | --- |
@@ -28,11 +28,16 @@ Rules:
    `~/.config/recursive-keynotes/fal-ledger.jsonl`.
 2. **Reuse before generating.** The set, plate motion and drone moves carry across films: check
    the project's set folder first. A drone-out played in reverse is a drone-in on the same path.
-3. **Test cheap, once.** Prove a prompt with ONE clip at 480p (turbo for H3; `--seedance-res 480p`
+3. **Test cheap, once.** Prove a prompt with ONE clip at 480p (H3 Max Turbo, the default; `--seedance-res 480p`
    for Seedance), 4–5 s. Only the approved final goes to 1080p, and never two at once.
 4. **Don't regenerate to fix what editing can fix** (masking, pinning, trimming, reversing).
 5. When the account locks (`User is locked`), stop: a finished request's result cannot be fetched
    until the balance is topped up; `--resume <id>` fetches it afterwards.
+6. **Pipeline tests run on Turbo at 480P** (`fal-motion.py`'s defaults, $0.025/s). Add `--max
+   --resolution 1080P` only for the approved final shots, after the cut works end to end.
+7. **No soundtrack.** H3 always generates audio (no switch, no discount); Seedance's is turned off in
+   the request. `fal-motion.py` saves every clip without audio: the film's sound is the voice and the
+   music cues only.
 
 ## 0. Script
 
@@ -49,77 +54,173 @@ Rules:
 
 Keep the set in `~/.cache/keynote-sets/<project>/set/` and list it in `KEYNOTE.md`.
 
-1. **Layout, then floor plan.** Write the zones (a hero wall stage, a garden, a wall walk, a
-   pavilion, a gate) and the ONE camera that sees the LED wall. Generate a top-down floor plan
-   with camera markers (Codex CLI image generation: `codex exec --skip-git-repo-check
-   --sandbox workspace-write -C W -i ref.png` with the prompt on stdin; `-i` swallows a
-   positional prompt).
-2. **Angles.** Generate each angle with the establishing plate AND the floor plan attached:
+1. **The whole building, then the floor plan.** Design the entire building the space belongs to,
+   not just the courtyard: model it on a real architect's typology (e.g. Rick Joy: rammed-earth bars,
+   impassive exterior, life turned inward to a courtyard, glass only onto it, one gate, a carport box).
+   Write `program.md`: every room, court, wall and opening with coordinates in metres (origin at a
+   courtyard corner, x east, y north). Mirror it in a `layout.json` (boxes + cameras) and draw the plan
+   from those numbers (OpenCV or similar: walls, glazing, doors, dimensions, scale bar, north arrow,
+   camera markers), so the plan is exact rather than painted. Place the ONE camera that sees the LED
+   wall, and every storyboard camera, on it.
+2. **Clay view per camera.** `blender -b --python S/set/blockout.py -- layout.json CAM OUT --persp
+   1920x1080` renders the massing from each storyboard camera. Check the framing there (is the
+   planted subject visible? does the gate line up with the wall behind it?) and move the camera in
+   `layout.json`, not in a prompt. Codex CLI image generation for everything that follows:
+   `codex exec --skip-git-repo-check --sandbox workspace-write -C W -i clay.png -i plan.png -i ref.png`
+   with the prompt on stdin (`-i` swallows a positional prompt); four run in parallel.
+3. **Keyframes and angles.** Generate each with its clay view, the floor plan, the look bible and the
+   material references attached ("match the clay's framing and geometry exactly; the plan wins"):
    same materials, light and objects. Hero wide: the wall square-on, 16:9, blank white face.
-3. **Aerial.** The building the space belongs to, as an architect's work (e.g. "designed by
+4. **Aerial.** The building the space belongs to, as an architect's work (e.g. "designed by
    Rick Joy: immaculate rammed-earth volumes, perfectly clean flat roofs, no HVAC units, vents,
    solar panels or railings"), placed by the floor plan (camera south of the court looking
    north so the gate and wall face the lens). Generate two; keep the one that matches the plan.
-4. **Plate motion** (`S/fal-motion.py PLATE.png OUT.mp4 --duration 10`, H3 Max, the plate as
+5. **Plate motion** (`S/fal-motion.py PLATE.png OUT.mp4 --duration 10`; `--max --resolution 1080P` for the final, the plate as
    first and last frame; the prompt names only what exists).
-5. **Pin and mask** (`S/mask-motion.py PLATE.png CLIP.mp4 OUT.mp4 --rect x0,y0,x1,y1
+6. **Pin and mask** (`S/mask-motion.py PLATE.png CLIP.mp4 OUT.mp4 --rect x0,y0,x1,y1
    --feather 0.012 --length L`): one constant transform, motion interpolation to 30 fps, motion
    kept only inside rects where the model behaves. Look at a crop of every clip at three times
    for invented things (grass blades, a branch sweeping through, a morphing screen); shrink the
    rect or use the still plate for that angle.
-6. **Camera** (`S/live-plate.py CLIP_OR_PLATE OUT.mp4 --move push|pull|drift-left|drift-right|rise
+7. **Camera** (`S/live-plate.py CLIP_OR_PLATE OUT.mp4 --move push|pull|drift-left|drift-right|rise
    --amount 0.03 --settle 2.4 --length 8 --trim 0`): eases in, then locks. Check
    `S/check-jitter.py OUT.mp4 2.8` < 0.15 px.
 
-## 1b. Spatially exact sets (blockout → panorama → splat; no video model)
+## 1b. Experimental: spatially exact sets as a splat world (not the default)
 
-Independent image generations disagree on geometry (the tree moves, walls change), and a video
-model interpolating between them morphs. Make the layout the source of truth instead:
+Tried in v16 and not adopted: the result reads CG and needs many iterations. Transitions use
+`transitions.md` (storyboarded short shots). The tooling stays for special cases.
 
-1. **Layout spec** (`layout.json`, metres, x east / y north / z up): boxes (ground, walls, LED
-   wall, roofs, columns, furniture), trees, sun, named cameras `{at, look, hfov_deg}`.
-2. **Blockout** (`blender -b --python S/set/blockout.py -- layout.json C0 OUT --pano 2048`):
-   equirectangular clay panorama, exact per-pixel distance (EXR), object ids, and the camera's
-   perspective view.
-3. **Paint it** (Codex image generation, prompt on stdin, the clay panorama + a material
-   reference attached): "repaint Image 1 photorealistically, keep its geometry exactly". Check
-   the blockout's edges over the result; Codex holds walls/LED/pavilion to a few pixels.
-4. **Splat** (`S/set/pano2splat.py OUT PANO.png OUT/set.ply`): every pixel at the blockout's
-   distance, coloured by the painting; sampled by solid angle (uniform equirectangular sampling
-   doubles the count and crashes the browser renderer).
-5. **Fly** (`node S/set/render-splat.mjs set.ply path.json out.mp4 [--stills …]`): Spark in
-   headless Chromium, deterministic, keyed camera path on the keynote ease.
+Independent image and video generations disagree on geometry (a tree moves, a building
+reshapes), and a video model interpolating between them morphs. Instead, make a layout the
+single source of truth, paint it from a few cameras, bake the paintings onto its exact geometry
+as Gaussian splats, and fly any camera through the result. It costs nothing per shot (Blender +
+Codex + a browser renderer; no Fal), and every angle agrees by construction. `S` = `scripts/set/`.
 
-Measured (courtyard C0, 2026-09-29): the splat lands on the blockout edges; a 3 m push with a
-0.6 m slide holds geometry with real parallax and no morphing; cost $0. Limits: one panorama
-supports moves of a few metres (occluded areas open up beyond), and it is soft at a 70° lens (a
-360° image spreads ~1800 px over the sphere, a fifth of what a 1080p frame needs). Next: project
-a high-res perspective plate from the shot camera onto the same geometry for the frustum, add
-capture cameras for larger moves, and restyle the aerial from the blockout's own aerial camera.
+1. **Layout** (`layout.json`, metres, x east / y north / z up): boxes (ground, wall, led, roof,
+   column, furniture), trees, seeded scatter (`kind: shrub`), sun, and named cameras
+   `{at, look, hfov_deg}`: the hero, the aerial, and a mid-descent station.
+2. **Blockout per station** (`blender -b --python S/blockout.py -- layout.json CAM OUT --pano 2048
+   --persp 1440x810`): clay renders, exact depth (EXR), object ids. **Render at the bake size**:
+   interpolating depth makes floaters.
+3. **Paint the stations** (Codex image generation, prompt on stdin, images attached):
+   - the 360° panorama (the surroundings) and the aerial: repaint the clay "keeping its geometry
+     exactly", with a style reference;
+   - every other station (hero, mid): **re-render the existing splat set from that camera** and have
+     Codex redraw that soft render sharp ("the same image re-shot with a high-end camera"), with the
+     clay attached. Then `S/grade.py SHARP SOFT OUT` (frequency split: detail from the painting,
+     colour and light from what the set already is). Stations then match.
+   - **clean plates**: ask for plates without thin organic things (trees); they smear when projected.
+4. **Elements**: generate each tree isolated on pure white (Codex), `S/key-element.py` → RGBA card.
+   The renderer stands it at its layout position as a camera-facing card with a ground shadow
+   card cast by the layout's sun, plus a slow wind sway.
+5. **Sky**: `S/sky-env.py BLOCKOUT PANO sky.jpg`, an equirectangular dome behind everything (no station
+   sees the low sky behind walls). Bake with `--no-sky`.
+6. **Bake** (`S/bake.py OUT.ply --station persp:DIR:PLATE … --station pano:DIR:PANO --skip-kinds 3,7,8
+   --no-sky`): every pixel at the blockout's exact depth; **the finest sample wins** (footprint = the
+   true 3D spacing of its pixels, so grazing views count as coarse); the LED (3) and tree (7, 8) are left
+   out (real elements), with a recoloured ring where the painting bled; one PLY per station.
+7. **Fly** (`node S/render-splat.mjs A.ply,B.ply,… PATH.json OUT.mp4 [--stills …]`): Spark in headless
+   Chromium, deterministic. PATH.json: `keys` (with per-key `hfov`: a gentle lens change keeps the frame
+   inside the painted plates), `spline` + `ease: "inout"` for flights, `sky`, `screens` (the LED as a real
+   plane: `image` or a power-on/off `sequence`), `sprites` (tree cards).
+
+Bookends from the splat world: the open is the flight + a hold with the screen sequence powering on;
+the close is a hold with the screen powering off + the same flight reversed. `bookend.py` and
+`drone-join.py` are only for video-model footage.
+
+Checks per iteration: render the hero still and compare against the blockout's edges; render each
+station alone from the hero camera (a station that leaks shows up at once); contact-sheet the flight
+every ~1 s; `check-jitter.py` on the locked hold.
+
+Gotchas (each cost an iteration):
+- The browser renderer crashes above ~1.2–1.5 M splats in view per mesh: persp stations ≤ 1440 px, one
+  PLY per station, panoramas sampled by solid angle.
+- Cycles writes *planar* depth for perspective cameras and *ray length* for panoramic ones.
+- Nearest-neighbour depth resampling shifts samples half a pixel (3% on grazing ground → z-fighting
+  streaks); linear resampling makes floaters. Don't resample: render the blockout at the bake size.
+- Splat size stays the pixel's *angular* size; only the fusion uses the true footprint (sizing splats by
+  it turns grazing surfaces into blobs).
+- Fusion coverage must count pixels thinned by solid-angle sampling; foliage pixels that show sky
+  through branches must be keyed out.
+- The screen's bezel box needs ~3 cm behind the face and a polygon offset: 4 mm z-fights from 100 m.
+- Scatter must not share the tree's object kind, or skipping the tree deletes every shrub.
+- Transparent overlay meshes (shadow cards) need `renderOrder` after the splats.
+- FFmpeg can't read Blender's PNGs (bad eXIf); re-save through OpenCV.
+- Playwright lives with `demo-engine`; the importmap must map `three/addons/`.
 
 ## 2. Bookends (drone in, drone out; music only here)
 
-1. **Drone moves on Seedance 2.5** (rigid architecture between the anchors; H3 invented a tree
-   and let the building change shape):
-   `S/fal-motion.py WIDE.png in.mp4 --model seedance --start-image AERIAL.png --duration 10 --prompt "…"`
-   and the reverse (`AERIAL.png` as the plate, `--start-image WIDE.png`) for the way out. The
-   prompt: one continuous stabilized drone take; the building is rigid and never changes shape;
-   exactly the objects in the images (name them: "exactly ONE tree, in the west garden"); the
-   wall a flat blank rectangle; the path (over the gate, level at eye height facing the wall).
-   Review frames every second for added objects and morphing before joining. Seedance at
-   1080p can take 30–60+ minutes in fal's queue: run both moves in the background, keep
-   working, and if a run stops, `fal-motion.py … --resume <id>` (the id is in `OUT.fal.json`).
-2. **Join** (`S/drone-join.py in.mp4 WIDE.png j-in.mp4 --land`, `--leave` for the way out):
-   ramps the residual scale/offset so the landing is pixel-exact on the plate.
-3. **Wall on / wall off** (`S/bookend.py open j-in.mp4 WIDE.png WALL.jpg BG.mp4 open.mp4` and
-   `S/bookend.py close j-out.mp4 WIDE.png WALL_END.jpg BG.mp4 close.mp4 --off X`). BG is the
-   hero wide's pinned motion clip; X is the close act's last word (from the plan, step 5).
-4. **In the film:** the open act's flight shot (`flight: true`) and wall shot are cut from the
+Two modes. Pick one per film and storyboard it (`transitions.md`):
+
+| Mode | What it is | Use when |
+| --- | --- | --- |
+| **A. Single shot** | One continuous generated move between two keyframes (start and end), both painted over clay views of cameras on one path and confirmed correct | The idea is one move (a drone descending over the wall to the hero wall); a short path (≈≤40 m, one direction) where both ends see the same subject |
+| **B. Multi-shot** | Several short start-frame-only moves cut together (geography → approach → the hero settling) | Large changes of scale (from the landscape to the wall), or when mode A morphs |
+
+**Keyframes (both modes).** Every keyframe is a camera in `layout.json`: render its clay view
+(`blockout.py`), paint over it (section 1, step 3), then confirm it:
+`S/set/check-keyframe.py KEY.png blockout/CAM --out check.jpg` must PASS (edges ≥ 0.7 and LED ≥ 0.8,
+relative to the clay itself; a painting of another viewpoint scores ~0.4-0.5), and the overlay must
+look right (cyan: the camera's outline; magenta: the best fit). A failing frame is regenerated, never
+animated. An approved plate already in use (the hero wide) keeps its pixels: fit its camera to it
+instead (the checker's best fit gives the zoom and shift; narrow `hfov_deg`, turn `look`), re-render,
+re-check.
+
+### Mode A: single shot
+
+1. **Path.** Start and end cameras in `layout.json` on one plausible drone path (the end is usually
+   the hero camera). Render both clay views and look at the path in between: the start should
+   already show what the end shows (the wall, the tree, the pavilion), only smaller.
+2. **Paint the start over its clay with the end frame attached** ("this is the first frame of one
+   shot whose last frame is END: same geometry, materials and light"), several candidates at once.
+   Keep the one that passes `check-keyframe.py` best; show the start, the end and both overlays to
+   the person approving the film before generating.
+3. **Generate** (the end frame is the plate, the start frame is `--start-image`):
+   `S/fal-motion.py END.png move.mp4 --start-image START.png --duration 6 --prompt "…"`: Turbo at
+   480P to test; `--max --resolution 1080P` for the approved final. The prompt describes the path
+   only: one continuous stabilized drone take; the camera flies forward and descends over the south
+   wall into the courtyard and levels at eye height facing the LED wall; the building is rigid and
+   never changes shape; exactly the objects in the frames (name them: "exactly ONE tree"); the wall
+   stays a flat blank rectangle; no cuts.
+4. **Review** frames every 0.5 s for morphing and invented objects. Then **join**
+   (`S/drone-join.py move.mp4 END.png j-in.mp4 --land`, `--leave` for the way out) so the landing is
+   pixel-exact on the plate, and retime with `cut-shots.py` if the clip hitches.
+5. The way out is the same shot reversed, or its own pair of frames (hero → aerial).
+
+### Mode B: multi-shot
+
+1. **Short shots** from their keyframes, start frame only, move-only prompts:
+   `S/fal-motion.py KEY.png shot.mp4 --no-end-frame --duration 6 --prompt "…"` (Turbo at 480P to
+   prove the cut; `--max --resolution 1080P` for approved finals). Look at frames every ~0.5 s and
+   note where each shot goes wrong: models invent at the frame edges late in a move, and a rise
+   reveals what the keyframe never showed (an eye-level plate's rise invented HVAC units on the roof).
+2. **Cut them** (`S/cut-shots.py`): the used middle of each shot, hard cuts, 30 fps. The destination
+   is the hero plate drifting and settling (`S/live-plate.py HERO.png dest.mp4 --move drift-right
+   --amount 0.025 --length 2.6 --settle 2.2`: settled before the wall's 0.4 s dissolve, or the
+   dissolve ghosts). The way out ends on the geography shot reversed, easing to a stop:
+   `cut-shots.py in.mp4 S1.mp4:1.0:4.5 "S2.mp4:0.8:2.9,crop=0;0;0.95;0.95" dest.mp4:0:2.6` and
+   `cut-shots.py out.mp4 O2.mp4:0:1.6 O3.mp4:1.0:4.5 "S1.mp4:0:4.5,reverse,ease=out,len=5,hold=0.6"`.
+   H3 delivers 24 fps made by dropping every 5th frame of a 30 fps render (every 4th step moves
+   twice as far: a hitch); cut-shots measures the steps and interpolates at the true times.
+
+### Both modes: the wall, the film, the music
+
+1. **Wall on / wall off** (`S/bookend.py open IN.mp4 HERO.png WALL.jpg BG.mp4 open.mp4` and
+   `S/bookend.py close OUT.mp4 HERO.png WALL_END.jpg BG.mp4 close.mp4 --off X`). IN/OUT are the
+   joined single shot (A) or the cut sequences (B). BG is the hero's pinned motion clip
+   (`live-plate.py HERO.png BG.mp4 --move hold --length 13`); X is the close act's last word.
+2. **In the film:** the open act's flight shot (`flight: true`) and wall shot are cut from the
    same clip (`from` = the act's `scriptAt` − 0.12); `scriptAt` lands just after the wall is
-   lit. The close act: the wall shot, then the flight cut at `{dout}` after the last word, with
-   `scriptTail` long enough to finish the drone.
-5. **Music** (`S/music.py cue.mp3 --seconds 10 --prompt "…" --envelope`): one cue per drone,
+   lit (bookend.py prints when). The close act: the wall shot, then the flight cut at `{dout}`
+   after the last word, with `scriptTail` long enough to finish the drone.
+3. **Music** (`S/music.py cue.mp3 --seconds 10 --prompt "…" --envelope`): one cue per drone,
    `music.cues` at `start` and `end`. The voice never starts before the open drone lands.
+
+Model notes: H3 Max invented a tree and let the building change shape over a 10 s move between an
+unverified aerial and the hero (v14); Seedance 2.5 held the geometry better but costs ~9x (v15;
+`--model seedance`, 1080p can queue 30-60+ min: `--resume <id>`). Unverified keyframes were the
+larger cause: confirm both frames first.
 
 ## 3. Real UI beats
 
@@ -180,10 +281,14 @@ python3 S/validate-film.py FILM.json OUT     # A1–A11
 | v13 | Logos in a small grid | Bleed past every edge; big tiles |
 | v13 | Equal dark bento cards | Apple bento: mixed sizes, one motion and colour per tile |
 | v14 | Drone over a generic house with rooftop HVAC units | Aerial as an architect's clean work, placed by the floor plan |
-| v14 | Turbo footage | Ship H3 Max; turbo only for prompt tests |
+| v14 | Turbo footage | Ship H3 Max (`--max`); Turbo (the default) for prompt and pipeline tests |
 | v14 | A gradient word lost its last letter | Gradient text fits its tile (`background-clip: text` cuts overflow) |
 | v14 | Bento hero with a stock glyph | The brand backdrop + the real app icon |
 | v14 | Rows squared off with dividers; opened header off-axis; missing metadata | Real pieces with real states, offsets and metadata |
 | v15 | H3 drone invented a tree; the building changed shape mid-flight | Drone moves on Seedance 2.5 with a rigid-geometry, exact-objects prompt |
 | v15 | Recorder stalled on a static page | The recorder keeps a compositor animation running and never blocks on input acks |
+| v16 | Drone shots from video models drifted and morphed; stations disagreed | One layout → painted stations → splat world; fly real cameras through it (section 1b) |
+| v17 | Single shot from unverified frames morphed; the old aerial was 2% off its camera | check-keyframe.py confirms both frames (A1 painted over its clay: 0-2 px off); the Turbo 480P test held the building for the whole descent, only the tree reshaped in the last 1.5 s. 480P output is 832x480: a uniform ~2% crop at both ends that the join absorbs |
+| v17 | Intro/outro shots hitched every 4th frame; a rise off the hero invented roof HVAC | cut-shots.py retimes dropped frames; use each shot's middle and stop before the model reveals the unseen |
+| v17 | Splat world read CG; keyframes painted from a courtyard-only plan disagreed about the building | Whole-building plan drawn from coordinates + a clay view per storyboard camera; keyframes painted over the clay (section 1) |
 | v15 | ~$28 of Seedance at 1080p + high bitrate, two at once, without a price check; ~32 Fal clips over the series, many exploratory reruns at 1080p; the account locked with a paid drone-in unfetchable | Money rules above: approved budget, `--estimate`/`--max-cost` guard, 480p single tests, reuse and edit before generating |

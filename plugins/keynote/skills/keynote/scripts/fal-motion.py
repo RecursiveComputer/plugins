@@ -1,13 +1,13 @@
 #!/usr/bin/env python3
 """Generate subtle environmental motion for a set plate with Fal (MiniMax H3).
 
-  fal-motion.py PLATE.png OUT.mp4 [--prompt "..."] [--duration 6] [--resolution 1080P]
-                [--turbo] [--endpoint ...] [--no-end-frame] [--start-image A.png]
+  fal-motion.py PLATE.png OUT.mp4 [--prompt "..."] [--duration 6] [--resolution 480P]
+                [--max] [--endpoint ...] [--no-end-frame] [--start-image A.png]
   fal-motion.py --text "..." OUT.mp4
 
 Models (`--model`):
-  h3        MiniMax H3 Max (`minimax/h3-max/...`): locked-off plate motion (leaves, light). Default.
-            `--turbo` (`minimax/h3-max-turbo/...`) is for quick prompt tests only: never ship it.
+  h3        MiniMax H3 Max Turbo (`minimax/h3-max-turbo/...`) by default, at 480P: the cheapest way
+            to prove prompts and the cut. `--max` (`minimax/h3-max/...`) only for approved finals.
   seedance  ByteDance Seedance 2.5 (`bytedance/seedance-2.5/us/image-to-video`): camera moves
             between two images (drone in/out). H3 invented trees and let buildings morph during
             a long move; Seedance keeps rigid geometry between the anchor frames.
@@ -17,7 +17,7 @@ shot anchored to the plate). The camera must stay locked: the keynote camera mov
 added afterwards by live-plate.py, so the move follows the measured keynote ease.
 Needs FAL_KEY (read from the environment or ~/.config/recursive-keynotes/fal.env).
 """
-import argparse, base64, json, os, sys, time, urllib.request
+import argparse, base64, json, os, subprocess, sys, time, urllib.request
 
 LOCKED = ("Locked-off tripod shot; the camera does not move, pan, tilt or zoom at all. "
           "Only subtle natural motion: a gentle breeze moves the tree leaves and grasses a little, "
@@ -29,10 +29,11 @@ ap.add_argument('plate', nargs='?'); ap.add_argument('out')
 ap.add_argument('--text')
 ap.add_argument('--prompt', default=LOCKED)
 ap.add_argument('--duration', type=int, default=6)
-ap.add_argument('--resolution', default='1080P')
+ap.add_argument('--resolution', default='480P', choices=['480P', '768P', '1080P'], help='H3 resolution: 480P for tests (default, $0.05/s), 1080P only for the approved final shots ($0.16/s)')
 ap.add_argument('--endpoint')
 ap.add_argument('--no-end-frame', action='store_true')
-ap.add_argument('--turbo', action='store_true', help='test-only: minimax/h3-max-turbo (never ship)')
+ap.add_argument('--max', action='store_true', help='H3 Max instead of the default H3 Max Turbo: approved final shots only (2x the price)')
+ap.add_argument('--turbo', action='store_true', help=argparse.SUPPRESS)  # the default now; kept so old commands still run
 ap.add_argument('--model', choices=['h3', 'seedance'], default='h3')
 ap.add_argument('--resume', help='fetch a request submitted earlier (its id is in OUT.fal.json) instead of submitting')
 ap.add_argument('--timeout', type=float, default=5400, help='seconds to wait for the queue (Seedance 1080p can take 30+ min)')
@@ -42,6 +43,8 @@ ap.add_argument('--estimate', action='store_true', help='print the estimated cos
 ap.add_argument('--start-image', help='first frame when it differs from the plate (a drone move from an aerial onto the plate)')
 ap.add_argument('--end-only', action='store_true', help='the plate is the LAST frame only (e.g. a drone move that lands on the plate)')
 a = ap.parse_args()
+if not a.text and not a.plate:
+    ap.error('image-to-video needs PLATE (a start-frame-only linking shot is: PLATE OUT --no-end-frame)')
 
 key = os.environ.get('FAL_KEY')
 if not key:
@@ -67,11 +70,11 @@ def call(url, body=None, tries=6):
 
 
 if a.text:
-    endpoint = a.endpoint or ('minimax/h3-max-turbo/text-to-video' if a.turbo else 'minimax/h3-max/text-to-video')
+    endpoint = a.endpoint or ('minimax/h3-max/text-to-video' if a.max else 'minimax/h3-max-turbo/text-to-video')
     body = {'prompt': a.text, 'duration': a.duration, 'resolution': a.resolution, 'aspect_ratio': '16:9'}
 else:
     if a.model == 'seedance': endpoint = a.endpoint or 'bytedance/seedance-2.5/us/image-to-video'
-    else: endpoint = a.endpoint or ('minimax/h3-max-turbo/image-to-video' if a.turbo else 'minimax/h3-max/image-to-video')
+    else: endpoint = a.endpoint or ('minimax/h3-max/image-to-video' if a.max else 'minimax/h3-max-turbo/image-to-video')
     def data_uri(p):
         return 'data:image/png;base64,' + base64.b64encode(open(p, 'rb').read()).decode()
     uri = data_uri(a.plate)
@@ -87,8 +90,9 @@ else:
         body['image_url'] = uri
         if not a.no_end_frame: body['end_image_url'] = uri
 
-# Cost guard. List prices per output second (fal.ai model pages, 2026-09-29; H3 prices double after
-# the 2026-09-30 launch promo). A request above --max-cost (default $1) is refused: the person paying
+# Cost guard. List prices per output second (fal.ai model pages, 2026-09-30; turbo at its post-promo
+# rate). H3 bills at least 5 s. H3 always generates a soundtrack at no extra charge and has no switch
+# for it; Seedance's is turned off in the request. Every download is saved without audio. A request above --max-cost (default $1) is refused: the person paying
 # approves the estimate first, then passes --max-cost. Every submission is appended to the ledger.
 PRICE_PER_S = {
     'minimax/h3-max-turbo': {'480P': 0.025, '768P': 0.04, '1080P': 0.08},
@@ -98,7 +102,7 @@ PRICE_PER_S = {
 app = '/'.join(endpoint.split('/')[:2])
 res_key = a.seedance_res if a.model == 'seedance' else a.resolution
 rate = PRICE_PER_S.get(app, {}).get(res_key)
-est = rate * float(a.duration) if rate else None
+est = rate * max(5.0 if app.startswith('minimax/') else 0.0, float(a.duration)) if rate else None
 if not a.resume:
     print(f'estimate: {endpoint} {res_key} {a.duration}s = ' + (f'${est:.2f}' if est is not None else 'unknown price'), flush=True)
     if a.estimate: sys.exit(0)
@@ -132,5 +136,9 @@ while True:
     time.sleep(6)
 res = call(result_url)
 url = res['video']['url']
-urllib.request.urlretrieve(url, a.out)
+raw = a.out + '.raw.mp4'
+urllib.request.urlretrieve(url, raw)
+# The film has its own music and voice: never keep the model's soundtrack.
+subprocess.run(['ffmpeg', '-y', '-v', 'error', '-i', raw, '-map', '0:v', '-c', 'copy', a.out], check=True)
+os.remove(raw)
 print('wrote', a.out, f'{time.time() - t0:.0f}s', flush=True)

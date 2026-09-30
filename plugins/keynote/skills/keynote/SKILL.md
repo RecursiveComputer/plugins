@@ -58,11 +58,16 @@ every tool the runbook names; `references/` hold the rules and the research behi
   whose hero tile is the brand.
 - **Money first:** generated video is billed per second (Seedance 1080p ≈ $14 per 10 s clip).
   Never call Fal without the user's approval of an estimated total (`fal-motion.py --estimate`);
-  reuse the project's existing set and drone footage, test one cheap 480p clip, and edit
+  reuse the project's existing set and drone footage, prove the whole cut with 480P clips (the
+  script's default; 1080P only for approved finals; clips are saved without audio), and edit
   (mask, trim, reverse) before regenerating. See the runbook's money rules.
-- **Video generation:** plate motion on Fal MiniMax H3 Max; drone moves on Seedance 2.5
-  (`fal-motion.py --model seedance`), which keeps architecture rigid between the anchor
-  images. `--turbo` is for testing prompts only; never ship turbo footage.
+- **Bookends in one of two modes** (runbook §2, `references/transitions.md`): **A. single shot**,
+  one continuous generated move between a start and an end keyframe; or **B. multi-shot**, a
+  funnel of scale (geography → approach → destination) in short start-frame-only moves cut on
+  motion, only the destination settling. Either way every keyframe is a camera in the layout,
+  painted over its clay view and confirmed with `scripts/set/check-keyframe.py` (and by eye on its
+  overlay) before any video is generated from it. Fal H3 Max Turbo at 480P while proving the cut;
+  H3 Max `--max` only for approved finals.
 
 ## Done means validated
 

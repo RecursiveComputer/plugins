@@ -17,7 +17,13 @@ window.__init = async (cfg) => {
   document.body.appendChild(renderer.domElement);
   const scene = new THREE.Scene();
   const fovY = 2 * Math.atan(Math.tan(cfg.hfov * Math.PI / 360) * cfg.height / cfg.width) * 180 / Math.PI;
-  const camera = new THREE.PerspectiveCamera(fovY, cfg.width / cfg.height, 0.05, 2000);
+  const camera = new THREE.PerspectiveCamera(fovY, cfg.width / cfg.height, 0.2, 2000);
+  if (cfg.skyUrl) {
+    // Sky dome: an equirectangular environment behind everything (no holes, no parallax).
+    const img = await new Promise((res) => { const i = new Image(); i.onload = () => res(i); i.src = cfg.skyUrl; });
+    const t = new THREE.Texture(img); t.mapping = THREE.EquirectangularReflectionMapping; t.colorSpace = THREE.SRGBColorSpace; t.needsUpdate = true;
+    scene.background = t; scene.backgroundRotation = new THREE.Euler(0, (cfg.skyYawDeg || 0) * Math.PI / 180, 0);
+  }
   const spark = new SparkRenderer({ renderer, autoUpdate: false });
   scene.add(spark);
   for (const url of cfg.plyUrls) { const splat = new SplatMesh({ url }); scene.add(splat); await splat.initialized; }
@@ -25,9 +31,36 @@ window.__init = async (cfg) => {
   const screens = [];
   for (const sc of cfg.screens || []) {
     const tex = new THREE.Texture(); tex.colorSpace = THREE.SRGBColorSpace; tex.anisotropy = renderer.capabilities.getMaxAnisotropy();
-    const m = new THREE.Mesh(new THREE.PlaneGeometry(sc.width, sc.height), new THREE.MeshBasicMaterial({ map: tex, toneMapped: false }));
+    const m = new THREE.Mesh(new THREE.PlaneGeometry(sc.width, sc.height), new THREE.MeshBasicMaterial({ map: tex, toneMapped: false, polygonOffset: true, polygonOffsetFactor: -2, polygonOffsetUnits: -2 }));
     m.position.set(...sc.center); m.rotation.y = sc.yaw || 0; scene.add(m);
+    // A thin dark bezel and body, like a real LED wall: it also covers the seam to the set.
+    const bz = sc.bezel ?? 0.06, depth = sc.depth ?? 0.25;
+    const body = new THREE.Mesh(new THREE.BoxGeometry(sc.width + 2 * bz, sc.height + bz, depth), new THREE.MeshBasicMaterial({ color: 0x141416 }));
+    body.position.set(0, -bz / 2, -depth / 2 - 0.03); m.add(body); // 3 cm behind the face: no z-fighting from 100 m
     screens.push({ tex, sc });
+  }
+  // Sprites: elements (trees) as camera-facing cards standing on the ground (y-axis billboard),
+  // each with a ground shadow card cast along the sun direction.
+  const sprites = [];
+  const loadTex = (url) => new Promise((res) => new THREE.TextureLoader().load(url, (t) => { t.colorSpace = THREE.SRGBColorSpace; t.anisotropy = 8; res(t); }));
+  for (const sp of cfg.sprites || []) {
+    const tex = await loadTex(sp.image);
+    const h = sp.height, w = h * sp.aspect;
+    const geo = new THREE.PlaneGeometry(w, h); geo.translate(0, h / 2, 0);
+    const card = new THREE.Mesh(geo, new THREE.MeshBasicMaterial({ map: tex, transparent: true, alphaTest: 0.35, depthWrite: true, side: THREE.DoubleSide }));
+    card.position.set(...sp.base); card.userData.sway = sp.sway || 0; scene.add(card); sprites.push(card);
+    if (sp.shadow) {
+      // flat silhouette on the ground, pointing away from the sun, length = h / tan(elevation)
+      const L = h / Math.tan(sp.shadow.elevationDeg * Math.PI / 180);
+      const sg = new THREE.PlaneGeometry(w, L); sg.translate(0, L / 2, 0);
+      const sm = new THREE.MeshBasicMaterial({ map: tex, transparent: true, opacity: sp.shadow.opacity ?? 0.45, color: 0x000000, depthWrite: false });
+      sm.onBeforeCompile = (sh) => { sh.fragmentShader = sh.fragmentShader.replace('#include <map_fragment>', '#include <map_fragment>\n diffuseColor.rgb = vec3(0.0); diffuseColor.a *= smoothstep(0.2, 0.6, sampledDiffuseColor.a);'); };
+      const shadow = new THREE.Mesh(sg, sm); shadow.renderOrder = 10; // after the splats
+      shadow.rotation.x = -Math.PI / 2; // lie on the ground; local +y (tree top) now points along -z (north)
+      const g = new THREE.Group(); g.add(shadow); g.position.set(sp.base[0], sp.base[1] + 0.02, sp.base[2]);
+      g.rotation.y = -(sp.shadow.azimuthDeg + 180) * Math.PI / 180; // shadow points away from the sun (azimuth from north, clockwise)
+      scene.add(g);
+    }
   }
   const load = (url) => new Promise((res) => { const i = new Image(); i.onload = () => res(i); i.src = url; });
   window.__frame = async (f) => {
@@ -35,7 +68,14 @@ window.__init = async (cfg) => {
       const url = (f.screens && f.screens[i]) || s.sc.image;
       if (url && s.url !== url) { s.tex.image = await load(url); s.tex.needsUpdate = true; s.url = url; }
     }
+    if (f.hfov) { camera.fov = 2 * Math.atan(Math.tan(f.hfov * Math.PI / 360) * cfg.height / cfg.width) * 180 / Math.PI; camera.updateProjectionMatrix(); }
     camera.position.set(...f.at); camera.up.set(0, 1, 0); camera.lookAt(new THREE.Vector3(...f.look)); camera.updateMatrixWorld();
+    for (const c of sprites) {
+      const dx = camera.position.x - c.position.x, dz = camera.position.z - c.position.z; c.rotation.y = Math.atan2(dx, dz);
+      // slow, low-frequency wind lean (two incommensurate sines): the held shot is alive, never frozen
+      const t = f.t || 0, w = c.userData.sway * Math.PI / 180;
+      c.rotation.z = w * (0.7 * Math.sin(t * 0.9) + 0.3 * Math.sin(t * 2.3 + 1.1));
+    }
     await spark.update({ scene, camera });
     renderer.render(scene, camera);
     return true;
