@@ -20,6 +20,10 @@ List prices (fal.ai, 2026-09-30; turbo shown at its post-promo rate; H3 bills at
 | H3 Max Turbo | $0.025/s | $0.04/s | $0.08/s | $0.80 |
 | H3 Max | $0.05/s | $0.08/s | $0.16/s | $1.60 |
 | Seedance 2.5 | $0.26/s | $0.57/s | $1.40/s | $13.96 |
+| Seedance 2.5 (OpenRouter, per token) | ~$0.10/s | ~$0.23/s (720p max) | none | n/a |
+| Veo 3.1 Lite (OpenRouter, no audio) | n/a | $0.03/s (720p) | $0.05/s | rejected: looks bad |
+| Wan 3.0 (OpenRouter, first frame only) | $0.05/s | $0.10/s | $0.20/s | n/a |
+| HeyGen Video 1 (OpenRouter) | $0.02/s list (billed $0.01/s at launch) | $0.03/s at 768p | none | n/a (768p max) |
 
 Rules:
 1. **No generation without an approved budget.** Before any Fal call, show the person paying the
@@ -33,6 +37,18 @@ Rules:
 4. **Don't regenerate to fix what editing can fix** (masking, pinning, trimming, reversing).
 5. When the account locks (`User is locked`), stop: a finished request's result cannot be fetched
    until the balance is topped up; `--resume <id>` fetches it afterwards.
+5b. **Cheapest test path:** `S/openrouter-video.py START.png OUT.mp4 --prompt "…"` (HeyGen Video 1 on
+   OpenRouter, 480p, first frame only, ~14 s turnaround; key from Recursive's OpenRouter plugin). It is for
+   multi-shot tests only: no end frame (no single shot) and 768p at most (no finals; `S/upscale.py`
+   takes a clip to 1080p locally with Real-ESRGAN). Don't use Veo 3.1 Lite: the person approving the film judged its
+   output ugly (over-sharpened, wormy texture; a doubled tree). **Seedance 2.5 on OpenRouter**
+   (`--model bytedance/seedance-2.5`, first + last frame, 4-30 s) is the quality pick, at about 2.5x
+   less than Fal per second but 720p at most there (Fal has 1080p). **Wan 3.0 on OpenRouter**
+   (`--model alibaba/wan-3.0`) goes to 1080p ($0.05/s 480p, $0.10/s 720p, $0.20/s 1080p; 2-30 s)
+   but takes a first frame only, so a single shot must describe its landing in the prompt and be
+   joined to the plate; Wan 2.7 takes first + last frame at 720p/1080p for $0.10/s. The script checks
+   the OpenRouter balance and the key's own spending limit before submitting (a key capped below
+   the balance 403s "Key limit exceeded").
 6. **Pipeline tests run on Turbo at 480P** (`fal-motion.py`'s defaults, $0.025/s). Add `--max
    --resolution 1080P` only for the approved final shots, after the cut works end to end.
 7. **No soundtrack.** H3 always generates audio (no switch, no discount); Seedance's is turned off in
@@ -288,6 +304,9 @@ python3 S/validate-film.py FILM.json OUT     # A1–A11
 | v15 | H3 drone invented a tree; the building changed shape mid-flight | Drone moves on Seedance 2.5 with a rigid-geometry, exact-objects prompt |
 | v15 | Recorder stalled on a static page | The recorder keeps a compositor animation running and never blocks on input acks |
 | v16 | Drone shots from video models drifted and morphed; stations disagreed | One layout → painted stations → splat world; fly real cameras through it (section 1b) |
+| v17 | Seedance 2.5 single shot on OpenRouter: A1 → hero, 8 s, 720p, no audio, $1.86 | The best result: one rigid building and ONE tree throughout, a clean pass through the gateway, natural texture, no dropped frames, and both ends exact (0 px, scale 1.000: no join needed). Only limit: 720p on OpenRouter (upscale.py → 1080p, or Fal at 1080p for $1.40/s) |
+| v17 | Veo 3.1 Lite test: single shot A1 → hero (8 s) and S2 (6 s), 1080p, $0.70 | Rejected by the user as ugly. Smooth single shot through the gate, no dropped frames, far sharper than H3; but the tree doubles for ~1 s before the landing, gravel and earth read over-sharpened at 100%, the landing is ~10 px / 1.6% off the plate (join it), and S2 invents walls after ~2.5 s |
+| v17 | HeyGen Video 1 test (S1, S2 at 480p, $0.06 each) | Same building rigidity and the same invented wall at S2's right edge after ~3 s as H3; weaker on a slow push (S1 moved ~0.4 px/f vs H3's 1.0). Use it for cheap multi-shot tests |
 | v17 | Single shot from unverified frames morphed; the old aerial was 2% off its camera | check-keyframe.py confirms both frames (A1 painted over its clay: 0-2 px off); the Turbo 480P test held the building for the whole descent, only the tree reshaped in the last 1.5 s. 480P output is 832x480: a uniform ~2% crop at both ends that the join absorbs |
 | v17 | Intro/outro shots hitched every 4th frame; a rise off the hero invented roof HVAC | cut-shots.py retimes dropped frames; use each shot's middle and stop before the model reveals the unseen |
 | v17 | Splat world read CG; keyframes painted from a courtyard-only plan disagreed about the building | Whole-building plan drawn from coordinates + a clay view per storyboard camera; keyframes painted over the clay (section 1) |
