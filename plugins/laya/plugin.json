@@ -98,7 +98,7 @@
         "key": "timeoutMs",
         "type": "number",
         "label": "Timeout (ms)",
-        "description": "Hard timeout for classifier calls. Calls made while a checkpoint is still loading fail open.",
+        "description": "Hard timeout for decision model calls. Calls made while a checkpoint is still loading fail open.",
         "section": "Runtime"
       },
       {

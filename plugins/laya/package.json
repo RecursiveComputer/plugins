@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "type": "module",
-  "description": "Laya local System 1 classification provider for Recursive orchestration.",
+  "description": "Laya local System 1 decision provider for Recursive orchestration.",
   "dependencies": {
     "@recursive/core-contract": "*",
     "@recursive/core-types": "*",
