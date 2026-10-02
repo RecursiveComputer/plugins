@@ -1,0 +1,10 @@
+{
+  "name": "@recursive/plugin-machine-provider-fly",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Run sessions on Fly.io Machines.",
+  "dependencies": {
+    "@recursive/core-types": "*"
+  }
+}

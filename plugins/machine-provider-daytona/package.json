@@ -1,0 +1,10 @@
+{
+  "name": "@recursive/plugin-machine-provider-daytona",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Run sessions in Daytona cloud sandboxes.",
+  "dependencies": {
+    "@recursive/core-types": "*"
+  }
+}

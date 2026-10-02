@@ -1,0 +1,52 @@
+{
+  "manifestFormat": 2,
+  "id": "machine-provider-e2b",
+  "name": "E2B Machines",
+  "version": "0.1.0",
+  "description": "Run sessions in E2B cloud sandboxes that pause when idle and keep their disk.",
+  "author": {
+    "name": "Recursive"
+  },
+  "color": "#ff8800",
+  "icon": "cloud",
+  "machine": {
+    "provider": {
+      "id": "e2b",
+      "label": "E2B sandbox",
+      "description": "A Linux sandbox in E2B's cloud. Pauses with its memory and disk when idle.",
+      "kind": "cloud",
+      "entry": "./provider.ts"
+    }
+  },
+  "settings": {
+    "defaults": {
+      "apiKey": "",
+      "template": "base",
+      "timeoutMinutes": 60
+    },
+    "schema": [
+      {
+        "key": "apiKey",
+        "type": "string",
+        "secret": true,
+        "label": "E2B API key",
+        "description": "From e2b.dev/dashboard. E2B_API_KEY is also read.",
+        "section": "Account"
+      },
+      {
+        "key": "template",
+        "type": "string",
+        "label": "Template",
+        "description": "Sandbox template name or id. A template with Node and git preinstalled starts fastest.",
+        "section": "Sandbox"
+      },
+      {
+        "key": "timeoutMinutes",
+        "type": "number",
+        "label": "Auto-pause after (minutes)",
+        "description": "E2B pauses the sandbox (keeping memory and disk) after this long without a resume.",
+        "section": "Sandbox"
+      }
+    ]
+  }
+}

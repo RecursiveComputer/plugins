@@ -1,0 +1,10 @@
+{
+  "name": "@recursive/plugin-machine-provider-e2b",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Run sessions in E2B cloud sandboxes.",
+  "dependencies": {
+    "@recursive/core-types": "*"
+  }
+}

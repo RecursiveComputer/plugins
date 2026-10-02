@@ -1,0 +1,58 @@
+{
+  "manifestFormat": 2,
+  "id": "machine-provider-ssh",
+  "name": "SSH Machines",
+  "version": "0.1.0",
+  "description": "Run sessions on a Mac, Linux server, or VM you can reach over SSH.",
+  "author": {
+    "name": "Recursive"
+  },
+  "color": "#475569",
+  "icon": "terminal",
+  "machine": {
+    "provider": {
+      "id": "ssh",
+      "label": "SSH host",
+      "description": "A computer you can already reach with `ssh`. Recursive installs and starts its runner there.",
+      "kind": "byo",
+      "entry": "./provider.ts"
+    }
+  },
+  "settings": {
+    "defaults": {
+      "host": "",
+      "port": 22,
+      "identityFile": "",
+      "extraOptions": ""
+    },
+    "schema": [
+      {
+        "key": "host",
+        "type": "string",
+        "label": "Host",
+        "description": "user@hostname or an alias from ~/.ssh/config. Key-based login must already work.",
+        "section": "Connection"
+      },
+      {
+        "key": "port",
+        "type": "number",
+        "label": "Port",
+        "section": "Connection"
+      },
+      {
+        "key": "identityFile",
+        "type": "string",
+        "label": "Identity file",
+        "description": "Optional path to a private key.",
+        "section": "Connection"
+      },
+      {
+        "key": "extraOptions",
+        "type": "string",
+        "label": "Extra ssh options",
+        "description": "Space-separated -o options, e.g. ProxyJump=bastion.",
+        "section": "Connection"
+      }
+    ]
+  }
+}

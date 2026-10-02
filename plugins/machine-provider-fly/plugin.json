@@ -1,0 +1,73 @@
+{
+  "manifestFormat": 2,
+  "id": "machine-provider-fly",
+  "name": "Fly.io Machines",
+  "version": "0.1.0",
+  "description": "Run sessions on Fly.io Machines: fast-booting VMs that stop when idle.",
+  "author": {
+    "name": "Recursive"
+  },
+  "color": "#7c3aed",
+  "icon": "cloud",
+  "machine": {
+    "provider": {
+      "id": "fly",
+      "label": "Fly.io Machine",
+      "description": "A Firecracker VM on Fly.io in the region you choose. Stops when idle and boots in seconds.",
+      "kind": "cloud",
+      "entry": "./provider.ts"
+    }
+  },
+  "settings": {
+    "defaults": {
+      "apiToken": "",
+      "app": "",
+      "region": "",
+      "image": "node:22-bookworm",
+      "cpus": 2,
+      "memoryMb": 4096
+    },
+    "schema": [
+      {
+        "key": "apiToken",
+        "type": "string",
+        "secret": true,
+        "label": "Fly API token",
+        "description": "From `fly tokens create deploy` for the app below. FLY_API_TOKEN is also read.",
+        "section": "Account"
+      },
+      {
+        "key": "app",
+        "type": "string",
+        "label": "App name",
+        "description": "An existing Fly app that will hold the machines (`fly apps create`).",
+        "section": "Account"
+      },
+      {
+        "key": "region",
+        "type": "string",
+        "label": "Region",
+        "description": "e.g. iad or ams. Empty lets Fly choose.",
+        "section": "Machine"
+      },
+      {
+        "key": "image",
+        "type": "string",
+        "label": "Image",
+        "section": "Machine"
+      },
+      {
+        "key": "cpus",
+        "type": "number",
+        "label": "Shared vCPUs",
+        "section": "Machine"
+      },
+      {
+        "key": "memoryMb",
+        "type": "number",
+        "label": "Memory (MB)",
+        "section": "Machine"
+      }
+    ]
+  }
+}

@@ -1,0 +1,73 @@
+{
+  "manifestFormat": 2,
+  "id": "machine-provider-daytona",
+  "name": "Daytona Machines",
+  "version": "0.1.0",
+  "description": "Run sessions in Daytona cloud sandboxes.",
+  "author": {
+    "name": "Recursive"
+  },
+  "color": "#1f2937",
+  "icon": "cloud",
+  "machine": {
+    "provider": {
+      "id": "daytona",
+      "label": "Daytona sandbox",
+      "description": "A Linux sandbox in Daytona's cloud (or your self-hosted Daytona). Stops with its disk when idle.",
+      "kind": "cloud",
+      "entry": "./provider.ts"
+    }
+  },
+  "settings": {
+    "defaults": {
+      "apiKey": "",
+      "apiUrl": "https://app.daytona.io/api",
+      "snapshot": "",
+      "cpu": 2,
+      "memory": 4,
+      "disk": 10
+    },
+    "schema": [
+      {
+        "key": "apiKey",
+        "type": "string",
+        "secret": true,
+        "label": "Daytona API key",
+        "description": "From app.daytona.io. DAYTONA_API_KEY is also read.",
+        "section": "Account"
+      },
+      {
+        "key": "apiUrl",
+        "type": "string",
+        "label": "API URL",
+        "description": "Change for a self-hosted Daytona.",
+        "section": "Account"
+      },
+      {
+        "key": "snapshot",
+        "type": "string",
+        "label": "Snapshot",
+        "description": "Optional snapshot name. Empty uses Daytona's default image.",
+        "section": "Sandbox"
+      },
+      {
+        "key": "cpu",
+        "type": "number",
+        "label": "vCPUs",
+        "section": "Sandbox"
+      },
+      {
+        "key": "memory",
+        "type": "number",
+        "label": "Memory (GB)",
+        "section": "Sandbox"
+      },
+      {
+        "key": "disk",
+        "type": "number",
+        "label": "Disk (GB)",
+        "section": "Sandbox"
+      }
+    ]
+  }
+}
