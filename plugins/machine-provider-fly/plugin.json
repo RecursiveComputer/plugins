@@ -25,7 +25,9 @@
       "region": "",
       "image": "node:22-bookworm",
       "cpus": 2,
-      "memoryMb": 4096
+      "memoryMb": 4096,
+      "persistDisk": true,
+      "volumeSizeGb": 10
     },
     "schema": [
       {
@@ -47,7 +49,7 @@
         "key": "region",
         "type": "string",
         "label": "Region",
-        "description": "e.g. iad or ams. Empty lets Fly choose.",
+        "description": "e.g. iad or ams. Empty uses iad when the work disk is on, otherwise lets Fly choose.",
         "section": "Machine"
       },
       {
@@ -66,6 +68,19 @@
         "key": "memoryMb",
         "type": "number",
         "label": "Memory (MB)",
+        "section": "Machine"
+      },
+      {
+        "key": "persistDisk",
+        "type": "boolean",
+        "label": "Keep work on a disk",
+        "description": "A Fly Machine's own disk resets when it restarts. With this on, each machine gets a volume for the runner's checkouts, so work cut off by a stop is handed in when it starts again.",
+        "section": "Machine"
+      },
+      {
+        "key": "volumeSizeGb",
+        "type": "number",
+        "label": "Work disk (GB)",
         "section": "Machine"
       }
     ]

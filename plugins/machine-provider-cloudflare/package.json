@@ -1,0 +1,10 @@
+{
+  "name": "@recursive/plugin-machine-provider-cloudflare",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Run sessions in Cloudflare Sandboxes (Containers on Durable Objects).",
+  "dependencies": {
+    "@recursive/core-types": "*"
+  }
+}

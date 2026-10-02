@@ -107,6 +107,10 @@ export function createE2bProvider(settings: E2bSettings, http: typeof fetch = fe
       // Resuming restores memory, so the runner process continues where it was.
       await api('POST', `/sandboxes/${encodeURIComponent(instanceId)}/connect`, { timeout: settings.timeoutSeconds });
     },
+    async keepAlive(instanceId) {
+      // Restart the sandbox's timeout from now, so a long job is not paused mid-turn while home is up.
+      await api('POST', `/sandboxes/${encodeURIComponent(instanceId)}/timeout`, { timeout: settings.timeoutSeconds });
+    },
     async destroy(instanceId) {
       await api('DELETE', `/sandboxes/${encodeURIComponent(instanceId)}`).catch((error) => {
         if (!/\(404\)/.test(String(error))) throw error;

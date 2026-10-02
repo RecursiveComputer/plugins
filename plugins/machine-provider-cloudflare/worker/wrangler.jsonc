@@ -1,0 +1,23 @@
+{
+	"$schema": "node_modules/wrangler/config-schema.json",
+	"name": "recursive-machines",
+	"main": "src/index.ts",
+	"compatibility_date": "2026-09-30",
+	"compatibility_flags": ["nodejs_compat"],
+	// One Durable Object per machine; it owns that machine's container.
+	"containers": [
+		{
+			"class_name": "RecursiveMachine",
+			"scheduling_policy": "durable_object",
+			"images": {
+				"runner": { "dockerfile": "./Dockerfile" }
+			}
+		}
+	],
+	"durable_objects": {
+		"bindings": [{ "class_name": "RecursiveMachine", "name": "MACHINES" }]
+	},
+	"exports": {
+		"RecursiveMachine": { "type": "durable-object", "storage": "sqlite" }
+	}
+}

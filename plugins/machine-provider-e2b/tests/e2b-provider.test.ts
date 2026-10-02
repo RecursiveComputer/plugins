@@ -48,6 +48,13 @@ test('pause, resume, destroy map to the E2B API and tolerate already-done states
   assert.deepEqual(calls.map((call) => `${call.init.method} ${new URL(call.url).pathname}`), ['POST /sandboxes/sbx1/pause', 'POST /sandboxes/sbx1/connect', 'DELETE /sandboxes/sbx1']);
 });
 
+test('keep-alive restarts the sandbox timeout so a long job is not paused mid-turn', async () => {
+  const { calls, fetchImpl } = fakeFetch([{ body: '' }]);
+  await createE2bProvider(settings, fetchImpl).keepAlive!('sbx1');
+  assert.equal(`${calls[0]!.init.method} ${new URL(calls[0]!.url).pathname}`, 'POST /sandboxes/sbx1/timeout');
+  assert.deepEqual(JSON.parse(String(calls[0]!.init.body)), { timeout: 3600 });
+});
+
 test('envelopes and status', async () => {
   assert.deepEqual([...connectEnvelope({ a: 1 }).subarray(0, 5)], [0, 0, 0, 0, 7]);
   const status = await plugin.status!({ plugin_id: 'machine-provider-e2b', settings: { apiKey: '' } });

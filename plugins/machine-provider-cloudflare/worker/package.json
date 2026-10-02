@@ -1,0 +1,14 @@
+{
+  "name": "recursive-machines-worker",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "deploy": "wrangler deploy",
+    "token": "wrangler secret put RECURSIVE_TOKEN"
+  },
+  "devDependencies": {
+    "@cloudflare/workers-types": "^5.20261002.1",
+    "wrangler": "^4.147.0"
+  }
+}

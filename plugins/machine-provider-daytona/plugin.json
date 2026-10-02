@@ -25,7 +25,8 @@
       "snapshot": "",
       "cpu": 2,
       "memory": 4,
-      "disk": 10
+      "disk": 10,
+      "autoStopMinutes": 60
     },
     "schema": [
       {
@@ -67,6 +68,13 @@
         "type": "number",
         "label": "Disk (GB)",
         "section": "Sandbox"
+      },
+      {
+        "key": "autoStopMinutes",
+        "type": "number",
+        "label": "Stop after idle (minutes)",
+        "description": "Daytona's own idle timer, used only when Recursive is asleep or closed and can't stop the sandbox itself. The disk is kept, so work in progress is handed in when the sandbox starts again. 0 turns it off.",
+        "section": "Machine"
       }
     ]
   }

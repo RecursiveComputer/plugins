@@ -1,0 +1,67 @@
+{
+  "manifestFormat": 2,
+  "id": "machine-provider-cloudflare",
+  "name": "Cloudflare Machines",
+  "version": "0.1.0",
+  "description": "Run sessions in Cloudflare Sandboxes: containers on Durable Objects that start in under a second and pause to a filesystem snapshot.",
+  "author": {
+    "name": "Recursive"
+  },
+  "color": "#f38020",
+  "icon": "cloud",
+  "machine": {
+    "provider": {
+      "id": "cloudflare",
+      "label": "Cloudflare Sandbox",
+      "description": "A Linux container on Cloudflare's network, run by a small Worker you deploy to your account. Pauses to a filesystem snapshot and resumes in about a second.",
+      "kind": "cloud",
+      "entry": "./provider.ts"
+    }
+  },
+  "settings": {
+    "defaults": {
+      "workerUrl": "",
+      "apiToken": "",
+      "instanceType": "standard-2",
+      "idleMinutes": 60
+    },
+    "schema": [
+      {
+        "key": "workerUrl",
+        "type": "string",
+        "label": "Worker URL",
+        "description": "The URL `npx wrangler deploy` printed for the Worker in this plugin's worker folder, e.g. https://recursive-machines.<you>.workers.dev.",
+        "section": "Worker"
+      },
+      {
+        "key": "apiToken",
+        "type": "string",
+        "secret": true,
+        "label": "Worker token",
+        "description": "The value you set with `npx wrangler secret put RECURSIVE_TOKEN`. Any long random string.",
+        "section": "Worker"
+      },
+      {
+        "key": "instanceType",
+        "type": "enum",
+        "options": [
+          "lite",
+          "standard-1",
+          "standard-2",
+          "standard-3",
+          "standard-4"
+        ],
+        "label": "Instance type",
+        "description": "Container size. standard-2 suits most agents; bigger builds want standard-3 or standard-4.",
+        "section": "Machine"
+      },
+      {
+        "key": "idleMinutes",
+        "type": "number",
+        "label": "Stop after idle (minutes)",
+        "description": "Cloudflare stops the container after this long without Recursive checking in (at most 360). Recursive pauses idle machines itself; this is the backstop for when Recursive is asleep or closed.",
+        "section": "Machine"
+      }
+    ]
+  }
+}

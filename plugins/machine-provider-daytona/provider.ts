@@ -9,6 +9,8 @@ interface DaytonaSettings {
   cpu: number;
   memory: number;
   disk: number;
+  /** Daytona's own idle timer, a backstop for when home cannot stop the sandbox. 0 turns it off. */
+  autoStopMinutes: number;
 }
 
 interface Sandbox {
@@ -27,6 +29,7 @@ function settingsFrom(context: MachineProviderPluginContext): DaytonaSettings {
     cpu: number('cpu', 2),
     memory: number('memory', 4),
     disk: number('disk', 10),
+    autoStopMinutes: typeof raw.autoStopMinutes === 'number' && raw.autoStopMinutes >= 0 ? Math.round(raw.autoStopMinutes) : 60,
   };
 }
 
@@ -82,8 +85,9 @@ export function createDaytonaProvider(
         disk: settings.disk,
         env: bootstrap.env,
         labels: { 'computer.recursive.machine': machine_id },
-        // Recursive pauses idle machines itself; Daytona's own timer would stop a runner that is waiting for work.
-        autoStopInterval: 0,
+        // Home pauses idle machines and keeps busy ones alive; this timer only fires when home is asleep or
+        // closed. Stopping keeps the disk, so a job it cuts off hands its work in on the next start.
+        autoStopInterval: settings.autoStopMinutes,
       });
       const sandbox = await waitForState(created.id, 'started');
       await launch(sandbox, bootstrap.command, bootstrap.env);
@@ -92,11 +96,19 @@ export function createDaytonaProvider(
     async stop(instanceId) {
       await api('POST', `/sandbox/${encodeURIComponent(instanceId)}/stop`);
     },
-    async resume(instanceId) {
+    async resume(instanceId, input) {
       await api('POST', `/sandbox/${encodeURIComponent(instanceId)}/start`);
       const sandbox = await waitForState(instanceId, 'started');
       // A stopped sandbox keeps its disk but not processes: start the runner again from its saved script.
-      await launch(sandbox, 'sh "$HOME/.recursive-runner/start.sh"', {});
+      // A fresh enrollment rides along in case the runner lost its identity.
+      const enroll = input?.bootstrap.env.RECURSIVE_MACHINE_ENROLL;
+      await launch(sandbox, 'sh "$HOME/.recursive-runner/start.sh"', enroll ? { RECURSIVE_MACHINE_ENROLL: enroll } : {});
+    },
+    async keepAlive(instanceId) {
+      // Any toolbox call counts as activity for Daytona's idle timer.
+      const sandbox = await api<Sandbox>('GET', `/sandbox/${encodeURIComponent(instanceId)}`);
+      const toolbox = (sandbox.toolboxProxyUrl || `${settings.apiUrl}/toolbox`).replace(/\/$/, '');
+      await request('POST', `${toolbox}/${encodeURIComponent(instanceId)}/process/execute`, { command: 'true', timeout: 10 });
     },
     async destroy(instanceId) {
       await api('DELETE', `/sandbox/${encodeURIComponent(instanceId)}`).catch((error) => {
