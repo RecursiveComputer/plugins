@@ -1,0 +1,37 @@
+{
+  "manifestFormat": 2,
+  "id": "server-provider-ssh",
+  "name": "SSH Server",
+  "version": "0.1.0",
+  "description": "Host Recursive on any Linux server you can reach with ssh: a VPS, a NAS, or a box at home.",
+  "author": {
+    "name": "Recursive"
+  },
+  "color": "#475569",
+  "icon": "terminal",
+  "server": {
+    "provider": {
+      "id": "ssh",
+      "label": "Your own server",
+      "description": "Any Linux machine you reach with `ssh`. Recursive installs Docker there if needed and runs the server with its own disk.",
+      "kind": "byo",
+      "entry": "./provider.ts"
+    }
+  },
+  "settings": {
+    "defaults": {
+      "host": "",
+      "user": "root",
+      "port": 22,
+      "identityFile": "",
+      "address": ""
+    },
+    "schema": [
+      { "key": "host", "type": "string", "label": "Host", "description": "Hostname or IP you ssh to.", "section": "Server" },
+      { "key": "user", "type": "string", "label": "User", "description": "A user that can run Docker (root, or in the docker group).", "section": "Server" },
+      { "key": "port", "type": "number", "label": "SSH port", "section": "Server" },
+      { "key": "identityFile", "type": "string", "label": "SSH key file", "description": "Leave empty to use your ssh agent and ~/.ssh/config.", "section": "Server" },
+      { "key": "address", "type": "string", "label": "Address Recursive reaches it at", "description": "Default http://<host>:12321. Use a Tailscale or private address; the server is only published there.", "section": "Network" }
+    ]
+  }
+}

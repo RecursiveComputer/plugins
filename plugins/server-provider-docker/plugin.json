@@ -1,0 +1,21 @@
+{
+  "manifestFormat": 2,
+  "id": "server-provider-docker",
+  "name": "Docker Server",
+  "version": "0.1.0",
+  "description": "Host Recursive in a Docker container: on this computer, or on a NAS or home server when Docker points at it.",
+  "author": {
+    "name": "Recursive"
+  },
+  "color": "#2496ed",
+  "icon": "box",
+  "server": {
+    "provider": {
+      "id": "docker",
+      "label": "Docker",
+      "description": "A container with its own disk, always on while Docker runs. Good for a NAS or a home server.",
+      "kind": "local",
+      "entry": "./provider.ts"
+    }
+  }
+}

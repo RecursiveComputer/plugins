@@ -1,0 +1,9 @@
+{
+  "name": "@recursive/plugin-server-provider-hetzner",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "dependencies": {
+    "@recursive/core-types": "*"
+  }
+}

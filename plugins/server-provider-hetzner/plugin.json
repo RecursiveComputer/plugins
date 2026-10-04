@@ -1,0 +1,31 @@
+{
+  "manifestFormat": 2,
+  "id": "server-provider-hetzner",
+  "name": "Hetzner Server",
+  "version": "0.1.0",
+  "description": "Host Recursive on a Hetzner Cloud server that joins your Tailscale network. Nothing on it is open to the internet.",
+  "author": {
+    "name": "Recursive"
+  },
+  "color": "#d50c2d",
+  "icon": "cloud",
+  "server": {
+    "provider": {
+      "id": "hetzner",
+      "label": "Hetzner Cloud",
+      "description": "An always-on Hetzner server from about €4 a month, private to your tailnet.",
+      "kind": "cloud",
+      "entry": "./provider.ts"
+    }
+  },
+  "settings": {
+    "defaults": {
+      "apiToken": "",
+      "tailscaleAuthKey": ""
+    },
+    "schema": [
+      { "key": "apiToken", "type": "string", "secret": true, "label": "Hetzner API token", "description": "Read & Write token from your Hetzner Cloud project (Security → API tokens).", "section": "Account" },
+      { "key": "tailscaleAuthKey", "type": "string", "secret": true, "label": "Tailscale auth key", "description": "A reusable or one-off key from the Tailscale admin console (Settings → Keys). The server joins your tailnet with it; this computer must be on the same tailnet.", "section": "Network" }
+    ]
+  }
+}
