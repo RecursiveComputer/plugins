@@ -23,7 +23,7 @@
       "id": "webdav",
       "name": "WebDAV Server",
       "description": "Sync to a WebDAV endpoint — Nextcloud, ownCloud, Synology, or any WebDAV-compatible server.",
-      "entry": "provider.js",
+      "entry": "provider.ts",
       "config_schema": {
         "type": "object",
         "properties": {

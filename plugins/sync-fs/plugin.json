@@ -23,7 +23,7 @@
       "id": "fs",
       "name": "Filesystem / Folder",
       "description": "Sync to any folder — works with Dropbox, iCloud Drive, Google Drive, or any mounted path.",
-      "entry": "provider.js",
+      "entry": "provider.ts",
       "config_schema": {
         "type": "object",
         "properties": {
