@@ -8,7 +8,7 @@
     "name": "Recursive"
   },
   "color": "#2496ed",
-  "icon": "box",
+  "icon": "package",
   "server": {
     "provider": {
       "id": "docker",
