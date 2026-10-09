@@ -5,6 +5,6 @@
   "type": "module",
   "description": "Run sessions in Daytona cloud sandboxes.",
   "dependencies": {
-    "@recursive/plugin-sdk": "*"
+    "@recursivecomputer/plugin-sdk": "^0.2.0"
   }
 }

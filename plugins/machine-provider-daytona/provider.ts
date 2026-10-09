@@ -3,7 +3,7 @@ import type {
   MachineProvider,
   MachineProviderPluginContext,
   MachineProviderPluginModule,
-} from '@recursive/plugin-sdk';
+} from '@recursivecomputer/plugin-sdk';
 
 /** Daytona over its REST API (control plane) and the sandbox toolbox API (process execute). */
 

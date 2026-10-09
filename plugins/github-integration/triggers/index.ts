@@ -4,7 +4,7 @@ import type {
   TriggerConnection,
   TriggerSourceModule,
   TriggerVerifyResult,
-} from '@recursive/plugin-sdk';
+} from '@recursivecomputer/plugin-sdk';
 
 function safeEqual(a: string, b: string): boolean {
   const ab = Buffer.from(a);

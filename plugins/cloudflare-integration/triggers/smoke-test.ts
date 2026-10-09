@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { verify, normalize } from './index.ts';
-import type { NormalizedTriggerEvent, TriggerConnection } from '@recursive/plugin-sdk';
+import type { NormalizedTriggerEvent, TriggerConnection } from '@recursivecomputer/plugin-sdk';
 
 const SECRET = 'super-secret-destination-token';
 const connection: TriggerConnection = {

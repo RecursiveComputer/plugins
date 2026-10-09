@@ -3,7 +3,7 @@ import type {
   ServerProvider,
   ServerProviderPluginContext,
   ServerProviderPluginModule,
-} from '@recursive/plugin-sdk';
+} from '@recursivecomputer/plugin-sdk';
 
 /** Runs a command over ssh, optionally feeding it stdin (the install script travels there, never in argv). */
 export type SshRunner = (args: string[], stdin?: string) => Promise<string>;

@@ -8,7 +8,7 @@ import type {
   MemberDirectoryEntry,
   ResolvedRole,
   WorkspaceLink,
-} from '@recursive/plugin-sdk';
+} from '@recursivecomputer/plugin-sdk';
 
 type FetchLike = (input: string, init?: Record<string, unknown>) => Promise<{
   ok: boolean;

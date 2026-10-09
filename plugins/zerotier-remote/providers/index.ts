@@ -1,8 +1,8 @@
 import { execFile } from 'node:child_process';
 import { promisify } from 'node:util';
 import { isIP } from 'node:net';
-import type { RemoteProvider } from '@recursive/plugin-sdk';
-import { remoteOrigin, remotePort, remoteSetupError, startRemoteBridge, monitorRemoteEndpoint, type RemoteProviderHandle } from '@recursive/plugin-sdk/remote-provider-node';
+import type { RemoteProvider } from '@recursivecomputer/plugin-sdk';
+import { remoteOrigin, remotePort, remoteSetupError, startRemoteBridge, monitorRemoteEndpoint, type RemoteProviderHandle } from '@recursivecomputer/plugin-sdk/remote-provider-node';
 const exec = promisify(execFile);
 // Password inputs can strip pasted line breaks; restore PEM boundaries before parsing.
 const pem = (value: string) => value.replaceAll('\\n', '\n').replace(/-----BEGIN ([A-Z ]+)-----\s*/g, '-----BEGIN $1-----\n').replace(/\s*-----END ([A-Z ]+)-----/g, '\n-----END $1-----\n');

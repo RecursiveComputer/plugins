@@ -6,7 +6,7 @@ import {
   type ServerProviderPluginModule,
   serverTailnetHostname,
   tailnetUserData,
-} from '@recursive/plugin-sdk';
+} from '@recursivecomputer/plugin-sdk';
 
 const API = 'https://api.vultr.com/v2';
 const OS_NAME = /^Ubuntu 24\.04 LTS x64$/;

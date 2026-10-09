@@ -3,7 +3,7 @@ import type {
   MachineProvider,
   MachineProviderPluginContext,
   MachineProviderPluginModule,
-} from '@recursive/plugin-sdk';
+} from '@recursivecomputer/plugin-sdk';
 
 /**
  * E2B over its public REST API and the sandbox's envd process service

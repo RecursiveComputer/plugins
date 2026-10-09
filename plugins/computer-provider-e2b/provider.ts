@@ -1,4 +1,4 @@
-import type { SandboxProvider, SandboxProviderPluginModule } from '@recursive/plugin-sdk';
+import type { SandboxProvider, SandboxProviderPluginModule } from '@recursivecomputer/plugin-sdk';
 
 import { E2bSandboxProvider } from './lib/e2b-provider.js';
 

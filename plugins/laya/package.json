@@ -5,6 +5,6 @@
   "type": "module",
   "description": "Laya local System 1 decision provider for Recursive orchestration.",
   "dependencies": {
-    "@recursive/plugin-sdk": "*"
+    "@recursivecomputer/plugin-sdk": "^0.2.0"
   }
 }

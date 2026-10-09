@@ -4,7 +4,7 @@ import type {
   TriggerConnection,
   TriggerSourceModule,
   TriggerVerifyResult,
-} from '@recursive/plugin-sdk';
+} from '@recursivecomputer/plugin-sdk';
 
 const FIVE_MIN_S = 60 * 5;
 

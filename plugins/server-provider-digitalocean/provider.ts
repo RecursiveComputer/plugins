@@ -6,7 +6,7 @@ import {
   type ServerProviderPluginModule,
   serverTailnetHostname,
   tailnetUserData,
-} from '@recursive/plugin-sdk';
+} from '@recursivecomputer/plugin-sdk';
 
 const API = 'https://api.digitalocean.com/v2';
 const IMAGE = 'ubuntu-24-04-x64';

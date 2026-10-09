@@ -4,6 +4,6 @@
   "private": true,
   "type": "module",
   "dependencies": {
-    "@recursive/plugin-sdk": "*"
+    "@recursivecomputer/plugin-sdk": "^0.2.0"
   }
 }

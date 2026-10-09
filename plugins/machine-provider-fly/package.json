@@ -5,6 +5,6 @@
   "type": "module",
   "description": "Run sessions on Fly.io Machines.",
   "dependencies": {
-    "@recursive/plugin-sdk": "*"
+    "@recursivecomputer/plugin-sdk": "^0.2.0"
   }
 }

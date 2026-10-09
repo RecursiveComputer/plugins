@@ -9,7 +9,7 @@ import type {
   SandboxObserveRegion,
   SandboxObserveResult,
   SandboxProvider,
-} from '@recursive/plugin-sdk';
+} from '@recursivecomputer/plugin-sdk';
 
 export interface E2bComputerSettings {
   apiKey: string;

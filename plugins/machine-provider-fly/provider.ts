@@ -3,7 +3,7 @@ import type {
   MachineProvider,
   MachineProviderPluginContext,
   MachineProviderPluginModule,
-} from '@recursive/plugin-sdk';
+} from '@recursivecomputer/plugin-sdk';
 
 /**
  * Fly.io over the Machines REST API. The bootstrap is the machine's init command.

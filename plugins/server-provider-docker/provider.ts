@@ -1,6 +1,6 @@
 import { execFile } from 'node:child_process';
 import { createServer } from 'node:net';
-import type { ServerProvider, ServerProviderPluginModule } from '@recursive/plugin-sdk';
+import type { ServerProvider, ServerProviderPluginModule } from '@recursivecomputer/plugin-sdk';
 
 /** Runs a docker CLI command; env carries secret values so they never appear in process listings. */
 export type DockerRunner = (args: string[], env?: Record<string, string>) => Promise<string>;

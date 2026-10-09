@@ -5,6 +5,6 @@
   "type": "module",
   "description": "Run sessions on any computer you can reach over SSH.",
   "dependencies": {
-    "@recursive/plugin-sdk": "*"
+    "@recursivecomputer/plugin-sdk": "^0.2.0"
   }
 }

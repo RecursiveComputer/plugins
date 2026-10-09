@@ -10,7 +10,7 @@
 
 import fs from 'node:fs';
 import path from 'node:path';
-import type { StorageInfo, SyncManifest, SyncProvider } from '@recursive/plugin-sdk';
+import type { StorageInfo, SyncManifest, SyncProvider } from '@recursivecomputer/plugin-sdk';
 
 const MANIFEST_FILENAME = '.sync-manifest.json';
 

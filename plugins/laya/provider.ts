@@ -6,7 +6,7 @@ import {
   classificationState,
   type CompactionJudgmentQuestions,
   type CompactionJudgmentState,
-} from '@recursive/plugin-sdk';
+} from '@recursivecomputer/plugin-sdk';
 
 
 import {

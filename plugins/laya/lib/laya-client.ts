@@ -9,7 +9,7 @@ import {
   DEFAULT_CLASSIFICATION_TIMEOUT_MS,
   DEFAULT_COMPACTION_TIMEOUT_MS,
   MAX_CLASSIFICATION_TIMEOUT_MS,
-} from '@recursive/plugin-sdk';
+} from '@recursivecomputer/plugin-sdk';
 
 import { getLayaHelperClient, type LayaHelperOptions } from './laya-helper.js';
 

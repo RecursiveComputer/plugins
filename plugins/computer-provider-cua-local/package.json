@@ -5,6 +5,6 @@
   "type": "module",
   "description": "Local isolated Cua Sandbox computer provider for Recursive",
   "dependencies": {
-    "@recursive/plugin-sdk": "*"
+    "@recursivecomputer/plugin-sdk": "^0.2.0"
   }
 }

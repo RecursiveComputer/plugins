@@ -4,7 +4,7 @@ import type {
   MachineProvider,
   MachineProviderPluginContext,
   MachineProviderPluginModule,
-} from '@recursive/plugin-sdk';
+} from '@recursivecomputer/plugin-sdk';
 
 export type SshRunner = (args: string[], stdin?: string) => Promise<string>;
 

@@ -1,5 +1,5 @@
-import type { RemoteProvider } from '@recursive/plugin-sdk';
-import { remoteOrigin, remotePort, remoteSetupError, startRemoteBridge, monitorRemoteEndpoint, type RemoteProviderHandle } from '@recursive/plugin-sdk/remote-provider-node';
+import type { RemoteProvider } from '@recursivecomputer/plugin-sdk';
+import { remoteOrigin, remotePort, remoteSetupError, startRemoteBridge, monitorRemoteEndpoint, type RemoteProviderHandle } from '@recursivecomputer/plugin-sdk/remote-provider-node';
 
 export function create(): RemoteProvider {
   const handles: RemoteProviderHandle[] = [];

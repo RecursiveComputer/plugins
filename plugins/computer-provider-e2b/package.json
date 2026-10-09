@@ -6,7 +6,7 @@
   "description": "Managed E2B persistent desktop computer provider for Recursive",
   "dependencies": {
     "@e2b/desktop": "2.3.2",
-    "@recursive/plugin-sdk": "*",
+    "@recursivecomputer/plugin-sdk": "^0.2.0",
     "sharp": "0.34.5"
   }
 }

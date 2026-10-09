@@ -9,7 +9,7 @@
 import crypto from 'node:crypto';
 import https from 'node:https';
 import http from 'node:http';
-import type { StorageInfo, SyncManifest, SyncProvider } from '@recursive/plugin-sdk';
+import type { StorageInfo, SyncManifest, SyncProvider } from '@recursivecomputer/plugin-sdk';
 
 const MANIFEST_KEY = '.sync-manifest.json';
 
