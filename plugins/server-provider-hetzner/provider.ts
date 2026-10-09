@@ -1,4 +1,5 @@
 import { execFile } from 'node:child_process';
+import { serverTailnetHostname, tailnetUserData } from '@recursive/core-types/server-host';
 import type { ServerOffers, ServerProvider, ServerProviderPluginContext, ServerProviderPluginModule } from '@recursive/core-types/server-host';
 
 const API = 'https://api.hetzner.cloud/v1';
@@ -35,28 +36,10 @@ function localTailnetSuffix(): Promise<string | null> {
   });
 }
 
-/** The tailnet name a server gets: stable, and enough to find it again. */
-export function tailnetHostname(serverId: string): string {
-  return `recursive-${serverId.replace(/^srv_/, '').toLowerCase().replace(/[^a-z0-9-]/g, '-')}`.slice(0, 63);
-}
+export { serverTailnetHostname as tailnetHostname };
 
-/**
- * cloud-init user data: join the tailnet first, then run the Recursive server
- * published on the tailnet address only. The firewall allows no inbound
- * traffic; Tailscale works over outbound connections.
- */
-export function hetznerUserData(script: string, authKey: string, hostname: string): string {
-  if (!/^[A-Za-z0-9_-]+$/.test(authKey.replace(/^tskey-/, ''))) throw new Error('The Tailscale auth key looks malformed.');
-  return [
-    '#!/bin/sh',
-    'set -eu',
-    'curl -fsSL https://tailscale.com/install.sh | sh',
-    `tailscale up --auth-key='${authKey}' --hostname='${hostname}' --ssh`,
-    'RECURSIVE_PUBLISH="$(tailscale ip -4)"',
-    'export RECURSIVE_PUBLISH',
-    script.replace(/^#!.*\n/, '').replace(/^set -eu\n/m, ''),
-  ].join('\n');
-}
+/** cloud-init user data: Tailscale first, then Recursive on the tailnet address only. */
+export const hetznerUserData = tailnetUserData;
 
 export function createHetznerProvider(settings: HetznerSettings, deps: HetznerDeps = { fetch, tailnetSuffix: localTailnetSuffix }): ServerProvider {
   async function api<T>(route: string, init: RequestInit = {}): Promise<T> {
@@ -72,7 +55,7 @@ export function createHetznerProvider(settings: HetznerSettings, deps: HetznerDe
 
   async function url(serverId: string): Promise<string> {
     const suffix = await deps.tailnetSuffix();
-    const host = tailnetHostname(serverId);
+    const host = serverTailnetHostname(serverId);
     return `http://${suffix ? `${host}.${suffix}` : host}:12321`;
   }
 
@@ -104,7 +87,7 @@ export function createHetznerProvider(settings: HetznerSettings, deps: HetznerDe
     },
     async create({ server_id, region, size, bootstrap }) {
       if (!settings.tailscaleAuthKey) throw new Error('Add a Tailscale auth key in Hetzner Server settings first.');
-      const hostname = tailnetHostname(server_id);
+      const hostname = serverTailnetHostname(server_id);
       // No inbound rules: nothing on the server is reachable from the internet.
       const { firewall } = await api<{ firewall: { id: number } }>('/firewalls', {
         method: 'POST',
@@ -118,7 +101,7 @@ export function createHetznerProvider(settings: HetznerSettings, deps: HetznerDe
             server_type: size || 'cx22',
             ...(region ? { location: region } : {}),
             image: IMAGE,
-            user_data: hetznerUserData(bootstrap.script, settings.tailscaleAuthKey, hostname),
+            user_data: tailnetUserData(bootstrap.script, settings.tailscaleAuthKey, hostname),
             labels: { 'recursive-server': server_id },
             firewalls: [{ firewall: firewall.id }],
             start_after_create: true,

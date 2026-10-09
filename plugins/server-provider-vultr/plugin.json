@@ -1,0 +1,31 @@
+{
+  "manifestFormat": 2,
+  "id": "server-provider-vultr",
+  "name": "Vultr Server",
+  "version": "0.1.0",
+  "description": "Host Recursive on a Vultr cloud server that joins your Tailscale network. Nothing on it is open to the internet.",
+  "author": {
+    "name": "Recursive"
+  },
+  "color": "#007bfc",
+  "icon": "cloud",
+  "server": {
+    "provider": {
+      "id": "vultr",
+      "label": "Vultr",
+      "description": "An always-on cloud server in 30+ cities from about $10 a month, private to your tailnet.",
+      "kind": "cloud",
+      "entry": "./provider.ts"
+    }
+  },
+  "settings": {
+    "defaults": {
+      "apiToken": "",
+      "tailscaleAuthKey": ""
+    },
+    "schema": [
+      { "key": "apiToken", "type": "string", "secret": true, "label": "Vultr API key", "description": "Account → API. Allow this computer's IP in the key's access control, or allow all.", "section": "Account" },
+      { "key": "tailscaleAuthKey", "type": "string", "secret": true, "label": "Tailscale auth key", "description": "A reusable or one-off key from the Tailscale admin console (Settings → Keys). The server joins your tailnet with it; this computer must be on the same tailnet.", "section": "Network" }
+    ]
+  }
+}

@@ -1,0 +1,31 @@
+{
+  "manifestFormat": 2,
+  "id": "server-provider-digitalocean",
+  "name": "DigitalOcean Server",
+  "version": "0.1.0",
+  "description": "Host Recursive on a DigitalOcean Droplet that joins your Tailscale network. Nothing on it is open to the internet.",
+  "author": {
+    "name": "Recursive"
+  },
+  "color": "#0080ff",
+  "icon": "cloud",
+  "server": {
+    "provider": {
+      "id": "digitalocean",
+      "label": "DigitalOcean",
+      "description": "An always-on Droplet from about $12 a month, private to your tailnet.",
+      "kind": "cloud",
+      "entry": "./provider.ts"
+    }
+  },
+  "settings": {
+    "defaults": {
+      "apiToken": "",
+      "tailscaleAuthKey": ""
+    },
+    "schema": [
+      { "key": "apiToken", "type": "string", "secret": true, "label": "DigitalOcean API token", "description": "A personal access token with read and write scope (API → Tokens).", "section": "Account" },
+      { "key": "tailscaleAuthKey", "type": "string", "secret": true, "label": "Tailscale auth key", "description": "A reusable or one-off key from the Tailscale admin console (Settings → Keys). The server joins your tailnet with it; this computer must be on the same tailnet.", "section": "Network" }
+    ]
+  }
+}
