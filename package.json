@@ -1,0 +1,46 @@
+{
+  "name": "recursive-plugins",
+  "private": true,
+  "type": "module",
+  "description": "First-party Recursive plugins.",
+  "license": "MIT",
+  "workspaces": [
+    "plugins/cloudflare-integration",
+    "plugins/computer-provider-cua-local",
+    "plugins/computer-provider-e2b",
+    "plugins/custom-remote-endpoint",
+    "plugins/github-auth",
+    "plugins/github-integration",
+    "plugins/laya",
+    "plugins/machine-provider-cloudflare",
+    "plugins/machine-provider-daytona",
+    "plugins/machine-provider-e2b",
+    "plugins/machine-provider-fly",
+    "plugins/machine-provider-ssh",
+    "plugins/netbird-remote",
+    "plugins/ngrok-remote",
+    "plugins/pangolin-remote",
+    "plugins/server-provider-digitalocean",
+    "plugins/server-provider-docker",
+    "plugins/server-provider-hetzner",
+    "plugins/server-provider-ssh",
+    "plugins/server-provider-vultr",
+    "plugins/stripe-integration",
+    "plugins/sync-fs",
+    "plugins/sync-s3",
+    "plugins/sync-webdav",
+    "plugins/zerotier-remote"
+  ],
+  "scripts": {
+    "validate": "node scripts/validate.mjs",
+    "typecheck": "tsc --noEmit -p tsconfig.json",
+    "test": "vitest run",
+    "check": "npm run validate && npm run typecheck && npm test"
+  },
+  "devDependencies": {
+    "@recursivecomputer/plugin-sdk": "^0.2.0",
+    "@types/node": "^22.0.0",
+    "typescript": "^5.9.3",
+    "vitest": "^4.1.10"
+  }
+}

@@ -1,0 +1,28 @@
+name: Validate
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - uses: oven-sh/setup-bun@v2
+      - name: Install
+        run: bun install --frozen-lockfile
+      - name: Validate manifests and imports
+        run: node scripts/validate.mjs
+      - name: Typecheck
+        run: npx tsc --noEmit -p tsconfig.json
+      - name: Test
+        run: npx vitest run
