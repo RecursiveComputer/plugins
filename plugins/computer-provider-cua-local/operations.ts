@@ -13,7 +13,7 @@ export const verifyOperation = defineOperation<Record<string, never>, { ok: bool
 });
 export default { operations: wirePluginOperations({ verify: verifyOperation }, {
   verify: async (_input, context) => {
-    const settings = await context.host.pluginSettings.get();
+    const settings = (await context.host?.pluginSettings?.get?.()) ?? {};
     const result = await verifyLocalComputer(settings);
     return { ok: result.ok, message: result.message };
   },

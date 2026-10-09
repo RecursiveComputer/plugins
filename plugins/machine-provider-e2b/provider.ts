@@ -46,7 +46,7 @@ export function detachedCommand(command: string): string {
 }
 
 /** One Connect-protocol envelope: flags byte, big-endian length, JSON. */
-export function connectEnvelope(message: unknown): Uint8Array {
+export function connectEnvelope(message: unknown): Uint8Array<ArrayBuffer> {
   const json = new TextEncoder().encode(JSON.stringify(message));
   const out = new Uint8Array(5 + json.length);
   new DataView(out.buffer).setUint32(1, json.length);

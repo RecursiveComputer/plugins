@@ -51,7 +51,7 @@ function signRequest(
   const amzDate = now.toISOString().replace(/[-:]/g, '').replace(/\.\d{3}/, '');
 
   const payloadHash = sha256(body || '');
-  const signedHeaders = { ...headers, 'x-amz-content-sha256': payloadHash, 'x-amz-date': amzDate };
+  const signedHeaders: Record<string, string> = { ...headers, 'x-amz-content-sha256': payloadHash, 'x-amz-date': amzDate };
 
   const sortedHeaderKeys = Object.keys(signedHeaders).map(k => k.toLowerCase()).sort();
   const canonicalHeaders = sortedHeaderKeys.map(k => `${k}:${signedHeaders[Object.keys(signedHeaders).find(h => h.toLowerCase() === k)!].trim()}`).join('\n') + '\n';

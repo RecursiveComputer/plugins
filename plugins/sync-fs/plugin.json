@@ -2,7 +2,7 @@
   "manifestFormat": 2,
   "id": "sync-fs",
   "name": "Filesystem Sync",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Sync Recursive data to a local or network-mounted folder (Dropbox, iCloud Drive, Google Drive, NAS).",
   "author": {
     "name": "Recursive"

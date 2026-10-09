@@ -2,7 +2,7 @@
   "manifestFormat": 2,
   "id": "sync-s3",
   "name": "S3 / R2 Sync",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Sync Recursive data to S3-compatible object storage (AWS S3, Cloudflare R2, MinIO, Backblaze B2).",
   "author": {
     "name": "Recursive"

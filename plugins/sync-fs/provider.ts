@@ -60,7 +60,8 @@ export class FsSyncProvider implements SyncProvider {
     if (!this.config) throw new Error('Provider not initialized');
     let fileCount = 0;
     let totalBytes = 0;
-    let lastModified: Date | null = null;
+    // Assigned inside walk(); the cast keeps TypeScript from narrowing it to null.
+    let lastModified = null as Date | null;
     try {
       const walk = (dir: string) => {
         for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
