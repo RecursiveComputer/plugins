@@ -5,8 +5,6 @@
   "type": "module",
   "description": "Laya local System 1 decision provider for Recursive orchestration.",
   "dependencies": {
-    "@recursive/core-contract": "*",
-    "@recursive/core-types": "*",
     "@recursive/plugin-sdk": "*"
   }
 }

@@ -4,6 +4,6 @@
   "private": true,
   "type": "module",
   "dependencies": {
-    "@recursive/core-identity": "*"
+    "@recursive/plugin-sdk": "*"
   }
 }

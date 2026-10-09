@@ -1,4 +1,9 @@
-import type { MachineInstanceState, MachineProvider, MachineProviderPluginModule, MachineProviderPluginContext } from '@recursive/core-types/machine';
+import type {
+  MachineInstanceState,
+  MachineProvider,
+  MachineProviderPluginContext,
+  MachineProviderPluginModule,
+} from '@recursive/plugin-sdk';
 
 /**
  * E2B over its public REST API and the sandbox's envd process service

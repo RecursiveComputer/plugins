@@ -1,10 +1,10 @@
 import crypto from 'node:crypto';
 import type {
+  NormalizedTriggerEvent,
+  TriggerConnection,
   TriggerSourceModule,
   TriggerVerifyResult,
-  TriggerConnection,
-  NormalizedTriggerEvent,
-} from '@recursive/core-types/automation';
+} from '@recursive/plugin-sdk';
 
 function safeEqual(a: string, b: string): boolean {
   const ab = Buffer.from(a);

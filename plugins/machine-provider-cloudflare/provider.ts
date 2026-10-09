@@ -4,7 +4,7 @@ import type {
   MachineProviderPluginContext,
   MachineProviderPluginModule,
   MachineProviderStatus,
-} from '@recursive/core-types/machine';
+} from '@recursive/plugin-sdk';
 
 /**
  * Cloudflare Sandboxes (Containers on Durable Objects). Cloudflare has no REST

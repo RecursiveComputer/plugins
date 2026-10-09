@@ -1,5 +1,10 @@
 import { execFile } from 'node:child_process';
-import type { MachineInstanceState, MachineProvider, MachineProviderPluginModule, MachineProviderPluginContext } from '@recursive/core-types/machine';
+import type {
+  MachineInstanceState,
+  MachineProvider,
+  MachineProviderPluginContext,
+  MachineProviderPluginModule,
+} from '@recursive/plugin-sdk';
 
 export type SshRunner = (args: string[], stdin?: string) => Promise<string>;
 

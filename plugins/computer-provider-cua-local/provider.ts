@@ -8,7 +8,7 @@ import type {
   SandboxObserveResult,
   SandboxProvider,
   SandboxProviderPluginModule,
-} from '@recursive/core-types/sandbox-provider';
+} from '@recursive/plugin-sdk';
 
 const HELPER_PATH = path.join(path.dirname(fileURLToPath(import.meta.url)), 'provider_helper.py');
 

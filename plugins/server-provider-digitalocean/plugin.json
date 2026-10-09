@@ -3,6 +3,7 @@
   "id": "server-provider-digitalocean",
   "name": "DigitalOcean Server",
   "version": "0.1.0",
+  "engines": { "recursive": { "hostApi": "2" } },
   "description": "Host Recursive on a DigitalOcean Droplet that joins your Tailscale network. Nothing on it is open to the internet.",
   "author": {
     "name": "Recursive"

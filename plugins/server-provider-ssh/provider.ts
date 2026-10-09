@@ -1,5 +1,9 @@
 import { spawn } from 'node:child_process';
-import type { ServerProvider, ServerProviderPluginContext, ServerProviderPluginModule } from '@recursive/core-types/server-host';
+import type {
+  ServerProvider,
+  ServerProviderPluginContext,
+  ServerProviderPluginModule,
+} from '@recursive/plugin-sdk';
 
 /** Runs a command over ssh, optionally feeding it stdin (the install script travels there, never in argv). */
 export type SshRunner = (args: string[], stdin?: string) => Promise<string>;

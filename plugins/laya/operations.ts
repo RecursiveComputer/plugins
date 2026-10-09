@@ -1,5 +1,4 @@
-import { defineOperation } from '@recursive/core-contract/operations';
-import { wirePluginOperations } from '@recursive/plugin-sdk';
+import { defineOperation, wirePluginOperations } from '@recursive/plugin-sdk';
 
 import { createLayaTransport, layaSettings, verifyLayaConnection } from './lib/laya-client.js';
 

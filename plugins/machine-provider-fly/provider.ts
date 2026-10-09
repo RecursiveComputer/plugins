@@ -1,4 +1,9 @@
-import type { MachineInstanceState, MachineProvider, MachineProviderPluginModule, MachineProviderPluginContext } from '@recursive/core-types/machine';
+import type {
+  MachineInstanceState,
+  MachineProvider,
+  MachineProviderPluginContext,
+  MachineProviderPluginModule,
+} from '@recursive/plugin-sdk';
 
 /**
  * Fly.io over the Machines REST API. The bootstrap is the machine's init command.

@@ -1,15 +1,13 @@
-import type {
-  ClassificationProvider,
-  ClassificationProviderPluginModule,
-  ClassificationRequest,
-  ClassificationResult,
-} from '@recursive/core-types/classification-provider';
-import type {
-  CompactionJudgmentQuestions,
-  CompactionJudgmentState,
-} from '@recursive/core-types/compaction-transcript';
+import {
+  type ClassificationProvider,
+  type ClassificationProviderPluginModule,
+  type ClassificationRequest,
+  type ClassificationResult,
+  classificationState,
+  type CompactionJudgmentQuestions,
+  type CompactionJudgmentState,
+} from '@recursive/plugin-sdk';
 
-import { classificationState } from '@recursive/core-types/classification-wire';
 
 import {
   LAYA_PROVIDER_ID,

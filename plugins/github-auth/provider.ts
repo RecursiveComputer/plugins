@@ -1,14 +1,14 @@
 
 import crypto from 'node:crypto';
 import type {
-  AuthProvider,
   AuthBeginContext,
   AuthBeginResult,
+  AuthProvider,
   ExternalIdentity,
   MemberDirectoryEntry,
   ResolvedRole,
   WorkspaceLink,
-} from '@recursive/core-identity/auth';
+} from '@recursive/plugin-sdk';
 
 type FetchLike = (input: string, init?: Record<string, unknown>) => Promise<{
   ok: boolean;

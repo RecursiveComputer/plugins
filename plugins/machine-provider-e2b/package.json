@@ -5,6 +5,6 @@
   "type": "module",
   "description": "Run sessions in E2B cloud sandboxes.",
   "dependencies": {
-    "@recursive/core-types": "*"
+    "@recursive/plugin-sdk": "*"
   }
 }

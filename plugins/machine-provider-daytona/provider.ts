@@ -1,4 +1,9 @@
-import type { MachineInstanceState, MachineProvider, MachineProviderPluginModule, MachineProviderPluginContext } from '@recursive/core-types/machine';
+import type {
+  MachineInstanceState,
+  MachineProvider,
+  MachineProviderPluginContext,
+  MachineProviderPluginModule,
+} from '@recursive/plugin-sdk';
 
 /** Daytona over its REST API (control plane) and the sandbox toolbox API (process execute). */
 

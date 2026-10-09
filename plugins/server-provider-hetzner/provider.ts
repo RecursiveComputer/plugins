@@ -1,6 +1,12 @@
 import { execFile } from 'node:child_process';
-import { serverTailnetHostname, tailnetUserData } from '@recursive/core-types/server-host';
-import type { ServerOffers, ServerProvider, ServerProviderPluginContext, ServerProviderPluginModule } from '@recursive/core-types/server-host';
+import {
+  type ServerOffers,
+  type ServerProvider,
+  type ServerProviderPluginContext,
+  type ServerProviderPluginModule,
+  serverTailnetHostname,
+  tailnetUserData,
+} from '@recursive/plugin-sdk';
 
 const API = 'https://api.hetzner.cloud/v1';
 const IMAGE = 'ubuntu-24.04';

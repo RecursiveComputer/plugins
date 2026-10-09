@@ -1,5 +1,4 @@
-import { defineOperation } from '@recursive/core-contract/operations';
-import { wirePluginOperations } from '@recursive/plugin-sdk';
+import { defineOperation, wirePluginOperations } from '@recursive/plugin-sdk';
 import { verifyLocalComputer } from './provider.js';
 
 export const verifyOperation = defineOperation<Record<string, never>, { ok: boolean; message?: string }>({

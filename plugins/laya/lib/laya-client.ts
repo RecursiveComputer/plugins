@@ -1,21 +1,15 @@
-import type {
-  ClassificationRequest,
-  ClassificationResult,
-} from '@recursive/core-types/classification-provider';
-import {
-  DEFAULT_CLASSIFICATION_TIMEOUT_MS,
-  MAX_CLASSIFICATION_TIMEOUT_MS,
-} from '@recursive/core-types/classification-provider';
-import type {
-  CompactionJudgmentAnswers,
-  CompactionJudgmentQuestions,
-  CompactionJudgmentState,
-} from '@recursive/core-types/compaction-transcript';
-import { DEFAULT_COMPACTION_TIMEOUT_MS } from '@recursive/core-types/compaction-transcript';
 import {
   buildClassificationQuestions,
+  type ClassificationRequest,
+  type ClassificationResult,
   classificationState,
-} from '@recursive/core-types/classification-wire';
+  type CompactionJudgmentAnswers,
+  type CompactionJudgmentQuestions,
+  type CompactionJudgmentState,
+  DEFAULT_CLASSIFICATION_TIMEOUT_MS,
+  DEFAULT_COMPACTION_TIMEOUT_MS,
+  MAX_CLASSIFICATION_TIMEOUT_MS,
+} from '@recursive/plugin-sdk';
 
 import { getLayaHelperClient, type LayaHelperOptions } from './laya-helper.js';
 
