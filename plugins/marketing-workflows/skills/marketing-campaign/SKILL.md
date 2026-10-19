@@ -22,7 +22,7 @@ Treat this Skill as a finite campaign procedure, never as a durable specialist i
 6. Stop at the publication gate. Drafting, analysis, task creation, and reversible project edits may proceed within resolved authority. Sending email, publishing a site or social post, changing a production campaign, purchasing media, or scheduling an external send requires an effect-bound approval naming exact content, target, account, time, and effect.
 7. After approval, delegate the exact approved effect to the owning Project Agent or connected plugin. A changed payload invalidates approval. If approval is absent, deliver the review package as ready for review without publishing.
 8. Deliver progress, decisions, artifacts, and the final outcome to the originating conversation/thread by default. Never redirect private-channel evidence to a broader audience.
-9. Schedule a performance follow-up only after the campaign has a real launch time. Use a persistent Recursive Automation, scoped to the campaign and origin, with a stable identifier. If scheduling authority or capability is unavailable, include a proposed follow-up and owner in the review package instead of claiming it was scheduled.
+9. Schedule a performance follow-up only after the campaign has a real launch time. Use a persistent Recursive Routine, scoped to the campaign and origin, with a stable identifier. If scheduling authority or capability is unavailable, include a proposed follow-up and owner in the review package instead of claiming it was scheduled.
 
 ## Optional capabilities
 
@@ -43,8 +43,8 @@ Use installed plugins when authorized; absence must degrade to a concrete handof
       network as covering another; each `*_post` call needs content a human approved for that
       network.
     - Only Mastodon schedules natively (`scheduled_at`). Bluesky, LinkedIn, Reddit, and X refuse
-      it by design — a timed post there is a Recursive Automation calling the tool at that time.
-      Never report a post as scheduled when it is an automation that has not run yet.
+      it by design — a timed post there is a Recursive Routine calling the tool at that time.
+      Never report a post as scheduled when it is a routine that has not run yet.
     - Reddit posts land in a community someone else moderates: confirm the subreddit's rules
       allow the post, and treat `SUBREDDIT_NOTALLOWED` as a stop, not a prompt to pick another
       subreddit unilaterally.

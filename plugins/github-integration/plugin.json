@@ -2,8 +2,8 @@
   "manifestFormat": 2,
   "id": "github-integration",
   "name": "GitHub",
-  "version": "1.0.0",
-  "description": "Trigger Recursive automations from GitHub — issues, pull requests, pushes, releases, and comments fire event-mode automations via repository webhooks. Requires a Pro or Teams license.",
+  "version": "1.0.1",
+  "description": "Trigger Recursive routines from GitHub — issues, pull requests, pushes, releases, and comments fire event-mode routines via repository webhooks. Requires a Pro or Teams license.",
   "author": {
     "name": "Recursive"
   },

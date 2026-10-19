@@ -17,6 +17,15 @@ const API = 'https://api.machines.dev/v1';
 /** Volumes need a region; this one is used when the setting is empty. */
 const DEFAULT_VOLUME_REGION = 'iad';
 const DATA_PATH = '/data';
+/**
+ * Package caches on the volume too: the root filesystem resets on every start, and a warm
+ * cache turns a setup script's dependency install from minutes into seconds.
+ */
+const VOLUME_CACHES = {
+  XDG_CACHE_HOME: `${DATA_PATH}/cache`,
+  NPM_CONFIG_CACHE: `${DATA_PATH}/cache/npm`,
+  BUN_INSTALL_CACHE_DIR: `${DATA_PATH}/cache/bun`,
+};
 
 interface FlySettings {
   apiToken: string;
@@ -30,7 +39,7 @@ interface FlySettings {
   volumeSizeGb: number;
 }
 
-function settingsFrom(context: MachineProviderPluginContext): FlySettings {
+export function settingsFrom(context: MachineProviderPluginContext): FlySettings {
   const raw = context.settings;
   const text = (key: string) => (typeof raw[key] === 'string' ? (raw[key] as string).trim() : '');
   const number = (key: string, fallback: number) => (typeof raw[key] === 'number' && (raw[key] as number) > 0 ? (raw[key] as number) : fallback);
@@ -90,7 +99,7 @@ export function createFlyProvider(
             image: settings.image,
             env: {
               ...bootstrap.env,
-              ...(volume ? { RECURSIVE_RUNNER_DIR: `${DATA_PATH}/runner`, RECURSIVE_RUNNER_WORKSPACES: `${DATA_PATH}/sessions` } : {}),
+              ...(volume ? { RECURSIVE_RUNNER_DIR: `${DATA_PATH}/runner`, RECURSIVE_RUNNER_WORKSPACES: `${DATA_PATH}/sessions`, ...VOLUME_CACHES } : {}),
             },
             init: { entrypoint: ['/bin/sh', '-c'], cmd: [bootstrap.command] },
             guest: { cpu_kind: 'shared', cpus: settings.cpus, memory_mb: settings.memoryMb },

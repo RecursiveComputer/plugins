@@ -1,8 +1,12 @@
-import { defineOperation, wirePluginOperations } from '@recursivecomputer/plugin-sdk';
+import { defineOperation, wirePluginOperations, type DefineOperationSpec } from '@recursivecomputer/plugin-sdk';
 
 import { createLayaTransport, layaSettings, verifyLayaConnection } from './lib/laya-client.js';
 
-export const verifyOperation = defineOperation<Record<string, never>, { ok: boolean; message?: string }>({
+type VerifyOutput = { ok: boolean; message?: string };
+
+// `effect` is newer than some published SDKs' operation spec type: asserted so both compile,
+// and hosts that know command effects read it.
+export const verifyOperation = defineOperation<Record<string, never>, VerifyOutput>({
   id: 'laya.onboarding.verify',
   version: 1,
   stability: 'experimental',
@@ -10,9 +14,10 @@ export const verifyOperation = defineOperation<Record<string, never>, { ok: bool
   method: 'POST',
   path: '/api/product/v1/laya/onboarding/verify',
   tier: 'public',
-  capability: 'plugins.manage',
+  capability: 'laya.manage',
   scope: { project: 'none', data: 'user' },
   kind: 'command',
+  effect: 'await',
   sideEffects: 'idempotent',
   idempotency: 'required',
   concurrency: 'none',
@@ -26,7 +31,7 @@ export const verifyOperation = defineOperation<Record<string, never>, { ok: bool
   },
   errors: ['unauthenticated', 'forbidden', 'write_failed'],
   mcp: { exposed: false, destructive: false },
-});
+} as DefineOperationSpec<Record<string, never>, VerifyOutput>);
 
 export default {
   operations: wirePluginOperations(

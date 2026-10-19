@@ -2,7 +2,7 @@
   "manifestFormat": 2,
   "id": "computer-provider-cua-local",
   "name": "Local Computer",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "Persistent isolated desktop on this machine using Cua Sandbox.",
   "author": {
     "name": "Recursive"

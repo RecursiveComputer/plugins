@@ -68,6 +68,11 @@ Rules:
 
 ## 1. The set (once per project; reuse across films)
 
+**Default: the plate pipeline** (`references/plate-pipeline.md`): approved stills + the compositor
+(`S/comp/`), no video model in the frame. Relight an approved set by editing its plates; build drone
+moves as a funnel of plates cut on motion. The steps below make the set and its plates; skip step 5
+(plate motion) unless a move truly needs a video model and the budget is approved.
+
 Keep the set in `~/.cache/keynote-sets/<project>/set/` and list it in `KEYNOTE.md`.
 
 1. **The whole building, then the floor plan.** Design the entire building the space belongs to,
@@ -310,4 +315,6 @@ python3 S/validate-film.py FILM.json OUT     # A1–A11
 | v17 | Single shot from unverified frames morphed; the old aerial was 2% off its camera | check-keyframe.py confirms both frames (A1 painted over its clay: 0-2 px off); the Turbo 480P test held the building for the whole descent, only the tree reshaped in the last 1.5 s. 480P output is 832x480: a uniform ~2% crop at both ends that the join absorbs |
 | v17 | Intro/outro shots hitched every 4th frame; a rise off the hero invented roof HVAC | cut-shots.py retimes dropped frames; use each shot's middle and stop before the model reveals the unseen |
 | v17 | Splat world read CG; keyframes painted from a courtyard-only plan disagreed about the building | Whole-building plan drawn from coordinates + a clay view per storyboard camera; keyframes painted over the clay (section 1) |
+| 0.5.0 plates | Procedural sets (WebGL, Cycles) read CG and a themed landscape felt silly; video models morph | Relit the approved courtyard to dusk by editing its plates (geometry kept), wall-off twins ≤0.5 px, drone as a plate funnel, everything moving composited in code |
+| 0.5.0 code set | A first WebGL-only test drew its own cards on the wall, wrote a per-line voice script and skipped the engine: it read as slides, stilted, disconnected from the product | A code-built set replaces only the location (clips rendered from cameras in it); the film still goes through the engine with v15's grammar, one take per act, and real UI pieces. Real components without live data come from the workbench stories (`packages/demo-engine/experiments/constellation-set/ui-pieces.mjs`) |
 | v15 | ~$28 of Seedance at 1080p + high bitrate, two at once, without a price check; ~32 Fal clips over the series, many exploratory reruns at 1080p; the account locked with a paid drone-in unfetchable | Money rules above: approved budget, `--estimate`/`--max-cost` guard, 480p single tests, reuse and edit before generating |

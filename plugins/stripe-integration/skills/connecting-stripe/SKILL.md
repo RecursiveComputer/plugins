@@ -1,12 +1,12 @@
 ---
 name: connecting-stripe
-description: "Configure Stripe payment-event webhooks to trigger Recursive automations."
+description: "Configure Stripe payment-event webhooks to trigger Recursive routines."
 ---
 
 # Connecting Stripe
 
 Wire a Stripe account to Recursive so payment events fire event-mode
-automations. Follow the steps **in order** — create the Recursive automation
+routines. Follow the steps **in order** — create the Recursive routine
 and store the signing secret *before* sending a test webhook, or the delivery
 will be rejected (401) or accepted with nothing dispatched (`dispatched: 0`).
 
@@ -17,7 +17,7 @@ Dashboard's **Send test webhook** for that first delivery.
 ## Prerequisites
 
 - The **stripe-integration** plugin is installed and enabled.
-- A **Pro or Teams license** (event-triggered automations require the
+- A **Pro or Teams license** (event-triggered routines require the
   `automation-triggers` feature).
 - A **public Remote Access URL** for this Recursive instance (Settings →
   Remote Access), e.g. `https://<your-box>.recursive.computer`. Stripe must
@@ -34,7 +34,7 @@ Webhooks**) → **Add endpoint**. Set the **Endpoint URL** to:
 
 e.g. `https://<your-box>.recursive.computer/api/triggers/inbound/stripe-integration/default`.
 Pick a stable `connection_id` (convention: `default`) — it is reused in the
-automation trigger below.
+routine trigger below.
 
 Mind the Dashboard's **test / live mode toggle**: endpoints created in test
 mode only receive test events, and vice versa. Each mode's endpoint has its
@@ -65,9 +65,9 @@ it in the **plugin's settings** — NOT in any per-automation `secret` field
 - API: `PUT /api/plugin-settings/stripe-integration` with
   `{ "signing_secret": "whsec_..." }`.
 
-## Step 4 — Create the event automation
+## Step 4 — Create the event routine
 
-Create the automation with `automation_create`, using the same
+Create the routine with `automation_create`, using the same
 `connection_id` as the URL:
 
 ```json
@@ -87,7 +87,7 @@ Create the automation with `automation_create`, using the same
 
 - `event_type` is one of the six types above — matching is **exact** (no
   wildcards); add one trigger per event type you care about.
-- Optional `filters` narrow which events fire the automation, e.g.
+- Optional `filters` narrow which events fire the routine, e.g.
   `"filters": { "livemode": "true" }` to ignore test-mode events, or
   `{ "currency": "usd" }`, `{ "customer": "cus_..." }`,
   `{ "account": "acct_..." }` (Connect). All filter values are strings —
@@ -102,24 +102,24 @@ Create the automation with `automation_create`, using the same
 On the endpoint's page in the Stripe Dashboard, use **Send test webhook**
 (sometimes "Send test event") and pick one of the subscribed event types.
 Recursive verifies the signature and responds `202`. A matching enabled
-automation dispatches a session within a few seconds.
+routine dispatches a session within a few seconds.
 
 Note: dashboard test events are test-mode (`livemode: false`) — a
 `{ "livemode": "true" }` filter will (correctly) exclude them, so verify
-against an automation without that filter first.
+against a routine without that filter first.
 
 ## Step 6 — Verify
 
 Trigger a real event (e.g. complete a test-mode Checkout) or rely on the test
 webhook from Step 5. A new session should appear in Recursive with the
-automation's prompt plus a "Triggering event" block. If nothing fires:
+routine's prompt plus a "Triggering event" block. If nothing fires:
 
 - **401** on the delivery (Stripe's endpoint page → recent deliveries):
   signing secret mismatch — wrong `whsec_` value, live-mode secret on a
   test-mode endpoint (or vice versa), or a proxy in front of Recursive is
   re-encoding the request body (signatures are computed over the exact raw
   bytes; any body transformation breaks them).
-- **202 with `"dispatched": 0`**: no enabled automation matches — check the
+- **202 with `"dispatched": 0`**: no enabled routine matches — check the
   trigger's `connection_id` matches the URL segment, `event_type` exactly
   matches the delivered event, and filters (especially `livemode`) don't
   exclude it.

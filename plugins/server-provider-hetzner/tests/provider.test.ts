@@ -1,4 +1,4 @@
-import { describe, expect, it, vi } from 'vitest';
+import { describe, expect, it, vi, type Mock } from 'vitest';
 import { createHetznerProvider, hetznerUserData, tailnetHostname } from '../provider.js';
 
 function api(routes: Record<string, unknown>) {
@@ -70,5 +70,48 @@ describe('hetzner server provider', () => {
   it('refuses a malformed auth key rather than writing it into a script', () => {
     expect(() => hetznerUserData('#!/bin/sh\n', "tskey-auth-x' ; curl evil", 'h')).toThrow(/malformed/);
     expect(tailnetHostname('srv_ABC_12')).toBe('recursive-abc-12');
+  });
+  it('resizes a running server: shuts it down, changes the type with a bigger disk, and powers it on', async () => {
+    let status = 'running';
+    let polls = 0;
+    const { fetch, calls } = api({});
+    const routes = fetch as unknown as Mock<typeof fetch>;
+    const inner = routes.getMockImplementation()!;
+    routes.mockImplementation(async (input: string | URL | Request, init?: RequestInit) => {
+      const path = new URL(String(input)).pathname;
+      const method = init?.method ?? 'GET';
+      if (method === 'GET' && path === '/v1/servers/123') {
+        await inner(input, init);
+        return Response.json({ server: { status } });
+      }
+      if (path === '/v1/servers/123/actions/shutdown') { await inner(input, init); status = 'off'; return Response.json({ action: { id: 1, command: 'shutdown_server', status: 'running' } }); }
+      if (path === '/v1/servers/123/actions/change_type') { await inner(input, init); return Response.json({ action: { id: 2, command: 'change_server_type', status: 'running' } }); }
+      if (path === '/v1/actions/2') { await inner(input, init); polls += 1; return Response.json({ action: { id: 2, command: 'change_server_type', status: polls > 1 ? 'success' : 'running' } }); }
+      if (path === '/v1/servers/123/actions/poweron') { await inner(input, init); status = 'running'; return Response.json({ action: { id: 3, command: 'start_server', status: 'running' } }); }
+      return inner(input, init);
+    });
+    const provider = createHetznerProvider({ apiToken: 't', tailscaleAuthKey: 'tskey-auth-abc' }, { fetch, tailnetSuffix: async () => null, sleep: async () => undefined });
+    await provider.resize('123:77', 'cx33');
+    expect(calls.map((call) => `${call.method} ${call.path}`)).toEqual([
+      'GET /v1/servers/123',
+      'POST /v1/servers/123/actions/shutdown',
+      'GET /v1/servers/123',
+      'POST /v1/servers/123/actions/change_type',
+      'GET /v1/actions/2',
+      'GET /v1/actions/2',
+      'POST /v1/servers/123/actions/poweron',
+    ]);
+    expect(calls[3]!.body).toEqual({ server_type: 'cx33', upgrade_disk: true });
+  });
+
+  it('powers the server back on when Hetzner refuses the new size', async () => {
+    const { fetch, calls } = api({
+      'GET /v1/servers/123': { server: { status: 'off' } },
+      'POST /v1/servers/123/actions/change_type': { action: { id: 2, command: 'change_server_type', status: 'error', error: { message: 'server type not available' } } },
+      'POST /v1/servers/123/actions/poweron': { action: { id: 3, command: 'start_server', status: 'running' } },
+    });
+    const provider = createHetznerProvider({ apiToken: 't', tailscaleAuthKey: 'tskey-auth-abc' }, { fetch, tailnetSuffix: async () => null, sleep: async () => undefined });
+    await expect(provider.resize('123:77', 'cx99')).rejects.toThrow('Hetzner: server type not available');
+    expect(calls.at(-1)).toMatchObject({ method: 'POST', path: '/v1/servers/123/actions/poweron' });
   });
 });
