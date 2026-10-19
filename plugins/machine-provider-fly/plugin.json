@@ -2,7 +2,7 @@
   "manifestFormat": 2,
   "id": "machine-provider-fly",
   "name": "Fly.io Machines",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Run sessions on Fly.io Machines: fast-booting VMs that stop when idle.",
   "author": {
     "name": "Recursive"
@@ -56,6 +56,7 @@
         "key": "image",
         "type": "string",
         "label": "Image",
+        "description": "node:22-bookworm installs each agent CLI the first time a session needs it. A prebuilt image starts sessions sooner: build one with deploy/runner-image/build.sh and enter registry.fly.io/<app>:<label>. Either way the runner is fetched fresh on every start.",
         "section": "Machine"
       },
       {

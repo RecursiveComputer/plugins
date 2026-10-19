@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { test } from 'vitest';
-import { createFlyProvider, volumeName } from '../provider.ts';
+import { createFlyProvider, settingsFrom, volumeName } from '../provider.ts';
 
 const base = { apiToken: 'fo1_x', app: 'my-agents', region: 'iad', image: 'node:22-bookworm', cpus: 2, memoryMb: 4096, persistDisk: false, volumeSizeGb: 10 };
 
@@ -53,6 +53,7 @@ test('keeps the runner’s state and checkouts on a volume that survives restart
   assert.deepEqual(machine.config.mounts, [{ volume: 'vol_1', path: '/data' }]);
   assert.equal(machine.config.env.RECURSIVE_RUNNER_DIR, '/data/runner');
   assert.equal(machine.config.env.RECURSIVE_RUNNER_WORKSPACES, '/data/sessions');
+  assert.equal(machine.config.env.BUN_INSTALL_CACHE_DIR, '/data/cache/bun', 'dependency caches survive a restart');
   await provider.destroy('fly123');
   assert.deepEqual(routes().slice(2), ['GET /v1/apps/my-agents/machines/fly123', 'DELETE /v1/apps/my-agents/machines/fly123?force=true', 'DELETE /v1/apps/my-agents/volumes/vol_1']);
   assert.match(volumeName('mch_ABCDEF123456'), /^[a-z0-9_]{1,30}$/);
@@ -80,4 +81,13 @@ test('a failed machine create removes the volume it made', async () => {
 test('explains missing configuration', async () => {
   const provider = createFlyProvider({ ...base, apiToken: '', app: '', region: '', image: 'x', cpus: 1, memoryMb: 256 });
   await assert.rejects(provider.start({ machine_id: 'm', owner_principal_id: 'o', bootstrap: { command: 'x', env: {} } }), /Fly API token and app/);
+});
+
+test('boots the image from settings, plain node:22-bookworm when none is set', async () => {
+  const context = (settings: Record<string, unknown>) => ({ plugin_id: 'machine-provider-fly', settings });
+  assert.equal(settingsFrom(context({ image: '  ' })).image, 'node:22-bookworm');
+  const prebuilt = settingsFrom(context({ apiToken: 'fo1_x', app: 'my-agents', image: 'registry.fly.io/my-agents:runner-202610170000', persistDisk: false }));
+  const { calls, fetchImpl } = fakeFetch();
+  await createFlyProvider(prebuilt, fetchImpl).start({ machine_id: 'm', owner_principal_id: 'o', bootstrap: { command: 'x', env: {} } });
+  assert.equal(JSON.parse(String(calls[0]!.init.body)).config.image, 'registry.fly.io/my-agents:runner-202610170000');
 });

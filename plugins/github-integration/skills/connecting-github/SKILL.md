@@ -1,21 +1,21 @@
 ---
 name: connecting-github
 title: Connecting GitHub
-description: "Configure GitHub repository webhooks to trigger Recursive automations."
+description: "Configure GitHub repository webhooks to trigger Recursive routines."
 ---
 
 # Connecting GitHub
 
 Wire a GitHub repository (or org) to Recursive so issues, pull requests,
-pushes, comments, and releases fire event-mode automations. Follow the steps
-**in order** — the Webhook Secret and the automation must exist in Recursive
+pushes, comments, and releases fire event-mode routines. Follow the steps
+**in order** — the Webhook Secret and the routine must exist in Recursive
 *before* GitHub sends its one-time `ping` delivery, or the ping fails
 signature verification and the webhook shows a red ✕.
 
 ## Prerequisites
 
 - The **github-integration** plugin is installed and enabled.
-- A **Pro or Teams license** (event-triggered automations require the
+- A **Pro or Teams license** (event-triggered routines require the
   `automation-triggers` feature).
 - A **public Remote Access URL** for this Recursive instance (Settings →
   Remote Access), e.g. `https://<your-box>.recursive.computer`. GitHub must be
@@ -40,9 +40,9 @@ Optionally store a **GitHub Token** (`github_token`, a fine-grained PAT or
 classic `ghp_…` token) — it is used only for agents to post results back
 (issue/PR comments), never for webhook verification.
 
-## Step 2 — Create the event automation
+## Step 2 — Create the event routine
 
-Pick a stable `connection_id` (convention: `default`). Create the automation
+Pick a stable `connection_id` (convention: `default`). Create the routine
 with `automation_create`:
 
 ```json
@@ -63,7 +63,7 @@ with `automation_create`:
 
 - `event_type` is one of `issues`, `issue_comment`, `pull_request`, `push`,
   `release` — the value of GitHub's `X-GitHub-Event` header.
-- Optional `filters` narrow which events fire the automation. All filter
+- Optional `filters` narrow which events fire the routine. All filter
   entries must match; omit to fire on every event of that type. Supported keys:
   - `repo` — repository full name, e.g. `"acme/web"`
   - `action` — the payload's action, e.g. `"opened"`, `"closed"`,
@@ -93,7 +93,7 @@ Settings → Webhooks to cover every repo in the org). Configure:
 ## Step 4 — Choose the events
 
 Under "Which events would you like to trigger this webhook?" pick **Let me
-select individual events** and check the ones your automations subscribe to:
+select individual events** and check the ones your routines subscribe to:
 Issues, Issue comments, Pull requests, Pushes, Releases. (Sending extra event
 types is harmless — unsubscribed types are accepted and ignored.)
 
@@ -105,7 +105,7 @@ GitHub immediately sends a signed `ping` delivery. Because the Webhook Secret
 is already stored (Step 1), Recursive verifies the signature and answers
 `{"ok":true,"message":"pong"}` — the webhook's Recent Deliveries shows a
 green ✓. Then trigger a real event (e.g. open an issue). Within a few seconds
-a new session should appear in Recursive with the automation's prompt plus a
+a new session should appear in Recursive with the routine's prompt plus a
 "Triggering event" block containing the issue.
 
 If nothing fires, check the webhook's **Recent Deliveries** in GitHub:
@@ -113,11 +113,11 @@ If nothing fires, check the webhook's **Recent Deliveries** in GitHub:
 - **401** — Webhook Secret mismatch: the value in plugin settings differs
   from the webhook's Secret field, or the secret was saved after the delivery.
   Fix the setting and use "Redeliver".
-- **202 with `"dispatched": 0`** — the request verified, but no automation
-  matched: the automation is disabled, its trigger's `connection_id` doesn't
+- **202 with `"dispatched": 0`** — the request verified, but no routine
+  matched: the routine is disabled, its trigger's `connection_id` doesn't
   match the URL segment, the `event_type` differs, or a `filters` entry
   excluded the event (e.g. `action: "opened"` on an `edited` delivery).
 - **404** — the plugin is disabled, or the Payload URL's plugin id segment is
   wrong (`github-integration`).
 - **Timeout / connection error** — the Remote Access URL is not reachable
-  from the internet; re-check Settings → Remote Access.
+  from the internet; re-check Settings → Home → Remote Access.

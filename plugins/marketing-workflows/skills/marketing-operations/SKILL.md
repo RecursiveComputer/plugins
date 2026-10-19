@@ -14,4 +14,4 @@ Translate the approved brief into a provider-neutral operating plan. Discover ca
 
 Return `{work_breakdown, dependency_graph, tracking_plan, qa_checks, launch_sequence, budget, follow_up, evidence}`. Every work item includes `owner_project_id`, `task`, `authority`, `dependency_ids`, `reversible`, and `status`. Every tracking field includes definition, source, attribution window, baseline, target, and owner.
 
-Delegate project mutations to owning Project Agents. Creating reversible tasks and draft artifacts is allowed only within resolved authority. Production configuration, publication, sends, paid spend, and external scheduling require exact effect approval. Schedule follow-up only when a confirmed launch time and automation authority are present; otherwise return a proposed schedule.
+Delegate project mutations to owning Project Agents. Creating reversible tasks and draft artifacts is allowed only within resolved authority. Production configuration, publication, sends, paid spend, and external scheduling require exact effect approval. Schedule follow-up only when a confirmed launch time and routine authority are present; otherwise return a proposed schedule.

@@ -2,7 +2,7 @@
   "manifestFormat": 2,
   "id": "server-provider-hetzner",
   "name": "Hetzner Server",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "engines": { "recursive": { "hostApi": "2" } },
   "description": "Host Recursive on a Hetzner Cloud server that joins your Tailscale network. Nothing on it is open to the internet.",
   "author": {

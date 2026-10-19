@@ -2,7 +2,7 @@
   "manifestFormat": 2,
   "id": "keynote",
   "name": "Keynote",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Apple-style announcement films for any product update: script, a generated set with drone bookends, real UI beats, motion graphics, voice and music, rendered and validated against a quality rubric. Run /keynote.",
   "author": { "name": "Recursive" },
   "color": "#F59E0B",

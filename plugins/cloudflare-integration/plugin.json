@@ -2,8 +2,8 @@
   "manifestFormat": 2,
   "id": "cloudflare-integration",
   "name": "Cloudflare",
-  "version": "1.0.0",
-  "description": "Trigger Recursive automations from Cloudflare Notifications — deploy alerts, health checks, security events, and usage alerts arrive as webhook deliveries and an agent picks them up. Requires a Pro or Teams license.",
+  "version": "1.0.1",
+  "description": "Trigger Recursive routines from Cloudflare Notifications — deploy alerts, health checks, security events, and usage alerts arrive as webhook deliveries and an agent picks them up. Requires a Pro or Teams license.",
   "author": {
     "name": "Recursive"
   },

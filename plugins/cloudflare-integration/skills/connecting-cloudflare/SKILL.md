@@ -1,13 +1,13 @@
 ---
 name: connecting-cloudflare
-description: "Configure Cloudflare notification webhooks to trigger Recursive automations."
+description: "Configure Cloudflare notification webhooks to trigger Recursive routines."
 ---
 
 # Connecting Cloudflare
 
 Wire Cloudflare Notifications to Recursive so deploy alerts, health-check
-status changes, and security events fire event-mode automations. Follow the
-steps **in order** — the webhook secret and the automation must exist in
+status changes, and security events fire event-mode routines. Follow the
+steps **in order** — the webhook secret and the routine must exist in
 Recursive *before* you save the webhook destination in Cloudflare, because
 saving the destination immediately fires a one-time test delivery that must
 pass secret verification.
@@ -15,7 +15,7 @@ pass secret verification.
 ## Prerequisites
 
 - The **cloudflare-integration** plugin is installed and enabled.
-- A **Pro or Teams license** (event-triggered automations require the
+- A **Pro or Teams license** (event-triggered routines require the
   `automation-triggers` feature).
 - A **public Remote Access URL** for this Recursive instance (Settings →
   Remote Access), e.g. `https://<your-box>.recursive.computer`. Cloudflare
@@ -37,9 +37,9 @@ Cloudflare sends this secret verbatim in the `cf-webhook-auth` header on every
 delivery (it is a shared secret, not an HMAC signature); `verify()` checks it
 with a constant-time compare.
 
-## Step 2 — Create the event automation
+## Step 2 — Create the event routine
 
-Pick a stable `connection_id` (convention: `default`). Create the automation
+Pick a stable `connection_id` (convention: `default`). Create the routine
 with `automation_create`:
 
 ```json
@@ -63,7 +63,7 @@ with `automation_create`:
     alert types).
   - `health_check` — health-check status notifications.
   - `security` — DoS/DDoS, firewall, WAF, and security-insights alerts.
-- Optional `filters` narrow which events fire the automation, e.g.
+- Optional `filters` narrow which events fire the routine, e.g.
   `"filters": { "project": "my-pages-app" }` or
   `"filters": { "alert_type": "health_check_status_notification" }`
   (supported keys: `alert_type`, `account_id`, `policy_id`, `zone`,
@@ -91,7 +91,7 @@ When you click **Save and Test**, Cloudflare immediately sends a test
 delivery; because the secret is already stored (Step 1), Recursive verifies it
 and answers OK, Cloudflare marks the destination healthy, and the Recursive
 connection is stamped verified. The test delivery does **not** dispatch any
-automation.
+routine.
 
 ## Step 4 — Create a Notification policy
 
@@ -104,15 +104,15 @@ the **Webhooks destination** created in Step 3. Save.
 
 Trigger (or wait for) a matching alert — e.g. push a failing Pages deploy or
 use the policy's test option where available. Within a few seconds a new
-session should appear in Recursive with the automation's prompt plus a
+session should appear in Recursive with the routine's prompt plus a
 "Triggering event" block containing the notification. If nothing fires:
 
-- Check the automation is **enabled** and its trigger's `connection_id`
+- Check the routine is **enabled** and its trigger's `connection_id`
   matches the URL segment.
 - Check the webhook destination's delivery history in Cloudflare (401 =
   webhook secret mismatch between plugin settings and the destination; 202
-  with `"dispatched": 0` = no matching automation, or filters excluded the
+  with `"dispatched": 0` = no matching routine, or filters excluded the
   event).
 - Remember every notification also emits the generic `alert` event — an
-  automation on `event_type: "alert"` with no filters is a useful catch-all
+  routine on `event_type: "alert"` with no filters is a useful catch-all
   while debugging.

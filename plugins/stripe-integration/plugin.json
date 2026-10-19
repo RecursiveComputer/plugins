@@ -2,8 +2,8 @@
   "manifestFormat": 2,
   "id": "stripe-integration",
   "name": "Stripe",
-  "version": "1.0.0",
-  "description": "Trigger Recursive automations from Stripe — completed checkouts, failed payments, subscription changes, refunds, and disputes dispatch agent sessions. Requires a Pro or Teams license.",
+  "version": "1.0.1",
+  "description": "Trigger Recursive routines from Stripe — completed checkouts, failed payments, subscription changes, refunds, and disputes dispatch agent sessions. Requires a Pro or Teams license.",
   "author": {
     "name": "Recursive"
   },
@@ -103,7 +103,7 @@
     ]
   },
   "onboarding": {
-    "subtitle": "Connect your Stripe account so payment events fire automations.",
+    "subtitle": "Connect your Stripe account so payment events fire routines.",
     "steps": [
       {
         "kind": "link",

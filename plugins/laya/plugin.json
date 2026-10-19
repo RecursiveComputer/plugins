@@ -2,7 +2,7 @@
   "manifestFormat": 2,
   "id": "laya",
   "name": "Laya",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "engines": { "recursive": { "hostApi": "2" } },
   "description": "Open-weight System 1 judgments (choice, score, noul) from Laya, running locally on this machine. A free, multilingual alternative to TypeSafe Jev for routing and guard signals.",
   "author": {
