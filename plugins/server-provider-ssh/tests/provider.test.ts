@@ -10,7 +10,7 @@ describe('ssh server provider', () => {
     const created = await provider.create({ server_id: 'srv_1', name: 'x', bootstrap: { image: 'img', env: { RECURSIVE_API_KEY: 'rsk_secret' }, port: 12321, script: 'RECURSIVE_API_KEY=rsk_secret' } });
     expect(created.url).toBe('http://box.tail1234.ts.net:12321');
     const [args, stdin] = ssh.mock.calls[0]! as unknown as [string[], string];
-    expect(args).toEqual(['RECURSIVE_PUBLISH=0.0.0.0', 'sh', '-s']);
+    expect(args).toEqual(['RECURSIVE_PUBLISH=0.0.0.0', 'RECURSIVE_PRUNE_BUILD_CACHE=0', 'sh', '-s']);
     expect(args.join(' ')).not.toContain('rsk_secret');
     expect(stdin).toContain('rsk_secret');
   });
@@ -114,5 +114,15 @@ describe('ssh server provider', () => {
       await provider.reclaimHostStorage('i', { image_ids: [], build_cache_keep_bytes: 1024 });
       expect(calls.at(-1)).toEqual(['docker', 'builder', 'prune', '-f', '--reserved-space', '1024']);
     });
+  });
+
+  it('removes the container an update replaced before the data volume it still mounts', async () => {
+    const ssh = vi.fn(async () => '');
+    await createSshServerProvider(settings, ssh).destroy('i');
+    const script = (ssh.mock.calls[0] as unknown as [string[]])[0].join(' ');
+    const prev = script.indexOf('docker rm -f recursive-server-prev');
+    expect(script).toContain('docker rm -f recursive-server ');
+    expect(prev).toBeGreaterThan(-1);
+    expect(prev).toBeLessThan(script.indexOf('docker volume rm recursive-data'));
   });
 });

@@ -60,7 +60,8 @@ export function createSshServerProvider(settings: SshSettings, ssh: SshRunner = 
     async create({ bootstrap }) {
       const { publish, url } = publishAddress(settings, bootstrap.port);
       // `sh -s` reads the script from stdin: its environment (keys, tokens) never reaches argv or shell history.
-      await ssh([`RECURSIVE_PUBLISH=${publish}`, 'sh', '-s'], bootstrap.script);
+      // The host may build other images: image updates leave its Docker build cache alone.
+      await ssh([`RECURSIVE_PUBLISH=${publish}`, 'RECURSIVE_PRUNE_BUILD_CACHE=0', 'sh', '-s'], bootstrap.script);
       return { instance_id: `${settings.user}@${settings.host}:${settings.port}`, url };
     },
     async status() {
@@ -82,7 +83,9 @@ export function createSshServerProvider(settings: SshSettings, ssh: SshRunner = 
       await ssh(['docker', 'start', 'recursive-server']);
     },
     async destroy() {
-      await ssh(['sh', '-c', "'docker rm -f recursive-server >/dev/null 2>&1; docker volume rm recursive-data >/dev/null 2>&1; rm -rf /opt/recursive; true'"]);
+      // An image update leaves the container it replaced as recursive-server-prev, still mounting
+      // the volume: it goes first, or the volume (keys, provider sign-ins) cannot be removed.
+      await ssh(['sh', '-c', "'docker rm -f recursive-server >/dev/null 2>&1; docker rm -f recursive-server-prev >/dev/null 2>&1; docker volume rm recursive-data >/dev/null 2>&1; rm -rf /opt/recursive; true'"]);
     },
     async logs(_instanceId, tail = 200) {
       return ssh(['docker', 'logs', '--tail', String(tail), 'recursive-server']).catch((error) => String(error));
