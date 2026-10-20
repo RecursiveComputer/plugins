@@ -2,7 +2,7 @@
   "manifestFormat": 2,
   "id": "server-provider-ssh",
   "name": "SSH Server",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Host Recursive on any Linux server you can reach with ssh: a VPS, a NAS, or a box at home.",
   "author": {
     "name": "Recursive"
