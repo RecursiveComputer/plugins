@@ -1,8 +1,8 @@
 {
   "manifestFormat": 2,
   "id": "machine-provider-fly",
-  "name": "Fly.io Machines",
-  "version": "0.1.1",
+  "name": "Fly.io Computers",
+  "version": "0.1.2",
   "description": "Run sessions on Fly.io Machines: fast-booting VMs that stop when idle.",
   "author": {
     "name": "Recursive"
@@ -50,39 +50,39 @@
         "type": "string",
         "label": "Region",
         "description": "e.g. iad or ams. Empty uses iad when the work disk is on, otherwise lets Fly choose.",
-        "section": "Machine"
+        "section": "Computer"
       },
       {
         "key": "image",
         "type": "string",
         "label": "Image",
         "description": "node:22-bookworm installs each agent CLI the first time a session needs it. A prebuilt image starts sessions sooner: build one with deploy/runner-image/build.sh and enter registry.fly.io/<app>:<label>. Either way the runner is fetched fresh on every start.",
-        "section": "Machine"
+        "section": "Computer"
       },
       {
         "key": "cpus",
         "type": "number",
         "label": "Shared vCPUs",
-        "section": "Machine"
+        "section": "Computer"
       },
       {
         "key": "memoryMb",
         "type": "number",
         "label": "Memory (MB)",
-        "section": "Machine"
+        "section": "Computer"
       },
       {
         "key": "persistDisk",
         "type": "boolean",
         "label": "Keep work on a disk",
         "description": "A Fly Machine's own disk resets when it restarts. With this on, each machine gets a volume for the runner's checkouts, so work cut off by a stop is handed in when it starts again.",
-        "section": "Machine"
+        "section": "Computer"
       },
       {
         "key": "volumeSizeGb",
         "type": "number",
         "label": "Work disk (GB)",
-        "section": "Machine"
+        "section": "Computer"
       }
     ]
   }

@@ -72,7 +72,7 @@ export function createFlyProvider(
   wait: (ms: number) => Promise<void> = (ms) => new Promise((resolve) => setTimeout(resolve, ms)),
 ): MachineProvider {
   const api = async <T>(method: string, path: string, body?: unknown): Promise<T> => {
-    if (!settings.apiToken || !settings.app) throw new Error('Set the Fly API token and app in Fly.io Machines settings.');
+    if (!settings.apiToken || !settings.app) throw new Error('Set the Fly API token and app in Fly.io Computers settings.');
     const response = await http(`${API}/apps/${encodeURIComponent(settings.app)}${path}`, {
       method,
       headers: { Authorization: `Bearer ${settings.apiToken}`, 'content-type': 'application/json' },
@@ -165,7 +165,7 @@ const plugin: MachineProviderPluginModule = {
   status(context) {
     const settings = settingsFrom(context);
     if (settings.apiToken && settings.app) return { available: true, configured: true };
-    return { available: true, configured: false, message: 'Fly token or app not set.', setup_hint: 'Create an app with `fly apps create`, then add a token and the app name in Fly.io Machines settings.' };
+    return { available: true, configured: false, message: 'Fly token or app not set.', setup_hint: 'Create an app with `fly apps create`, then add a token and the app name in Fly.io Computers settings.' };
   },
 };
 

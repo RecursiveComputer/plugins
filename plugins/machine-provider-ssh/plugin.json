@@ -1,8 +1,8 @@
 {
   "manifestFormat": 2,
   "id": "machine-provider-ssh",
-  "name": "SSH Machines",
-  "version": "0.1.0",
+  "name": "SSH Computers",
+  "version": "0.1.1",
   "description": "Run sessions on a Mac, Linux server, or VM you can reach over SSH.",
   "author": {
     "name": "Recursive"

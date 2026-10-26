@@ -66,7 +66,7 @@ const STATUS_SCRIPT = `pgrep -f '.recursive-runner/runner.mjs' >/dev/null && ech
 
 export function createSshProvider(settings: SshSettings, ssh: SshRunner = runSsh): MachineProvider {
   const base = () => {
-    if (!settings.host) throw new Error('Set the SSH host in the SSH Machines plugin settings.');
+    if (!settings.host) throw new Error('Set the SSH host in the SSH Computers plugin settings.');
     const args = ['-p', String(settings.port), '-o', 'BatchMode=yes', '-o', 'ConnectTimeout=15'];
     if (settings.identityFile) args.push('-i', settings.identityFile);
     for (const option of settings.extraOptions) args.push('-o', option);
@@ -103,7 +103,7 @@ const plugin: MachineProviderPluginModule = {
     const settings = settingsFrom(context);
     return settings.host
       ? { available: true, configured: true }
-      : { available: true, configured: false, message: 'No SSH host set.', setup_hint: 'Set the host in SSH Machines settings.' };
+      : { available: true, configured: false, message: 'No SSH host set.', setup_hint: 'Set the host in SSH Computers settings.' };
   },
 };
 

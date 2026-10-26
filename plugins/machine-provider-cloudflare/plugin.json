@@ -1,8 +1,8 @@
 {
   "manifestFormat": 2,
   "id": "machine-provider-cloudflare",
-  "name": "Cloudflare Machines",
-  "version": "0.1.0",
+  "name": "Cloudflare Computers",
+  "version": "0.1.1",
   "description": "Run sessions in Cloudflare Sandboxes: containers on Durable Objects that start in under a second and pause to a filesystem snapshot.",
   "author": {
     "name": "Recursive"
@@ -53,14 +53,14 @@
         ],
         "label": "Instance type",
         "description": "Container size. standard-2 suits most agents; bigger builds want standard-3 or standard-4.",
-        "section": "Machine"
+        "section": "Computer"
       },
       {
         "key": "idleMinutes",
         "type": "number",
         "label": "Stop after idle (minutes)",
-        "description": "Cloudflare stops the container after this long without Recursive checking in (at most 360). Recursive pauses idle machines itself; this is the backstop for when Recursive is asleep or closed.",
-        "section": "Machine"
+        "description": "Cloudflare stops the container after this long without Recursive checking in (at most 360). Recursive pauses idle computers itself; this is the backstop for when Recursive is asleep or closed.",
+        "section": "Computer"
       }
     ]
   }

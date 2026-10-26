@@ -42,7 +42,7 @@ export function createCloudflareProvider(
   const call = async <T>(method: string, path: string, body?: unknown): Promise<T> => {
     if (!settings.workerUrl || !settings.apiToken)
       throw new Error(
-        'Deploy the Recursive machines Worker and add its URL and token in Cloudflare Machines settings.',
+        'Deploy the Recursive machines Worker and add its URL and token in Cloudflare Computers settings.',
       );
     const response = await http(`${settings.workerUrl}${path}`, {
       method,
@@ -100,7 +100,7 @@ export function createCloudflareProvider(
 }
 
 const SETUP_HINT =
-  'Deploy the Worker once: in plugins/shared/machine-provider-cloudflare/worker run `npm install`, `npx wrangler deploy`, and `npx wrangler secret put RECURSIVE_TOKEN`, then add the Worker URL and that token in Cloudflare Machines settings.';
+  'Deploy the Worker once: in plugins/shared/machine-provider-cloudflare/worker run `npm install`, `npx wrangler deploy`, and `npx wrangler secret put RECURSIVE_TOKEN`, then add the Worker URL and that token in Cloudflare Computers settings.';
 
 /** The settings page polls provider status; check the Worker at most once a minute. */
 const HEALTH_TTL_MS = 60_000;
