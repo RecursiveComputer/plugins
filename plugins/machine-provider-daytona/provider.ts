@@ -52,7 +52,7 @@ export function createDaytonaProvider(
   wait: (ms: number) => Promise<void> = (ms) => new Promise((resolve) => setTimeout(resolve, ms)),
 ): MachineProvider {
   const request = async <T>(method: string, url: string, body?: unknown): Promise<T> => {
-    if (!settings.apiKey) throw new Error('Add a Daytona API key in Daytona Machines settings.');
+    if (!settings.apiKey) throw new Error('Add a Daytona API key in Daytona Computers settings.');
     const response = await http(url, {
       method,
       headers: { Authorization: `Bearer ${settings.apiKey}`, 'content-type': 'application/json' },
@@ -136,7 +136,7 @@ const plugin: MachineProviderPluginModule = {
   status(context) {
     return settingsFrom(context).apiKey
       ? { available: true, configured: true }
-      : { available: true, configured: false, message: 'No Daytona API key.', setup_hint: 'Add your key from app.daytona.io in Daytona Machines settings.' };
+      : { available: true, configured: false, message: 'No Daytona API key.', setup_hint: 'Add your key from app.daytona.io in Daytona Computers settings.' };
   },
 };
 

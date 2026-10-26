@@ -1,8 +1,8 @@
 {
   "manifestFormat": 2,
   "id": "machine-provider-daytona",
-  "name": "Daytona Machines",
-  "version": "0.1.0",
+  "name": "Daytona Computers",
+  "version": "0.1.1",
   "description": "Run sessions in Daytona cloud sandboxes.",
   "author": {
     "name": "Recursive"

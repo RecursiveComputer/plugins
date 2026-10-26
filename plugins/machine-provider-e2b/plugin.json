@@ -1,8 +1,8 @@
 {
   "manifestFormat": 2,
   "id": "machine-provider-e2b",
-  "name": "E2B Machines",
-  "version": "0.1.1",
+  "name": "E2B Computers",
+  "version": "0.1.2",
   "description": "Run sessions in E2B cloud sandboxes that pause when idle and keep their disk.",
   "author": {
     "name": "Recursive"

@@ -56,7 +56,7 @@ export function connectEnvelope(message: unknown): Uint8Array<ArrayBuffer> {
 
 export function createE2bProvider(settings: E2bSettings, http: typeof fetch = fetch): MachineProvider {
   const api = async <T>(method: string, path: string, body?: unknown): Promise<T> => {
-    if (!settings.apiKey) throw new Error('Add an E2B API key in E2B Machines settings.');
+    if (!settings.apiKey) throw new Error('Add an E2B API key in E2B Computers settings.');
     const response = await http(`https://api.${settings.domain}${path}`, {
       method,
       headers: { 'X-API-KEY': settings.apiKey, 'content-type': 'application/json' },
@@ -137,7 +137,7 @@ const plugin: MachineProviderPluginModule = {
   status(context) {
     return settingsFrom(context).apiKey
       ? { available: true, configured: true }
-      : { available: true, configured: false, message: 'No E2B API key.', setup_hint: 'Add your key from e2b.dev/dashboard in E2B Machines settings.' };
+      : { available: true, configured: false, message: 'No E2B API key.', setup_hint: 'Add your key from e2b.dev/dashboard in E2B Computers settings.' };
   },
 };
 
