@@ -48,6 +48,8 @@ afterEach(() => {
 
 describe('layaSettings', () => {
   it('applies defaults and trims strings', () => {
+    const defaults = layaSettings({ pythonPath: '  ', timeoutMs: -1 });
+    expect([defaults.pythonPath, defaults.model, defaults.device, defaults.timeoutMs, defaults.preload, defaults.baseUrl]).toEqual(['python3', 'auto', 'auto', 5000, false, '']);
     expect(layaSettings({ pythonPath: '  ', timeoutMs: -1 })).toMatchObject({
       pythonPath: 'python3',
       model: 'auto',
