@@ -56,8 +56,64 @@ export { serverTailnetHostname as tailnetHostname };
 /** cloud-init user data: Tailscale first, then Recursive on the tailnet address only. */
 export const hetznerUserData = tailnetUserData;
 
-/** Resizing is newer than some published SDKs' ServerProvider: this provider always has it. */
-export type HetznerServerProvider = ServerProvider & { resize(instanceId: string, size: string): Promise<void> };
+/** Resizing and volumes are newer than some published SDKs' ServerProvider: this provider always has them. */
+export type HetznerServerProvider = ServerProvider & { resize(instanceId: string, size: string): Promise<void>; volumes: ServerVolumes };
+
+export interface ServerVolume {
+  volume_id: string;
+  name: string;
+  size_gb: number;
+  location: string | null;
+  attached_to: string | null;
+  device: string | null;
+  state: 'creating' | 'available' | 'error';
+}
+
+export interface ServerVolumes {
+  readonly limits: { min_gb: number; max_gb: number };
+  create(input: { instance_id: string; name: string; size_gb: number; labels?: Record<string, string> }): Promise<ServerVolume>;
+  get(volume_id: string): Promise<ServerVolume | null>;
+  grow(volume_id: string, size_gb: number): Promise<ServerVolume>;
+  attach(volume_id: string, instance_id: string): Promise<ServerVolume>;
+  detach(volume_id: string): Promise<ServerVolume>;
+  remove(volume_id: string): Promise<void>;
+}
+
+export const HETZNER_VOLUME_LIMITS = { min_gb: 10, max_gb: 10_240 } as const;
+
+interface HetznerVolume {
+  id: number;
+  name: string;
+  size: number;
+  server: number | null;
+  linux_device: string | null;
+  status: string;
+  location?: { name?: string } | null;
+}
+
+function volumeFrom(volume: HetznerVolume): ServerVolume {
+  return {
+    volume_id: String(volume.id),
+    name: volume.name,
+    size_gb: volume.size,
+    location: volume.location?.name ?? null,
+    attached_to: volume.server === null ? null : String(volume.server),
+    device: volume.linux_device ?? null,
+    state: volume.status === 'available' ? 'available' : volume.status === 'creating' ? 'creating' : 'error',
+  };
+}
+
+export function hetznerVolumeName(name: string): string {
+  const cleaned = name.toLowerCase().replace(/[^a-z0-9-]+/g, '-').replace(/^-+|-+$/g, '').slice(0, 63).replace(/-+$/, '');
+  if (!cleaned) throw new Error('A volume needs a name.');
+  return cleaned;
+}
+
+function checkSize(sizeGb: number): void {
+  if (!Number.isInteger(sizeGb) || sizeGb < HETZNER_VOLUME_LIMITS.min_gb || sizeGb > HETZNER_VOLUME_LIMITS.max_gb) {
+    throw new Error(`A Hetzner volume is ${HETZNER_VOLUME_LIMITS.min_gb} to ${HETZNER_VOLUME_LIMITS.max_gb} GB, in whole GB.`);
+  }
+}
 
 export function createHetznerProvider(settings: HetznerSettings, deps: HetznerDeps = { fetch, tailnetSuffix: localTailnetSuffix }): HetznerServerProvider {
   async function api<T>(route: string, init: RequestInit = {}): Promise<T> {
@@ -99,8 +155,72 @@ export function createHetznerProvider(settings: HetznerSettings, deps: HetznerDe
     return `http://${suffix ? `${host}.${suffix}` : host}:12321`;
   }
 
+  async function volume(volumeId: string): Promise<ServerVolume> {
+    return volumeFrom((await api<{ volume: HetznerVolume }>(`/volumes/${volumeId}`)).volume);
+  }
+
+  async function volumeAction(volumeId: string, action: string, body: Record<string, unknown> = {}): Promise<ServerVolume> {
+    await finished(await api<{ action: HetznerAction }>(`/volumes/${volumeId}/actions/${action}`, { method: 'POST', body: JSON.stringify(body) }));
+    return volume(volumeId);
+  }
+
+  const volumes: ServerVolumes = {
+    limits: HETZNER_VOLUME_LIMITS,
+    async create({ instance_id, name, size_gb, labels }) {
+      checkSize(size_gb);
+      const created = await api<{ volume: HetznerVolume; action: HetznerAction; next_actions?: HetznerAction[] }>('/volumes', {
+        method: 'POST',
+        body: JSON.stringify({
+          name: hetznerVolumeName(name),
+          size: size_gb,
+          server: Number(instance_id.split(':')[0]),
+          automount: false,
+          format: 'ext4',
+          ...(labels ? { labels } : {}),
+        }),
+      });
+      await finished({ action: created.action });
+      for (const next of created.next_actions ?? []) await finished({ action: next });
+      return volume(String(created.volume.id));
+    },
+    async get(volumeId) {
+      try {
+        return await volume(volumeId);
+      } catch (error) {
+        if (/not found/i.test(String(error))) return null;
+        throw error;
+      }
+    },
+    async grow(volumeId, sizeGb) {
+      checkSize(sizeGb);
+      const current = await volume(volumeId);
+      if (sizeGb < current.size_gb) throw new Error(`A volume cannot shrink: it is ${current.size_gb} GB.`);
+      if (sizeGb === current.size_gb) return current;
+      return volumeAction(volumeId, 'resize', { size: sizeGb });
+    },
+    async attach(volumeId, instanceId) {
+      const serverId = Number(instanceId.split(':')[0]);
+      const current = await volume(volumeId);
+      if (current.attached_to === String(serverId)) return current;
+      if (current.attached_to) throw new Error(`The volume is attached to another server (${current.attached_to}); detach it first.`);
+      return volumeAction(volumeId, 'attach', { server: serverId, automount: false });
+    },
+    async detach(volumeId) {
+      const current = await volume(volumeId);
+      if (!current.attached_to) return current;
+      return volumeAction(volumeId, 'detach');
+    },
+    async remove(volumeId) {
+      const current = await volumes.get(volumeId);
+      if (!current) return;
+      if (current.attached_to) throw new Error('Detach the volume before deleting it.');
+      await api(`/volumes/${volumeId}`, { method: 'DELETE' });
+    },
+  };
+
   return {
     provider_id: 'hetzner',
+    volumes,
     async offers(): Promise<ServerOffers> {
       const [{ locations }, { server_types }] = await Promise.all([
         api<{ locations: Array<{ name: string; description: string; city: string; country: string }> }>('/locations'),

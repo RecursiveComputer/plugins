@@ -1,5 +1,5 @@
 import { describe, expect, it, vi, type Mock } from 'vitest';
-import { createHetznerProvider, hetznerUserData, tailnetHostname } from '../provider.js';
+import { createHetznerProvider, hetznerUserData, hetznerVolumeName, tailnetHostname } from '../provider.js';
 
 function api(routes: Record<string, unknown>) {
   const calls: Array<{ method: string; path: string; body: Record<string, unknown> | null; auth: string | null }> = [];
@@ -113,5 +113,86 @@ describe('hetzner server provider', () => {
     const provider = createHetznerProvider({ apiToken: 't', tailscaleAuthKey: 'tskey-auth-abc' }, { fetch, tailnetSuffix: async () => null, sleep: async () => undefined });
     await expect(provider.resize('123:77', 'cx99')).rejects.toThrow('Hetzner: server type not available');
     expect(calls.at(-1)).toMatchObject({ method: 'POST', path: '/v1/servers/123/actions/poweron' });
+  });
+});
+
+describe('hetzner volumes', () => {
+  const done = (id: number, command: string) => ({ id, command, status: 'success' });
+  const vol = (over: Record<string, unknown> = {}) => ({ id: 55, name: 'recursive-w-abc', size: 100, server: 123, linux_device: '/dev/disk/by-id/scsi-0HC_Volume_55', status: 'available', location: { name: 'fsn1' }, ...over });
+  const provider = (fetcher: typeof globalThis.fetch) => createHetznerProvider({ apiToken: 't', tailscaleAuthKey: 'tskey-auth-abc' }, { fetch: fetcher, tailnetSuffix: async () => null, sleep: async () => undefined }).volumes;
+
+  it('creates an ext4 volume on the server without automount, and waits for it to attach', async () => {
+    const { fetch, calls } = api({
+      'POST /v1/volumes': { volume: vol({ status: 'creating' }), action: done(1, 'create_volume'), next_actions: [{ id: 2, command: 'attach_volume', status: 'running' }] },
+      'GET /v1/actions/2': { action: done(2, 'attach_volume') },
+      'GET /v1/volumes/55': { volume: vol() },
+    });
+    const created = await provider(fetch).create({ instance_id: '123:77', name: 'Recursive W_ABC', size_gb: 100, labels: { 'recursive-workspace': 'w_abc' } });
+    expect(calls[0]).toMatchObject({ method: 'POST', path: '/v1/volumes', body: { name: 'recursive-w-abc', size: 100, server: 123, automount: false, format: 'ext4', labels: { 'recursive-workspace': 'w_abc' } } });
+    expect(calls.map((call) => `${call.method} ${call.path}`)).toEqual(['POST /v1/volumes', 'GET /v1/actions/2', 'GET /v1/volumes/55']);
+    expect(created).toEqual({ volume_id: '55', name: 'recursive-w-abc', size_gb: 100, location: 'fsn1', attached_to: '123', device: '/dev/disk/by-id/scsi-0HC_Volume_55', state: 'available' });
+  });
+
+  it('refuses sizes Hetzner does not sell before calling it', async () => {
+    const { fetch, calls } = api({});
+    await expect(provider(fetch).create({ instance_id: '123:77', name: 'w', size_gb: 5 })).rejects.toThrow('10 to 10240 GB');
+    await expect(provider(fetch).create({ instance_id: '123:77', name: 'w', size_gb: 20.5 })).rejects.toThrow('whole GB');
+    expect(calls).toEqual([]);
+  });
+
+  it('grows a volume, never shrinks it, and does nothing at the same size', async () => {
+    let size = 100;
+    const { fetch, calls } = api({});
+    const inner = fetch as unknown as Mock;
+    const grow = vi.fn(async (input: string | URL | Request, init?: RequestInit) => {
+      const path = new URL(String(input)).pathname;
+      await inner(input, init);
+      if (path === '/v1/volumes/55') return Response.json({ volume: vol({ size }) });
+      if (path === '/v1/volumes/55/actions/resize') { size = JSON.parse(String(init?.body)).size; return Response.json({ action: done(3, 'resize_volume') }); }
+      return Response.json({ error: { message: 'not found' } }, { status: 404 });
+    }) as unknown as typeof fetch;
+    const volumes = provider(grow);
+    expect((await volumes.grow('55', 150)).size_gb).toBe(150);
+    expect(calls.find((call) => call.path === '/v1/volumes/55/actions/resize')?.body).toEqual({ size: 150 });
+    await expect(volumes.grow('55', 120)).rejects.toThrow('cannot shrink: it is 150 GB');
+    const before = calls.length;
+    expect((await volumes.grow('55', 150)).size_gb).toBe(150);
+    expect(calls.slice(before).map((call) => call.method)).toEqual(['GET']);
+  });
+
+  it('attaches only a free volume, and detaches before it can be deleted', async () => {
+    const { fetch: attachedElsewhere } = api({ 'GET /v1/volumes/55': { volume: vol({ server: 999 }) } });
+    await expect(provider(attachedElsewhere).attach('55', '123:77')).rejects.toThrow('attached to another server (999)');
+    await expect(provider(attachedElsewhere).remove('55')).rejects.toThrow('Detach the volume');
+
+    let server: number | null = null;
+    const { fetch, calls } = api({});
+    const inner = fetch as unknown as Mock;
+    const moving = vi.fn(async (input: string | URL | Request, init?: RequestInit) => {
+      const path = new URL(String(input)).pathname;
+      await inner(input, init);
+      if (path === '/v1/volumes/55' && (init?.method ?? 'GET') === 'GET') return Response.json({ volume: vol({ server }) });
+      if (path === '/v1/volumes/55/actions/attach') { server = JSON.parse(String(init?.body)).server; return Response.json({ action: done(4, 'attach_volume') }); }
+      if (path === '/v1/volumes/55/actions/detach') { server = null; return Response.json({ action: done(5, 'detach_volume') }); }
+      if (path === '/v1/volumes/55' && init?.method === 'DELETE') return new Response(null, { status: 204 });
+      return Response.json({ error: { message: 'not found' } }, { status: 404 });
+    }) as unknown as typeof fetch;
+    const volumes = provider(moving);
+    expect((await volumes.attach('55', '123:77')).attached_to).toBe('123');
+    expect(calls.find((call) => call.path === '/v1/volumes/55/actions/attach')?.body).toEqual({ server: 123, automount: false });
+    expect((await volumes.detach('55')).attached_to).toBeNull();
+    await volumes.remove('55');
+    expect(calls.at(-1)).toMatchObject({ method: 'DELETE', path: '/v1/volumes/55' });
+  });
+
+  it('answers null for a volume that is gone', async () => {
+    const { fetch } = api({});
+    expect(await provider(fetch).get('404')).toBeNull();
+    await expect(provider(fetch).remove('404')).resolves.toBeUndefined();
+  });
+
+  it('names volumes the way Hetzner accepts', () => {
+    expect(hetznerVolumeName('Future In Detail w_b9f0b1fb')).toBe('future-in-detail-w-b9f0b1fb');
+    expect(() => hetznerVolumeName('!!!')).toThrow('needs a name');
   });
 });
