@@ -1,0 +1,9 @@
+{
+  "name": "@recursive/plugin-storage-clouds",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "dependencies": {
+    "@recursivecomputer/plugin-sdk": "^0.2.0"
+  }
+}

@@ -1,0 +1,355 @@
+{
+  "manifestFormat": 2,
+  "id": "storage-clouds",
+  "name": "Cloud Storage",
+  "version": "1.0.0",
+  "description": "Back workspaces up to Cloudflare R2, Amazon S3, Google Cloud Storage, Azure Blob Storage, Backblaze B2, Wasabi, DigitalOcean Spaces or Hetzner Object Storage.",
+  "author": {
+    "name": "Recursive"
+  },
+  "color": "#f38020",
+  "icon": "cloud",
+  "category": "sync",
+  "tags": [
+    "storage",
+    "backup",
+    "s3",
+    "cloudflare-r2",
+    "aws",
+    "google-cloud",
+    "azure",
+    "backblaze",
+    "wasabi",
+    "digitalocean",
+    "hetzner"
+  ],
+  "sync": {
+    "provider": {
+      "id": "cloud-storage",
+      "name": "Cloud Storage",
+      "description": "Cloudflare R2, Amazon S3, Google Cloud Storage, Azure Blob Storage, Backblaze B2, Wasabi, DigitalOcean Spaces and Hetzner Object Storage.",
+      "entry": "provider.ts",
+      "config_schema": {
+        "type": "object",
+        "properties": {
+          "preset": {
+            "type": "string",
+            "description": "Which cloud: r2, aws, gcs, azure, b2, wasabi, do, hetzner or s3."
+          },
+          "api_token": {
+            "type": "string",
+            "description": "Cloudflare API token with R2 edit permission."
+          },
+          "account_id": {
+            "type": "string",
+            "description": "Cloudflare account ID. Only needed when the token can reach more than one account."
+          },
+          "bucket": {
+            "type": "string",
+            "description": "Bucket name. For Cloudflare R2 it is made for you (default recursive-backups)."
+          },
+          "region": {
+            "type": "string",
+            "description": "Region or location, for example us-east-1, us-west-004, nyc3 or fsn1."
+          },
+          "endpoint": {
+            "type": "string",
+            "description": "Custom endpoint URL, only for S3-compatible storage not listed here."
+          },
+          "access_key_id": {
+            "type": "string",
+            "description": "Access key ID."
+          },
+          "secret_access_key": {
+            "type": "string",
+            "description": "Secret access key."
+          },
+          "account_name": {
+            "type": "string",
+            "description": "Azure storage account name."
+          },
+          "account_key": {
+            "type": "string",
+            "description": "Azure storage account key."
+          },
+          "container": {
+            "type": "string",
+            "description": "Azure container. Made for you (default recursive-backups)."
+          },
+          "prefix": {
+            "type": "string",
+            "description": "Folder inside the bucket. Default recursive-backups/."
+          }
+        },
+        "required": [
+          "preset"
+        ]
+      },
+      "storage": {
+        "options": [
+          {
+            "id": "cloudflare-r2",
+            "label": "Cloudflare R2",
+            "logo": "logos/cloudflare.svg",
+            "rank": 10,
+            "summary": "Paste one Cloudflare API token. Recursive makes the bucket and its keys. No charge to download a restore.",
+            "fields": [
+              "api_token",
+              "bucket",
+              "account_id"
+            ],
+            "preset": {
+              "preset": "r2"
+            },
+            "setup_url": "https://dash.cloudflare.com/profile/api-tokens?permissionGroupKeys=%5B%7B%22key%22%3A%22workers_r2%22%2C%22type%22%3A%22edit%22%7D%5D&name=Recursive%20backups",
+            "setup_label": "Create a token on Cloudflare",
+            "secret_hosts": [
+              "api.cloudflare.com",
+              "*.r2.cloudflarestorage.com"
+            ],
+            "pricing": {
+              "currency": "USD",
+              "per_gb_month": 0.015,
+              "free_gb": 10,
+              "note": "10 GB a month free; downloads are free.",
+              "url": "https://developers.cloudflare.com/r2/pricing/"
+            },
+            "required": [
+              "api_token"
+            ]
+          },
+          {
+            "id": "amazon-s3",
+            "label": "Amazon S3",
+            "logo": "logos/amazon-s3.svg",
+            "rank": 20,
+            "summary": "An S3 bucket in your AWS account, with an access key that can read and write it.",
+            "fields": [
+              "bucket",
+              "region",
+              "access_key_id",
+              "secret_access_key"
+            ],
+            "preset": {
+              "preset": "aws"
+            },
+            "setup_url": "https://console.aws.amazon.com/s3/",
+            "setup_label": "Open the S3 console",
+            "secret_hosts": [
+              "*.amazonaws.com"
+            ],
+            "pricing": {
+              "currency": "USD",
+              "per_gb_month": 0.023,
+              "note": "S3 Standard in us-east-1; downloads are billed.",
+              "url": "https://aws.amazon.com/s3/pricing/"
+            },
+            "required": [
+              "bucket",
+              "access_key_id",
+              "secret_access_key"
+            ]
+          },
+          {
+            "id": "google-cloud-storage",
+            "label": "Google Cloud Storage",
+            "logo": "logos/google-cloud.svg",
+            "rank": 30,
+            "summary": "A Cloud Storage bucket with an HMAC key (Settings → Interoperability).",
+            "fields": [
+              "bucket",
+              "access_key_id",
+              "secret_access_key"
+            ],
+            "preset": {
+              "preset": "gcs"
+            },
+            "setup_url": "https://console.cloud.google.com/storage/settings;tab=interoperability",
+            "setup_label": "Create an HMAC key",
+            "secret_hosts": [
+              "storage.googleapis.com"
+            ],
+            "pricing": {
+              "currency": "USD",
+              "per_gb_month": 0.02,
+              "note": "Standard storage in one region; downloads are billed.",
+              "url": "https://cloud.google.com/storage/pricing"
+            },
+            "required": [
+              "bucket",
+              "access_key_id",
+              "secret_access_key"
+            ]
+          },
+          {
+            "id": "azure-blob",
+            "label": "Azure Blob Storage",
+            "logo": "logos/azure.svg",
+            "rank": 40,
+            "summary": "A storage account name and key. Recursive makes the container.",
+            "fields": [
+              "account_name",
+              "account_key",
+              "container"
+            ],
+            "preset": {
+              "preset": "azure"
+            },
+            "setup_url": "https://portal.azure.com/#browse/Microsoft.Storage%2FStorageAccounts",
+            "setup_label": "Open storage accounts",
+            "secret_hosts": [
+              "*.blob.core.windows.net"
+            ],
+            "pricing": {
+              "currency": "USD",
+              "per_gb_month": 0.018,
+              "note": "Hot tier, locally redundant; downloads are billed.",
+              "url": "https://azure.microsoft.com/pricing/details/storage/blobs/"
+            },
+            "required": [
+              "account_name",
+              "account_key"
+            ]
+          },
+          {
+            "id": "backblaze-b2",
+            "label": "Backblaze B2",
+            "logo": "logos/backblaze.svg",
+            "rank": 50,
+            "summary": "A B2 bucket and an application key. The region is in the bucket's endpoint, for example us-west-004.",
+            "fields": [
+              "bucket",
+              "region",
+              "access_key_id",
+              "secret_access_key"
+            ],
+            "preset": {
+              "preset": "b2"
+            },
+            "setup_url": "https://secure.backblaze.com/app_keys.htm",
+            "setup_label": "Create an application key",
+            "secret_hosts": [
+              "*.backblazeb2.com"
+            ],
+            "pricing": {
+              "currency": "USD",
+              "per_gb_month": 0.006,
+              "free_gb": 10,
+              "note": "First 10 GB free; downloads free up to 3× what you store.",
+              "url": "https://www.backblaze.com/cloud-storage/pricing"
+            },
+            "required": [
+              "bucket",
+              "region",
+              "access_key_id",
+              "secret_access_key"
+            ]
+          },
+          {
+            "id": "wasabi",
+            "label": "Wasabi",
+            "logo": "logos/wasabi.svg",
+            "rank": 60,
+            "summary": "A Wasabi bucket and access key. No download fees, billed for at least 1 TB.",
+            "fields": [
+              "bucket",
+              "region",
+              "access_key_id",
+              "secret_access_key"
+            ],
+            "preset": {
+              "preset": "wasabi"
+            },
+            "setup_url": "https://console.wasabisys.com/access_keys",
+            "setup_label": "Create an access key",
+            "secret_hosts": [
+              "*.wasabisys.com"
+            ],
+            "pricing": {
+              "currency": "USD",
+              "per_gb_month": 0.00699,
+              "minimum_gb": 1024,
+              "note": "Billed for at least 1 TB; no download fees.",
+              "url": "https://wasabi.com/pricing"
+            },
+            "required": [
+              "bucket",
+              "access_key_id",
+              "secret_access_key"
+            ]
+          },
+          {
+            "id": "digitalocean-spaces",
+            "label": "DigitalOcean Spaces",
+            "logo": "logos/digitalocean.svg",
+            "rank": 70,
+            "summary": "A Space and a Spaces access key. The region is the Space's datacenter, for example nyc3.",
+            "fields": [
+              "bucket",
+              "region",
+              "access_key_id",
+              "secret_access_key"
+            ],
+            "preset": {
+              "preset": "do"
+            },
+            "setup_url": "https://cloud.digitalocean.com/account/api/spaces",
+            "setup_label": "Create a Spaces key",
+            "secret_hosts": [
+              "*.digitaloceanspaces.com"
+            ],
+            "pricing": {
+              "currency": "USD",
+              "per_gb_month": 0.02,
+              "base_month": 5,
+              "included_gb": 250,
+              "note": "$5 a month includes 250 GB.",
+              "url": "https://www.digitalocean.com/pricing/spaces-object-storage"
+            },
+            "required": [
+              "bucket",
+              "region",
+              "access_key_id",
+              "secret_access_key"
+            ]
+          },
+          {
+            "id": "hetzner-object-storage",
+            "label": "Hetzner Object Storage",
+            "logo": "logos/hetzner.svg",
+            "rank": 80,
+            "summary": "A bucket and S3 credentials from Hetzner Cloud. The region is the location: fsn1, nbg1 or hel1.",
+            "fields": [
+              "bucket",
+              "region",
+              "access_key_id",
+              "secret_access_key"
+            ],
+            "preset": {
+              "preset": "hetzner"
+            },
+            "setup_url": "https://console.hetzner.cloud/",
+            "setup_label": "Open Hetzner Cloud",
+            "secret_hosts": [
+              "*.your-objectstorage.com"
+            ],
+            "pricing": {
+              "currency": "EUR",
+              "per_gb_month": 0.0067,
+              "base_month": 4.99,
+              "included_gb": 1024,
+              "note": "About €4.99 a month includes 1 TB; check the current price.",
+              "url": "https://www.hetzner.com/storage/object-storage/"
+            },
+            "required": [
+              "bucket",
+              "region",
+              "access_key_id",
+              "secret_access_key"
+            ]
+          }
+        ]
+      }
+    }
+  }
+}

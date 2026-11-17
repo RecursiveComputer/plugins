@@ -25,6 +25,7 @@
     "plugins/server-provider-hetzner",
     "plugins/server-provider-ssh",
     "plugins/server-provider-vultr",
+    "plugins/storage-clouds",
     "plugins/stripe-integration",
     "plugins/sync-fs",
     "plugins/sync-s3",
