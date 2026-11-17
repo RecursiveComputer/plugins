@@ -153,6 +153,13 @@
         "@recursivecomputer/plugin-sdk": "^0.2.0",
       },
     },
+    "plugins/storage-clouds": {
+      "name": "@recursive/plugin-storage-clouds",
+      "version": "1.0.0",
+      "dependencies": {
+        "@recursivecomputer/plugin-sdk": "^0.2.0",
+      },
+    },
     "plugins/stripe-integration": {
       "name": "@recursive/plugin-stripe-integration",
       "version": "1.0.0",
@@ -297,6 +304,8 @@
     "@recursive/plugin-server-provider-ssh": ["@recursive/plugin-server-provider-ssh@workspace:plugins/server-provider-ssh"],
 
     "@recursive/plugin-server-provider-vultr": ["@recursive/plugin-server-provider-vultr@workspace:plugins/server-provider-vultr"],
+
+    "@recursive/plugin-storage-clouds": ["@recursive/plugin-storage-clouds@workspace:plugins/storage-clouds"],
 
     "@recursive/plugin-stripe-integration": ["@recursive/plugin-stripe-integration@workspace:plugins/stripe-integration"],
 
