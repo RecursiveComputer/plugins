@@ -1,5 +1,5 @@
 import { describe, expect, it, vi, type Mock } from 'vitest';
-import { createHetznerProvider, hetznerUserData, hetznerVolumeName, tailnetHostname } from '../provider.js';
+import { clearHetznerPricingCache, createHetznerProvider, HETZNER_VOLUME_LIST_PRICE, hetznerUserData, hetznerVolumeName, tailnetHostname } from '../provider.js';
 
 function api(routes: Record<string, unknown>) {
   const calls: Array<{ method: string; path: string; body: Record<string, unknown> | null; auth: string | null }> = [];
@@ -194,5 +194,24 @@ describe('hetzner volumes', () => {
   it('names volumes the way Hetzner accepts', () => {
     expect(hetznerVolumeName('Future In Detail w_b9f0b1fb')).toBe('future-in-detail-w-b9f0b1fb');
     expect(() => hetznerVolumeName('!!!')).toThrow('needs a name');
+  });
+
+  it('prices volumes from Hetzner\'s live price list, asking once for a while', async () => {
+    clearHetznerPricingCache();
+    const { fetch, calls } = api({ 'GET /v1/pricing': { pricing: { currency: 'EUR', volume: { price_per_gb_month: { net: '0.0572000000', gross: '0.0680680000' } } } } });
+    const volumes = provider(fetch);
+    expect(await volumes.pricing()).toEqual({ currency: 'EUR', per_gb_month: 0.0572, per_gb_month_gross: 0.068068, live: true });
+    await volumes.pricing();
+    expect(calls.filter((call) => call.path === '/v1/pricing')).toHaveLength(1);
+    expect(calls[0]!.auth).toBe('Bearer t');
+  });
+
+  it('falls back to the April 2026 list price, 0.0572 EUR per GB a month, when Hetzner cannot be asked', async () => {
+    clearHetznerPricingCache();
+    const { fetch } = api({ 'GET /v1/pricing': Response.json({ error: { message: 'unauthorized' } }, { status: 401 }) });
+    expect(await provider(fetch).pricing()).toEqual(HETZNER_VOLUME_LIST_PRICE);
+    expect(HETZNER_VOLUME_LIST_PRICE).toMatchObject({ currency: 'EUR', per_gb_month: 0.0572, live: false });
+    // 100 GB comes to 5.72 EUR a month before VAT.
+    expect(Math.round(100 * HETZNER_VOLUME_LIST_PRICE.per_gb_month * 100) / 100).toBe(5.72);
   });
 });
