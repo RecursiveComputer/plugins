@@ -2,7 +2,7 @@
   "manifestFormat": 2,
   "id": "machine-provider-e2b",
   "name": "E2B Computers",
-  "version": "0.1.2",
+  "version": "0.1.3",
   "description": "Run sessions in E2B cloud sandboxes that pause when idle and keep their disk.",
   "author": {
     "name": "Recursive"
@@ -15,7 +15,11 @@
       "label": "E2B sandbox",
       "description": "A Linux sandbox in E2B's cloud. Pauses with its memory and disk when idle.",
       "kind": "cloud",
-      "entry": "./provider.ts"
+      "entry": "./provider.ts",
+      "perSession": {
+        "label": "New E2B sandbox",
+        "description": "For this session only"
+      }
     }
   },
   "settings": {

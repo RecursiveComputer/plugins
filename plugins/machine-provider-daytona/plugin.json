@@ -2,7 +2,7 @@
   "manifestFormat": 2,
   "id": "machine-provider-daytona",
   "name": "Daytona Computers",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "Run sessions in Daytona cloud sandboxes.",
   "author": {
     "name": "Recursive"
@@ -15,7 +15,11 @@
       "label": "Daytona sandbox",
       "description": "A Linux sandbox in Daytona's cloud (or your self-hosted Daytona). Stops with its disk when idle.",
       "kind": "cloud",
-      "entry": "./provider.ts"
+      "entry": "./provider.ts",
+      "perSession": {
+        "label": "New Daytona sandbox",
+        "description": "For this session only"
+      }
     }
   },
   "settings": {
