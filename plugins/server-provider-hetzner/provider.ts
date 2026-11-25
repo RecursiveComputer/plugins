@@ -69,8 +69,16 @@ export interface ServerVolume {
   state: 'creating' | 'available' | 'error';
 }
 
+export interface VolumePricing {
+  currency: string;
+  per_gb_month: number;
+  per_gb_month_gross: number | null;
+  live: boolean;
+}
+
 export interface ServerVolumes {
   readonly limits: { min_gb: number; max_gb: number };
+  pricing(): Promise<VolumePricing>;
   create(input: { instance_id: string; name: string; size_gb: number; labels?: Record<string, string> }): Promise<ServerVolume>;
   get(volume_id: string): Promise<ServerVolume | null>;
   grow(volume_id: string, size_gb: number): Promise<ServerVolume>;
@@ -80,6 +88,15 @@ export interface ServerVolumes {
 }
 
 export const HETZNER_VOLUME_LIMITS = { min_gb: 10, max_gb: 10_240 } as const;
+/** Hetzner's volume list price since 1 April 2026, excluding VAT, for when the API cannot be asked. */
+export const HETZNER_VOLUME_LIST_PRICE: VolumePricing = { currency: 'EUR', per_gb_month: 0.0572, per_gb_month_gross: null, live: false };
+const PRICING_TTL_MS = 6 * 60 * 60_000;
+const pricingCache = new Map<string, { at: number; value: VolumePricing }>();
+
+/** Forget cached prices (tests). */
+export function clearHetznerPricingCache(): void {
+  pricingCache.clear();
+}
 
 interface HetznerVolume {
   id: number;
@@ -166,6 +183,21 @@ export function createHetznerProvider(settings: HetznerSettings, deps: HetznerDe
 
   const volumes: ServerVolumes = {
     limits: HETZNER_VOLUME_LIMITS,
+    async pricing() {
+      const cached = pricingCache.get(settings.apiToken);
+      if (cached && Date.now() - cached.at < PRICING_TTL_MS) return cached.value;
+      try {
+        const { pricing } = await api<{ pricing: { currency?: string; volume?: { price_per_gb_month?: { net?: string; gross?: string } } } }>('/pricing');
+        const net = Number(pricing.volume?.price_per_gb_month?.net);
+        const gross = Number(pricing.volume?.price_per_gb_month?.gross);
+        if (!Number.isFinite(net) || net <= 0) return cached?.value ?? HETZNER_VOLUME_LIST_PRICE;
+        const value: VolumePricing = { currency: pricing.currency || 'EUR', per_gb_month: net, per_gb_month_gross: Number.isFinite(gross) && gross > 0 ? gross : null, live: true };
+        pricingCache.set(settings.apiToken, { at: Date.now(), value });
+        return value;
+      } catch {
+        return cached?.value ?? HETZNER_VOLUME_LIST_PRICE;
+      }
+    },
     async create({ instance_id, name, size_gb, labels }) {
       checkSize(size_gb);
       const created = await api<{ volume: HetznerVolume; action: HetznerAction; next_actions?: HetznerAction[] }>('/volumes', {
