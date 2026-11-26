@@ -2,7 +2,7 @@
   "manifestFormat": 2,
   "id": "machine-provider-daytona",
   "name": "Daytona Computers",
-  "version": "0.1.3",
+  "version": "0.1.4",
   "description": "Run sessions in Daytona cloud sandboxes.",
   "author": {
     "name": "Recursive"
@@ -28,7 +28,8 @@
       "disk": 10,
       "autoStopMinutes": 60,
       "monthlySpendCap": "50",
-      "hourlyCostUsd": 0.1
+      "hourlyCostUsd": 0.1,
+      "boxHardLimitHours": 4
     },
     "schema": [
       {
@@ -90,6 +91,20 @@
         "type": "number",
         "label": "Cost per sandbox hour (USD)",
         "description": "Used to estimate spending: each sandbox counts from when it starts until it is deleted. An estimate for the default size; set it to your plan's price.",
+        "section": "Spending"
+      },
+      {
+        "key": "boxHardLimitHours",
+        "type": "number",
+        "label": "Delete idle sandboxes after (hours)",
+        "description": "The hard limit for any Daytona sandbox Recursive made, including snapshots and warm start copies: once one has done no work for this long it is deleted, asleep or not. Sandboxes holding work not yet sent home are kept and shown in Computers settings.",
+        "section": "Spending"
+      },
+      {
+        "key": "stoppedHourlyCostUsd",
+        "type": "number",
+        "label": "Cost per stopped sandbox hour (USD)",
+        "description": "Used to estimate what sleeping or stopped Daytona sandboxes cost. Empty counts them at the full hourly cost, because a stopped sandbox still bills for its disk.",
         "section": "Spending"
       }
     ]
