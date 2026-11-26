@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { test } from 'vitest';
-import plugin, { connectEnvelope, createE2bProvider, detachedCommand } from '../provider.ts';
+import plugin, { connectEnvelope, connectStreamError, createE2bProvider, detachedCommand } from '../provider.ts';
 
 function fakeFetch(responses: Array<{ status?: number; body?: unknown }>) {
   const calls: Array<{ url: string; init: RequestInit }> = [];
@@ -59,4 +59,52 @@ test('envelopes and status', async () => {
   assert.deepEqual([...connectEnvelope({ a: 1 }).subarray(0, 5)], [0, 0, 0, 0, 7]);
   const status = await plugin.status!({ plugin_id: 'machine-provider-e2b', settings: { apiKey: '' } });
   assert.equal(status.configured, Boolean(process.env.E2B_API_KEY));
+});
+
+const noWait = async () => undefined;
+
+function endFrame(message: unknown): Uint8Array {
+  const frame = connectEnvelope(message);
+  frame[0] = 0x02;
+  return frame;
+}
+
+test('a sandbox it cannot reach is not reported gone; only a 404 is', async () => {
+  const flaky = fakeFetch([{ status: 503 }, { status: 503 }, { status: 503 }]);
+  await assert.rejects(createE2bProvider(settings, flaky.fetchImpl, noWait).status!('sbx1'), /503/);
+  assert.equal(flaky.calls.length, 3);
+  const gone = fakeFetch([{ status: 404 }]);
+  assert.equal(await createE2bProvider(settings, gone.fetchImpl, noWait).status!('sbx1'), 'not_found');
+  const recovered = fakeFetch([{ status: 502 }, { body: { state: 'paused' } }]);
+  assert.equal(await createE2bProvider(settings, recovered.fetchImpl, noWait).status!('sbx1'), 'stopped');
+});
+
+test('reads an error from the launch stream, deletes the sandbox, and never retries creating one', async () => {
+  assert.equal(connectStreamError(endFrame({})), null);
+  assert.equal(connectStreamError(endFrame({ error: { code: 'unavailable', message: 'envd not ready' } })), 'envd not ready');
+  const failed = new Uint8Array(endFrame({ error: { code: 'unavailable', message: 'envd not ready' } }));
+  const calls: string[] = [];
+  const fetchImpl = (async (url: string, init: RequestInit) => {
+    calls.push(`${init.method} ${url}`);
+    if (url.endsWith('/process.Process/Start')) return new Response(failed, { status: 200 });
+    return new Response(JSON.stringify(url.endsWith('/sandboxes') ? { sandboxID: 'sbx2' } : {}), { status: 200 });
+  }) as unknown as typeof fetch;
+  await assert.rejects(createE2bProvider(settings, fetchImpl, noWait).start({ machine_id: 'mch_2', owner_principal_id: 'o', bootstrap: { command: 'x', env: {} } }), /envd not ready/);
+  assert.equal(calls.at(-1), 'DELETE https://api.e2b.app/sandboxes/sbx2');
+  const busy = fakeFetch([{ status: 503 }]);
+  await assert.rejects(createE2bProvider(settings, busy.fetchImpl, noWait).start({ machine_id: 'mch_2', owner_principal_id: 'o', bootstrap: { command: 'x', env: {} } }), /503/);
+  assert.equal(busy.calls.length, 1);
+});
+
+test('lists the sandboxes Recursive made, for the sweep of ones no machine tracks', async () => {
+  const { calls, fetchImpl } = fakeFetch([{ body: [
+    { sandboxID: 'sbx1', state: 'running', startedAt: '2026-11-26T00:00:00Z', metadata: { recursive_machine_id: 'mch_1', recursive_registry_id: 'reg_1' } },
+    { sandboxID: 'sbx2', state: 'paused', metadata: { recursive_machine_id: 'mch_2' } },
+    { sandboxID: 'other', state: 'running', metadata: {} },
+  ] }]);
+  assert.deepEqual(await createE2bProvider(settings, fetchImpl, noWait).list(), [
+    { instance_id: 'sbx1', machine_id: 'mch_1', registry_id: 'reg_1', state: 'running', created_at: Date.parse('2026-11-26T00:00:00Z') },
+    { instance_id: 'sbx2', machine_id: 'mch_2', registry_id: null, state: 'stopped', created_at: null },
+  ]);
+  assert.match(calls[0]!.url, /\/v2\/sandboxes\?state=running&state=paused/);
 });

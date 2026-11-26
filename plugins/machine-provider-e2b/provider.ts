@@ -19,6 +19,25 @@ interface E2bSettings {
   domain: string;
 }
 
+export interface E2bListing {
+  instance_id: string;
+  machine_id: string | null;
+  registry_id: string | null;
+  state: MachineInstanceState;
+  created_at: number | null;
+}
+
+export type E2bProvider = MachineProvider & { list(): Promise<E2bListing[]> };
+
+export class E2bApiError extends Error {
+  constructor(message: string, readonly status: number) {
+    super(message);
+  }
+}
+
+const TRANSIENT = new Set([429, 500, 502, 503, 504]);
+const RETRIES = 3;
+
 interface SandboxAccess {
   sandboxID: string;
   envdAccessToken?: string;
@@ -45,6 +64,27 @@ export function detachedCommand(command: string): string {
   return `mkdir -p "$HOME/.recursive-runner" && (command -v setsid >/dev/null 2>&1 && setsid nohup sh -c ${quote(command)} || nohup sh -c ${quote(command)}) > "$HOME/.recursive-runner/runner.log" 2>&1 < /dev/null &`;
 }
 
+/** The error a Connect server-stream sends in its end-of-stream frame, if any. */
+export function connectStreamError(body: Uint8Array): string | null {
+  const view = new DataView(body.buffer, body.byteOffset, body.byteLength);
+  for (let offset = 0; offset + 5 <= body.length;) {
+    const flags = body[offset]!;
+    const length = view.getUint32(offset + 1);
+    const end = offset + 5 + length;
+    if (end > body.length) return 'the runner launch reply was cut short';
+    if (flags & 0x02) {
+      try {
+        const message = JSON.parse(new TextDecoder().decode(body.subarray(offset + 5, end))) as { error?: { code?: string; message?: string } };
+        if (message.error) return message.error.message || message.error.code || 'unknown error';
+      } catch {
+        return 'the runner launch reply was not readable';
+      }
+    }
+    offset = end;
+  }
+  return null;
+}
+
 /** One Connect-protocol envelope: flags byte, big-endian length, JSON. */
 export function connectEnvelope(message: unknown): Uint8Array<ArrayBuffer> {
   const json = new TextEncoder().encode(JSON.stringify(message));
@@ -54,8 +94,12 @@ export function connectEnvelope(message: unknown): Uint8Array<ArrayBuffer> {
   return out;
 }
 
-export function createE2bProvider(settings: E2bSettings, http: typeof fetch = fetch): MachineProvider {
-  const api = async <T>(method: string, path: string, body?: unknown): Promise<T> => {
+export function createE2bProvider(
+  settings: E2bSettings,
+  http: typeof fetch = fetch,
+  wait: (ms: number) => Promise<void> = (ms) => new Promise((resolve) => setTimeout(resolve, ms)),
+): E2bProvider {
+  const once = async <T>(method: string, path: string, body?: unknown): Promise<T> => {
     if (!settings.apiKey) throw new Error('Add an E2B API key in E2B Computers settings.');
     const response = await http(`https://api.${settings.domain}${path}`, {
       method,
@@ -63,9 +107,21 @@ export function createE2bProvider(settings: E2bSettings, http: typeof fetch = fe
       body: body === undefined ? undefined : JSON.stringify(body),
       signal: AbortSignal.timeout(120_000),
     });
-    if (!response.ok) throw new Error(`E2B ${method} ${path} failed (${response.status}): ${(await response.text()).slice(0, 300)}`);
+    if (!response.ok) throw new E2bApiError(`E2B ${method} ${path} failed (${response.status}): ${(await response.text()).slice(0, 300)}`, response.status);
     const text = await response.text();
     return (text ? JSON.parse(text) : {}) as T;
+  };
+  /** Retries rate limits, 5xx and dropped connections. Creating a sandbox is never retried: a lost reply may have made one. */
+  const api = async <T>(method: string, path: string, body?: unknown, retry = true): Promise<T> => {
+    for (let attempt = 1; ; attempt++) {
+      try {
+        return await once<T>(method, path, body);
+      } catch (error) {
+        const transient = error instanceof E2bApiError ? TRANSIENT.has(error.status) : error instanceof Error && error.name !== 'TimeoutError' && !/API key/.test(error.message);
+        if (!retry || !transient || attempt >= RETRIES) throw error;
+        await wait(500 * 2 ** (attempt - 1));
+      }
+    }
   };
 
   const run = async (sandbox: SandboxAccess, command: string, envs: Record<string, string>): Promise<void> => {
@@ -86,26 +142,35 @@ export function createE2bProvider(settings: E2bSettings, http: typeof fetch = fe
     });
     if (!response.ok) throw new Error(`E2B could not start the runner (${response.status}): ${(await response.text()).slice(0, 300)}`);
     // The launcher backgrounds the runner and exits; reading to the end waits for that.
-    await response.arrayBuffer();
+    const failure = connectStreamError(new Uint8Array(await response.arrayBuffer()));
+    if (failure) throw new Error(`E2B could not start the runner: ${failure}`);
   };
 
   return {
     provider_id: 'e2b',
-    async start({ machine_id, bootstrap }) {
+    async start(input) {
+      const { machine_id, bootstrap } = input;
+      const registry = (input as { registry_id?: string }).registry_id;
       const sandbox = await api<SandboxAccess>('POST', '/sandboxes', {
         templateID: settings.template,
         timeout: settings.timeoutSeconds,
         autoPause: true,
         secure: true,
         envVars: bootstrap.env,
-        metadata: { recursive_machine_id: machine_id },
-      });
-      await run(sandbox, bootstrap.command, bootstrap.env);
+        metadata: { recursive_machine_id: machine_id, ...(registry ? { recursive_registry_id: registry } : {}) },
+      }, false);
+      try {
+        await run(sandbox, bootstrap.command, bootstrap.env);
+      } catch (error) {
+        // A sandbox whose runner never started would bill until its timeout; nothing else knows its id yet.
+        await api('DELETE', `/sandboxes/${encodeURIComponent(sandbox.sandboxID)}`).catch(() => undefined);
+        throw error;
+      }
       return { instance_id: sandbox.sandboxID };
     },
     async stop(instanceId) {
       await api('POST', `/sandboxes/${encodeURIComponent(instanceId)}/pause`, { memory: true }).catch((error) => {
-        if (!/\(409\)/.test(String(error))) throw error; // already paused
+        if (!(error instanceof E2bApiError && error.status === 409)) throw error; // already paused
       });
     },
     async resume(instanceId) {
@@ -118,16 +183,33 @@ export function createE2bProvider(settings: E2bSettings, http: typeof fetch = fe
     },
     async destroy(instanceId) {
       await api('DELETE', `/sandboxes/${encodeURIComponent(instanceId)}`).catch((error) => {
-        if (!/\(404\)/.test(String(error))) throw error;
+        if (!(error instanceof E2bApiError && error.status === 404)) throw error;
       });
     },
     async status(instanceId): Promise<MachineInstanceState> {
+      // Only a 404 means gone. Any other failure throws, so home keeps the sandbox (and its work) rather than replacing it.
       try {
         const info = await api<{ state?: string }>('GET', `/sandboxes/${encodeURIComponent(instanceId)}`);
         return info.state === 'paused' ? 'stopped' : 'running';
-      } catch {
-        return 'not_found';
+      } catch (error) {
+        if (error instanceof E2bApiError && error.status === 404) return 'not_found';
+        throw error;
       }
+    },
+    async list() {
+      const sandboxes = await api<Array<{ sandboxID?: string; state?: string; startedAt?: string; metadata?: Record<string, string> }>>('GET', '/v2/sandboxes?state=running&state=paused&limit=100');
+      return (Array.isArray(sandboxes) ? sandboxes : [])
+        .filter((sandbox) => sandbox.sandboxID && sandbox.metadata?.recursive_machine_id)
+        .map((sandbox) => {
+          const started = sandbox.startedAt ? Date.parse(sandbox.startedAt) : NaN;
+          return {
+            instance_id: sandbox.sandboxID!,
+            machine_id: sandbox.metadata!.recursive_machine_id ?? null,
+            registry_id: sandbox.metadata!.recursive_registry_id ?? null,
+            state: sandbox.state === 'paused' ? 'stopped' as const : 'running' as const,
+            created_at: Number.isFinite(started) ? started : null,
+          };
+        });
     },
   };
 }

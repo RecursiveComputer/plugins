@@ -2,7 +2,7 @@
   "manifestFormat": 2,
   "id": "machine-provider-e2b",
   "name": "E2B Computers",
-  "version": "0.1.2",
+  "version": "0.1.4",
   "description": "Run sessions in E2B cloud sandboxes that pause when idle and keep their disk.",
   "author": {
     "name": "Recursive"
@@ -22,7 +22,9 @@
     "defaults": {
       "apiKey": "",
       "template": "base",
-      "timeoutMinutes": 60
+      "timeoutMinutes": 60,
+      "monthlySpendCap": "50",
+      "hourlyCostUsd": 0.1
     },
     "schema": [
       {
@@ -46,6 +48,20 @@
         "label": "Auto-pause after (minutes)",
         "description": "E2B pauses the sandbox (keeping memory and disk) after this long without a resume.",
         "section": "Sandbox"
+      },
+      {
+        "key": "monthlySpendCap",
+        "type": "string",
+        "label": "Monthly spending cap (USD)",
+        "description": "Auto stops starting E2B sandboxes once their estimated cost this month reaches this amount, and runs sessions on your computers or another sandbox provider instead. Enter an amount such as 50, or unlimited.",
+        "section": "Spending"
+      },
+      {
+        "key": "hourlyCostUsd",
+        "type": "number",
+        "label": "Cost per sandbox hour (USD)",
+        "description": "Used to estimate spending: each sandbox counts from when it starts until it is deleted. An estimate for the default size; set it to your plan's price.",
+        "section": "Spending"
       }
     ]
   }
